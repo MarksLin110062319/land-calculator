@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>宜慶地政｜土地增值稅試算</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;500;700&family=Noto+Sans+TC:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --pine:        #1B4332;
+    --pine-mid:    #2D6A4F;
+    --pine-light:  #40916C;
+    --pine-pale:   #D8F3DC;
+    --pine-mist:   #F0FAF2;
+    --ink:         #0D1F18;
+    --ink-mid:     #2D4A3A;
+    --ink-light:   #5A7A68;
+    --paper:       #F6FBF7;
+    --paper-2:     #EBF5EE;
+    --paper-3:     #D4E8D8;
+    --red: #C0392B;
+    --green: #1A6B43;
+    --blue: #1A4A7A;
+    --line:        rgba(27,67,50,0.18);
+    --radius: 4px;
+  }
+
+  body {
+    font-family: 'Noto Sans TC', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    min-height: 100vh;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background:
+      repeating-linear-gradient(0deg, transparent, transparent 39px, var(--line) 39px, var(--line) 40px),
+      repeating-linear-gradient(90deg, transparent, transparent 39px, var(--line) 39px, var(--line) 40px);
+    pointer-events: none; z-index: 0;
+  }
+
+  .page {
+    position: relative; z-index: 1;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 48px 20px 80px;
+  }
+
+  /* ── HEADER ── */
+  .header { text-align: center; margin-bottom: 48px; }
+  .ornament-row { display: flex; align-items: center; gap: 16px; justify-content: center; margin-bottom: 16px; }
+  .orn-line { flex: 1; max-width: 110px; height: 1px; background: linear-gradient(90deg, transparent, var(--pine-mid)); }
+  .orn-line.r { background: linear-gradient(90deg, var(--pine-mid), transparent); }
+  .orn-dia { width: 9px; height: 9px; background: var(--pine-mid); transform: rotate(45deg); }
+  .header-badge { font-family: 'Noto Serif TC', serif; font-size: 11px; font-weight: 500; letter-spacing: 4px; color: var(--pine-mid); margin-bottom: 10px; display: block; }
+  h1 { font-family: 'Noto Serif TC', serif; font-size: clamp(26px, 5vw, 40px); font-weight: 700; color: var(--ink); letter-spacing: 2px; line-height: 1.2; }
+  .header-sub { margin-top: 12px; font-size: 13px; color: var(--ink-light); font-weight: 300; line-height: 1.8; }
+
+  /* ── CARD ── */
+  .card {
+    background: rgba(255,255,255,0.72);
+    border: 1px solid var(--line);
+    border-top: 2px solid var(--pine-mid);
+    padding: 28px 24px;
+    margin-bottom: 20px;
+  }
+  .card-title {
+    font-family: 'Noto Serif TC', serif;
+    font-size: 12px; font-weight: 700;
+    letter-spacing: 3px; color: var(--pine-mid);
+    text-transform: uppercase; margin-bottom: 22px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .card-title::after { content: ''; flex: 1; height: 1px; background: var(--line); }
+
+  /* ── GRID ── */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+  @media (max-width: 640px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
+
+  /* ── FIELD ── */
+  .field { margin-bottom: 18px; }
+  .field:last-child { margin-bottom: 0; }
+  label {
+    display: block; font-size: 12px; font-weight: 500;
+    color: var(--ink-mid); letter-spacing: 1px; margin-bottom: 7px;
+  }
+  label .req { color: var(--red); margin-left: 3px; }
+
+  .input-wrap { position: relative; }
+  .input-wrap input {
+    width: 100%; height: 44px;
+    border: 1px solid var(--paper-3);
+    border-bottom: 2px solid var(--paper-3);
+    background: white;
+    padding: 0 52px 0 12px;
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: 14px; color: var(--ink);
+    border-radius: var(--radius); outline: none;
+    transition: border-color .2s;
+    -webkit-appearance: none;
+  }
+  .input-wrap input:focus { border-color: var(--pine-mid); border-bottom-color: var(--pine-mid); }
+  .input-unit {
+    position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+    font-size: 11px; color: var(--ink-light); font-weight: 500; letter-spacing: 0.5px;
+    pointer-events: none; white-space: nowrap;
+  }
+  input::placeholder { color: var(--ink-light); opacity: 0.5; font-size: 12px; }
+  input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; }
+
+  /* fraction input */
+  .frac-row { display: flex; align-items: center; gap: 8px; }
+  .frac-row input { flex: 1; text-align: center; padding: 0 8px; }
+  .frac-sep { font-size: 20px; color: var(--ink-light); font-weight: 300; flex-shrink: 0; }
+
+  /* ── RADIO GROUP ── */
+  .radio-group { display: flex; gap: 8px; flex-wrap: wrap; }
+  .radio-opt { position: relative; cursor: pointer; user-select: none; }
+  .radio-opt input { display: none; }
+  .radio-opt span {
+    display: inline-flex; align-items: center;
+    height: 36px; padding: 0 14px;
+    border: 1px solid var(--paper-3);
+    border-radius: var(--radius);
+    font-size: 13px; color: var(--ink-mid);
+    background: white; cursor: pointer;
+    transition: all .2s; font-weight: 400;
+  }
+  .radio-opt input:checked + span {
+    background: var(--pine-mid); border-color: var(--pine-mid);
+    color: white; font-weight: 500;
+  }
+
+  /* ── COMPUTED FIELD ── */
+  .computed {
+    display: flex; align-items: center; justify-content: space-between;
+    height: 44px; border: 1px dashed var(--paper-3);
+    background: var(--paper-2); padding: 0 12px;
+    border-radius: var(--radius); font-size: 14px; color: var(--ink-mid);
+  }
+  .computed .val { font-weight: 500; color: var(--ink); font-family: 'Noto Serif TC', serif; }
+
+  /* ── INFO BOX ── */
+  .info-box {
+    background: var(--paper-2); border-left: 3px solid var(--pine-mid);
+    padding: 12px 16px; font-size: 12px; color: var(--ink-mid);
+    line-height: 1.8; border-radius: 0 var(--radius) var(--radius) 0;
+    margin-top: 12px;
+  }
+  .info-box strong { color: var(--pine-mid); font-weight: 500; }
+
+  /* ── HELP ── */
+  .help-btn {
+    display: inline-block; font-size: 10px; color: var(--pine-mid);
+    border: 1px solid var(--pine-mid); border-radius: 2px;
+    padding: 0 5px; cursor: pointer; margin-left: 6px;
+    vertical-align: middle; transition: background .15s, color .15s;
+    font-weight: 400; letter-spacing: 0;
+  }
+  .help-btn:hover { background: var(--pine-mid); color: white; }
+  .tooltip-box {
+    display: none; background: var(--ink); color: var(--paper);
+    padding: 14px 18px; font-size: 12px; line-height: 1.8;
+    border-radius: var(--radius); margin-top: 8px;
+  }
+  .tooltip-box.open { display: block; }
+
+  /* ── BUTTON ── */
+  .btn-row { display: flex; gap: 12px; justify-content: center; margin-top: 8px; flex-wrap: wrap; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    height: 50px; padding: 0 40px; border: none; cursor: pointer;
+    font-family: 'Noto Serif TC', serif; font-size: 15px; font-weight: 700;
+    letter-spacing: 2px; border-radius: var(--radius); transition: all .2s;
+  }
+  .btn-primary { background: var(--pine-mid); color: white; }
+  .btn-primary:hover { background: var(--pine-light); }
+  .btn-primary:active { transform: scale(0.98); }
+  .btn-secondary { background: transparent; color: var(--ink-mid); border: 1px solid var(--paper-3); }
+  .btn-secondary:hover { border-color: var(--pine-mid); color: var(--pine-mid); }
+
+  /* ── ERROR ── */
+  .error-banner {
+    display: none; background: #FFF0EE; border: 1px solid #F5C6C0;
+    border-left: 3px solid var(--red); color: var(--red);
+    padding: 10px 14px; font-size: 13px; border-radius: var(--radius); margin-top: 12px;
+  }
+  .error-banner.show { display: block; }
+
+  /* ── RESULT ── */
+  .result-area { display: none; margin-top: 20px; animation: fadeUp .4s ease; }
+  .result-area.show { display: block; }
+  @keyframes fadeUp { from { opacity:0; transform:translateY(14px); } to { opacity:1; transform:translateY(0); } }
+
+  /* result top cards */
+  .result-cards { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; margin-bottom: 20px; }
+  @media (max-width: 600px) { .result-cards { grid-template-columns: 1fr; } }
+
+  .rcard {
+    background: white; border: 1px solid var(--line);
+    padding: 22px 18px; text-align: center; border-radius: var(--radius);
+    border-top: 2px solid var(--pine-mid);
+  }
+  .rcard.accent-red  { border-top-color: var(--red); }
+  .rcard.accent-blue { border-top-color: var(--blue); }
+  .rcard.accent-green{ border-top-color: var(--green); }
+
+  .rcard-label { font-size: 11px; letter-spacing: 2px; color: var(--ink-light); font-weight: 500; margin-bottom: 10px; }
+  .rcard-val {
+    font-family: 'Noto Serif TC', serif;
+    font-size: clamp(18px, 3.5vw, 26px); font-weight: 700; color: var(--ink); word-break: break-all;
+  }
+  .rcard.accent-red  .rcard-val { color: var(--red); }
+  .rcard.accent-blue .rcard-val { color: var(--blue); }
+  .rcard.accent-green .rcard-val { color: var(--green); }
+  .rcard-unit { font-size: 11px; color: var(--ink-light); margin-top: 4px; }
+
+  /* breakdown */
+  .breakdown {
+    background: white; border: 1px solid var(--line);
+    padding: 20px 24px; border-radius: var(--radius);
+  }
+  .breakdown-title {
+    font-family: 'Noto Serif TC', serif; font-size: 13px; font-weight: 700;
+    letter-spacing: 2px; color: var(--ink-mid); margin-bottom: 16px;
+    padding-bottom: 12px; border-bottom: 1px solid var(--line);
+  }
+  .brow {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 8px 0; font-size: 13px; border-bottom: 1px dashed var(--line);
+  }
+  .brow:last-child { border-bottom: none; }
+  .brow .bl { color: var(--ink-mid); }
+  .brow .bl.indent { padding-left: 16px; color: var(--ink-light); font-size: 12px; }
+  .brow .bv { font-weight: 500; color: var(--ink); font-family: 'Noto Serif TC', serif; }
+  .brow.total { padding-top: 14px; }
+  .brow.total .bl { font-weight: 700; color: var(--ink); font-size: 14px; }
+  .brow.total .bv { font-size: 18px; color: var(--red); }
+  .brow.sub-total .bv { color: var(--blue); }
+
+  /* section label */
+  .section-label {
+    font-size: 11px; letter-spacing: 2px; color: var(--pine-mid);
+    font-weight: 700; text-transform: uppercase;
+    padding: 10px 0 4px; border-top: 1px solid var(--line); margin-top: 4px;
+  }
+
+  /* ── FOOTER ── */
+  .footer { text-align: center; margin-top: 60px; padding-top: 20px; border-top: 1px solid var(--line); }
+  .footer p { font-size: 11px; color: var(--ink-light); letter-spacing: 1px; margin-top: 4px; }
+
+  /* loading spinner */
+  .spin-wrap { display:none; align-items:center; gap:8px; justify-content:center; margin-top:12px; }
+  .spin-wrap.show { display:flex; }
+  .spinner {
+    width:16px; height:16px; border:2px solid var(--paper-3);
+    border-top-color: var(--pine-mid); border-radius:50%;
+    animation: spin .7s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .spin-lbl { font-size:12px; color:var(--ink-light); }
+
+  /* 宜慶地政 公司主標 */
+  .company-title {
+    font-family: 'Noto Serif TC', serif;
+    font-size: clamp(36px, 6vw, 56px);
+    font-weight: 700;
+    color: var(--ink);
+    line-height: 1.2;
+    letter-spacing: 8px;
+    margin-bottom: 18px;
+    text-indent: 8px;
+  }
+  .page-subtitle {
+    font-family: 'Noto Serif TC', serif;
+    font-size: clamp(18px, 2.6vw, 22px);
+    font-weight: 500;
+    color: var(--ink-light);
+    line-height: 1.4;
+    letter-spacing: 3px;
+    margin-top: 4px;
+  }
+
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="ornament-row">
+      <div class="orn-line"></div><div class="orn-dia"></div><div class="orn-line r"></div>
+    </div>
+    <span class="header-badge">不動產稅務工具</span>
+    <h1 class="company-title">宜慶地政</h1>
+    <h2 class="page-subtitle">土地增值稅試算</h2>
+    <p class="header-sub">輸入土地資料後，系統將計算一般稅額、超額一般稅額與自用住宅稅額（含重劃後減徵稅率）</p>
+  </div>
+
+  <!-- SECTION 1: 土地基本資料 -->
+  <div class="card">
+    <div class="card-title">一、土地基本資料</div>
+
+    <div class="grid-2">
+      <div class="field">
+        <label>土地總面積<span class="req">*</span></label>
+        <div class="input-wrap">
+          <input type="number" id="area" placeholder="例：80" min="0" step="0.01">
+          <span class="input-unit">平方公尺</span>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>權利範圍（分子／分母）<span class="req">*</span></label>
+        <div class="frac-row">
+          <div class="input-wrap" style="flex:1;">
+            <input type="number" id="rightNum" placeholder="1" min="1" style="text-align:center;padding:0 8px;">
+          </div>
+          <span class="frac-sep">／</span>
+          <div class="input-wrap" style="flex:1;">
+            <input type="number" id="rightDen" placeholder="1" min="1" style="text-align:center;padding:0 8px;">
+          </div>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>公告現值<span class="req">*</span></label>
+        <div class="input-wrap">
+          <input type="number" id="currentVal" placeholder="例：100000" min="0">
+          <span class="input-unit">元／㎡</span>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>前次移轉現值<span class="req">*</span></label>
+        <div class="input-wrap">
+          <input type="number" id="prevVal" placeholder="例：80000" min="0">
+          <span class="input-unit">元／㎡</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 前因日期 & 物價指數 -->
+    <div class="grid-2" style="margin-top:4px;">
+      <div class="field">
+        <label>前因日期（民國年/月）
+          <span class="help-btn" onclick="toggleHelp('help-date')">HELP</span>
+        </label>
+        <div class="frac-row">
+          <div class="input-wrap" style="flex:1;">
+            <input type="number" id="prevY" placeholder="年" min="40" max="200">
+          </div>
+          <span class="frac-sep">/</span>
+          <div class="input-wrap" style="flex:1;">
+            <input type="number" id="prevM" placeholder="月" min="1" max="12">
+          </div>
+        </div>
+        <div class="tooltip-box" id="help-date">
+          前因日期為前次移轉登記之年月（民國年）。<br>
+          例如民國89年5月請輸入：89 / 05
+        </div>
+      </div>
+
+      <div class="field">
+        <label>物價指數（消費者物價總指數）
+          <span class="help-btn" onclick="toggleHelp('help-idx')">HELP</span>
+        </label>
+        <div class="input-wrap">
+          <input type="number" id="priceIdx" placeholder="例：115.30" min="100" step="0.01">
+          <span class="input-unit">%</span>
+        </div>
+        <div class="tooltip-box" id="help-idx">
+          依前因日期查詢之臺灣地區消費者物價總指數（稅務專用）。<br>
+          若查詢結果低於 100，以 100 計算。<br>
+          可至行政院主計總處或財政部稅務入口網查詢。
+        </div>
+      </div>
+    </div>
+
+    <!-- 中間計算顯示 -->
+    <div class="field" style="margin-top:8px;">
+      <label>調整後前次現值（元）</label>
+      <div class="computed"><span>前次現值 × 面積 × 權利範圍 × 物價指數 / 100</span><span class="val" id="adjPrevTotal">—</span></div>
+    </div>
+
+    <div class="field">
+      <label>現值總額（元）</label>
+      <div class="computed"><span>公告現值 × 面積 × 權利範圍</span><span class="val" id="currentTotal">—</span></div>
+    </div>
+
+    <div class="field">
+      <label>土地漲價總數額（元）</label>
+      <div class="computed"><span>現值總額 − 調整後前次現值</span><span class="val" id="totalAppreciation">—</span></div>
+    </div>
+  </div>
+
+  <!-- SECTION 2: 持有年限 & 稅別 -->
+  <div class="card">
+    <div class="card-title">二、持有年限與稅額類別</div>
+
+    <div class="field">
+      <label>持有土地年限</label>
+      <div class="radio-group">
+        <label class="radio-opt"><input type="radio" name="holdYears" value="lt20" checked><span>未超過20年</span></label>
+        <label class="radio-opt"><input type="radio" name="holdYears" value="20to29"><span>20年（含）~29年</span></label>
+        <label class="radio-opt"><input type="radio" name="holdYears" value="30to39"><span>30年（含）~39年</span></label>
+        <label class="radio-opt"><input type="radio" name="holdYears" value="gte40"><span>40年以上</span></label>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>土地類別</label>
+      <div class="radio-group">
+        <label class="radio-opt"><input type="radio" name="landType" value="urban" checked><span>都市土地</span></label>
+        <label class="radio-opt"><input type="radio" name="landType" value="nonurban"><span>非都市土地</span></label>
+      </div>
+      <div class="info-box" style="margin-top:10px;">
+        <strong>都市土地</strong> 自用住宅面積上限：300 ㎡（約90坪）<br>
+        <strong>非都市土地</strong> 自用住宅面積上限：700 ㎡（約211坪）
+      </div>
+    </div>
+
+    <div class="field">
+      <label>市地重劃後減徵稅率（選填）
+        <span class="help-btn" onclick="toggleHelp('help-reduce')">HELP</span>
+      </label>
+      <div class="input-wrap" style="max-width:200px;">
+        <input type="number" id="reductionRate" placeholder="0" min="0" max="40" step="0.01">
+        <span class="input-unit">%</span>
+      </div>
+      <div class="tooltip-box" id="help-reduce">
+        市地重劃後第一次移轉，依土地稅法第39條之1，就其土地增值稅減徵40%。<br>
+        區段徵收抵價地於領回後第一次移轉，減徵40%。<br>
+        農地重劃後第一次移轉，減徵10%。
+      </div>
+    </div>
+  </div>
+
+  <!-- BUTTONS -->
+  <div class="btn-row">
+    <button class="btn btn-primary" onclick="calculate()">開始計算</button>
+    <button class="btn btn-secondary" onclick="resetForm()">清除重填</button>
+  </div>
+  <div class="error-banner" id="error-banner"></div>
+
+  <!-- RESULT -->
+  <div class="result-area" id="result-area">
+
+    <div class="result-cards">
+      <div class="rcard accent-red">
+        <div class="rcard-label">一般稅額</div>
+        <div class="rcard-val" id="res-general">—</div>
+        <div class="rcard-unit">元</div>
+      </div>
+      <div class="rcard accent-blue">
+        <div class="rcard-label">超額一般稅額</div>
+        <div class="rcard-val" id="res-excess">—</div>
+        <div class="rcard-unit">元</div>
+      </div>
+      <div class="rcard accent-green">
+        <div class="rcard-label">自用住宅稅額</div>
+        <div class="rcard-val" id="res-selfuse">—</div>
+        <div class="rcard-unit">元</div>
+      </div>
+    </div>
+
+    <div class="breakdown">
+      <div class="breakdown-title">計算明細</div>
+      <div id="breakdown-rows"></div>
+    </div>
+
+    <div class="info-box" style="margin-top:16px;">
+      以上金額皆以<strong>無條件捨去</strong>處理。物價指數因資料更新延遲可能與官方略有差異，<strong>實際課稅金額仍以稅捐機關核定為準</strong>。
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <div class="ornament-row" style="margin-bottom:12px;">
+      <div class="orn-line" style="max-width:60px;"></div>
+      <div class="orn-dia"></div>
+      <div class="orn-line r" style="max-width:60px;"></div>
+    </div>
+    <p>本試算結果僅供參考，實際稅額請依主管機關核定為準</p>
+    <p>土地增值稅試算 · 依土地稅法計算</p>
+  </div>
+
+</div>
+
+<script>
+// ── HELPERS ──
+function fmt(n) {
+  if (isNaN(n) || n === null) return '—';
+  return Math.floor(n).toLocaleString('zh-TW');
+}
+function getVal(id, def=0) { return parseFloat(document.getElementById(id).value) || def; }
+function toggleHelp(id) { document.getElementById(id).classList.toggle('open'); }
+
+// ── LIVE COMPUTE ──
+function updateComputed() {
+  const area   = getVal('area');
+  const rNum   = getVal('rightNum', 1);
+  const rDen   = getVal('rightDen', 1) || 1;
+  const curr   = getVal('currentVal');
+  const prev   = getVal('prevVal');
+  const idx    = Math.max(100, getVal('priceIdx', 100));
+
+  const ratio  = rNum / rDen;
+  const currentTotal  = curr * area * ratio;
+  const adjPrevTotal  = prev * area * ratio * idx / 100;
+  const appreciation  = currentTotal - adjPrevTotal;
+
+  document.getElementById('currentTotal').textContent    = curr && area ? fmt(currentTotal) : '—';
+  document.getElementById('adjPrevTotal').textContent    = prev && area ? fmt(adjPrevTotal) : '—';
+  document.getElementById('totalAppreciation').textContent = (curr && area && prev) ? fmt(Math.max(0, appreciation)) : '—';
+}
+
+['area','rightNum','rightDen','currentVal','prevVal','priceIdx'].forEach(id => {
+  document.getElementById(id).addEventListener('input', updateComputed);
+});
+
+// ── REDUCTION RATE for year bracket ──
+function getReductionRate(holdYears) {
+  if (holdYears === 'lt20')  return 0;
+  if (holdYears === '20to29') return 0.20;
+  if (holdYears === '30to39') return 0.30;
+  if (holdYears === 'gte40')  return 0.40;
+  return 0;
+}
+
+/*
+  累進差額係數 A 值（依持有年限）
+  第二級 (30%)： A = 0.10 / 0.08 / 0.07 / 0.06
+  第三級 (40%)： A = 0.30 / 0.24 / 0.21 / 0.18
+*/
+function getACoeff(level, holdYears) {
+  const map = {
+    '2': { lt20: 0.10, '20to29': 0.08, '30to39': 0.07, gte40: 0.06 },
+    '3': { lt20: 0.30, '20to29': 0.24, '30to39': 0.21, gte40: 0.18 },
+  };
+  return map[String(level)][holdYears] ?? 0;
+}
+
+/*
+  ── 核心計算 ──
+  漲價倍數 = 漲價總數額 / 調整後前次現值
+  第一級：漲價倍數 < 100%  → 稅率20%
+  第二級：100% ≤ 倍數 < 200% → 稅率30%（含減徵）
+  第三級：倍數 ≥ 200%  → 稅率40%（含減徵）
+
+  一般稅額公式（含減徵）：
+    若只落第一級：
+      稅額 = 漲價總數額 × 20%
+    若落第二級（跨一、二）：
+      稅額(一) = 前次調整現值 × 20%
+      稅額(二) = (漲價 - 前次調整) × [30% - (10% × 減徵率)] - 前次調整 × A2
+      一般稅額 = 稅額(一) + 稅額(二)
+    若落第三級（跨一、二、三）：
+      稅額(一) = 前次調整現值 × 20%
+      稅額(二) = 前次調整現值 × [30% - (10% × 減徵率)] - 前次調整 × A2
+              = 前次調整 × [10% - 10%×減徵率 - A2]
+      稅額(三) = (漲價 - 2×前次調整) × [40% - (20%×減徵率)] - 前次調整 × A3
+      一般稅額 = 稅額(一) + 稅額(二) + 稅額(三)
+
+  超額一般稅額 = 一般稅額 - (漲價 × 20%)
+
+  自用稅額 = 漲價總數額 × 10%
+*/
+function computeTax(appreciation, adjPrev, holdYears, reductionPct) {
+  const rr = reductionPct / 100; // 重劃減徵率（0~0.40）
+  const yearKey = holdYears;
+  const holdRr = getReductionRate(holdYears); // 持有年限減徵率
+
+  // 漲價倍數
+  const multiple = adjPrev > 0 ? appreciation / adjPrev : Infinity;
+
+  let generalTax = 0;
+  let breakdown = [];
+
+  if (appreciation <= 0) {
+    return { generalTax: 0, excessTax: 0, selfuseTax: 0, minTax: 0, breakdown: [] };
+  }
+
+  if (multiple < 1) {
+    // 第一級全部
+    generalTax = Math.floor(appreciation * 0.20 * (1 - rr));
+    breakdown.push({ label: '第一級（20%）', value: generalTax });
+  } else if (multiple < 2) {
+    // 跨一、二級
+    const p1 = adjPrev; // 第一級部分
+    const p2 = appreciation - adjPrev; // 第二級部分
+    const A2 = getACoeff(2, yearKey);
+    const t1 = Math.floor(p1 * 0.20 * (1 - rr));
+    const rate2 = 0.30 - 0.10 * holdRr;
+    const t2 = Math.floor(p2 * rate2 * (1 - rr) - adjPrev * A2 * (1 - rr));
+    generalTax = t1 + Math.max(0, t2);
+    breakdown.push({ label: '第一級（20%）', value: t1 });
+    breakdown.push({ label: `第二級（${(rate2*100).toFixed(0)}%，含持有減徵）`, value: Math.max(0, t2) });
+  } else {
+    // 跨一、二、三級
+    const p1 = adjPrev;
+    const p2 = adjPrev;
+    const p3 = appreciation - 2 * adjPrev;
+    const A2 = getACoeff(2, yearKey);
+    const A3 = getACoeff(3, yearKey);
+    const t1 = Math.floor(p1 * 0.20 * (1 - rr));
+    const rate2 = 0.30 - 0.10 * holdRr;
+    const t2 = Math.floor(p2 * rate2 * (1 - rr) - adjPrev * A2 * (1 - rr));
+    const rate3 = 0.40 - 0.20 * holdRr;
+    const t3 = Math.floor(p3 * rate3 * (1 - rr) - adjPrev * A3 * (1 - rr));
+    generalTax = t1 + Math.max(0, t2) + Math.max(0, t3);
+    breakdown.push({ label: '第一級（20%）', value: t1 });
+    breakdown.push({ label: `第二級（${(rate2*100).toFixed(0)}%，含持有減徵）`, value: Math.max(0, t2) });
+    breakdown.push({ label: `第三級（${(rate3*100).toFixed(0)}%，含持有減徵）`, value: Math.max(0, t3) });
+  }
+
+  const minTax  = Math.floor(appreciation * 0.20 * (1 - rr));
+  const excessTax = Math.max(0, generalTax - minTax);
+  const selfuseTax = Math.floor(appreciation * 0.10);
+
+  return { generalTax, excessTax, selfuseTax, minTax, breakdown };
+}
+
+// ── CALCULATE ──
+function calculate() {
+  const banner = document.getElementById('error-banner');
+  banner.classList.remove('show');
+
+  const area   = getVal('area');
+  const rNum   = getVal('rightNum', 1);
+  const rDen   = getVal('rightDen', 1) || 1;
+  const curr   = getVal('currentVal');
+  const prev   = getVal('prevVal');
+  const idx    = getVal('priceIdx', 100);
+  const reduction = getVal('reductionRate', 0);
+  const holdYears = document.querySelector('input[name="holdYears"]:checked').value;
+
+  if (!area)  { banner.textContent = '請輸入土地總面積'; banner.classList.add('show'); return; }
+  if (!curr)  { banner.textContent = '請輸入公告現值'; banner.classList.add('show'); return; }
+  if (!prev)  { banner.textContent = '請輸入前次移轉現值'; banner.classList.add('show'); return; }
+  if (rDen === 0) { banner.textContent = '權利範圍分母不可為0'; banner.classList.add('show'); return; }
+
+  const adjIdx = Math.max(100, idx);
+  const ratio  = rNum / rDen;
+  const currentTotal = curr * area * ratio;
+  const adjPrevTotal = prev * area * ratio * adjIdx / 100;
+  const appreciation = Math.max(0, currentTotal - adjPrevTotal);
+
+  const { generalTax, excessTax, selfuseTax, minTax, breakdown } = computeTax(
+    appreciation, adjPrevTotal, holdYears, reduction
+  );
+
+  // Display result cards
+  document.getElementById('res-general').textContent  = fmt(generalTax);
+  document.getElementById('res-excess').textContent   = fmt(excessTax);
+  document.getElementById('res-selfuse').textContent  = fmt(selfuseTax);
+
+  // Build breakdown
+  const rows = document.getElementById('breakdown-rows');
+  const holdLabel = { lt20:'未超過20年', '20to29':'20年以上未達30年', '30to39':'30年以上未達40年', gte40:'40年以上' }[holdYears];
+  const holdRr = getReductionRate(holdYears);
+
+  let html = '';
+  const brow = (l, v, cls='') => `<div class="brow ${cls}"><span class="bl">${l}</span><span class="bv">${v}</span></div>`;
+  const section = t => `<div class="section-label">${t}</div>`;
+
+  html += section('基本計算');
+  html += brow('公告現值總額（元）', fmt(currentTotal));
+  html += brow('調整後前次移轉現值（元）', fmt(adjPrevTotal));
+  html += brow('物價指數採用值', adjIdx.toFixed(2) + '%');
+  html += brow('土地漲價總數額（元）', fmt(appreciation));
+  html += brow('漲價倍數', adjPrevTotal > 0 ? (appreciation / adjPrevTotal * 100).toFixed(1) + '%' : '—');
+
+  html += section('持有年限減徵');
+  html += brow('持有年限', holdLabel);
+  html += brow('持有年限減徵率', holdRr > 0 ? (holdRr * 100).toFixed(0) + '%' : '無減徵');
+  if (reduction > 0) html += brow('市地重劃減徵率', reduction.toFixed(2) + '%');
+
+  html += section('一般稅額（累進計算）');
+  breakdown.forEach(b => {
+    html += brow(b.label, fmt(b.value), 'sub-total');
+  });
+  html += brow('一般稅額合計（元）', fmt(generalTax), 'total');
+
+  html += section('超額一般稅額');
+  html += `<div class="brow"><span class="bl indent">一般稅額</span><span class="bv">${fmt(generalTax)}</span></div>`;
+  html += `<div class="brow"><span class="bl indent">按第一級最低稅率20%計算</span><span class="bv">${fmt(minTax)}</span></div>`;
+  html += brow('超額一般稅額（元）', fmt(excessTax), 'total');
+
+  html += section('自用住宅稅額');
+  html += brow('土地漲價總數額 × 10%', fmt(selfuseTax), 'total');
+
+  rows.innerHTML = html;
+
+  document.getElementById('result-area').classList.add('show');
+  document.getElementById('result-area').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+// ── RESET ──
+function resetForm() {
+  document.querySelectorAll('input[type="number"]').forEach(el => el.value = '');
+  document.querySelectorAll('input[type="radio"]').forEach(el => el.checked = el.defaultChecked);
+  ['adjPrevTotal','currentTotal','totalAppreciation'].forEach(id => {
+    document.getElementById(id).textContent = '—';
+  });
+  document.getElementById('result-area').classList.remove('show');
+  document.getElementById('error-banner').classList.remove('show');
+}
+</script>
+</body>
+</html>
