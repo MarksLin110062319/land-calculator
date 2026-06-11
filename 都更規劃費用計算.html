@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>宜慶地政｜都更規劃費用計算</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;500;700&family=Noto+Sans+TC:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --pine:       #1B4332; --pine-mid:   #2D6A4F; --pine-light: #40916C;
+    --pine-pale:  #D8F3DC; --pine-mist:  #F0FAF2;
+    --ink:        #0D1F18; --ink-mid:    #2D4A3A; --ink-light:  #5A7A68;
+    --paper:      #F6FBF7; --paper-2:   #EBF5EE; --paper-3:   #D4E8D8;
+    --red:        #C0392B; --amber:      #B7791F; --blue:       #1A4A7A;
+    --line:       rgba(27,67,50,0.18); --radius: 4px;
+  }
+  body { font-family:'Noto Sans TC',sans-serif; background:var(--paper); color:var(--ink); min-height:100vh; position:relative; overflow-x:hidden; }
+  body::before { content:''; position:fixed; inset:0; background:repeating-linear-gradient(0deg,transparent,transparent 39px,var(--line) 39px,var(--line) 40px),repeating-linear-gradient(90deg,transparent,transparent 39px,var(--line) 39px,var(--line) 40px); pointer-events:none; z-index:0; }
+  .page { position:relative; z-index:1; max-width:860px; margin:0 auto; padding:48px 20px 80px; }
+
+  /* HEADER */
+  .header { text-align:center; margin-bottom:48px; }
+  .ornament-row { display:flex; align-items:center; gap:16px; justify-content:center; margin-bottom:16px; }
+  .orn-line { flex:1; max-width:110px; height:1px; background:linear-gradient(90deg,transparent,var(--pine-mid)); }
+  .orn-line.r { background:linear-gradient(90deg,var(--pine-mid),transparent); }
+  .orn-dia { width:9px; height:9px; background:var(--pine-mid); transform:rotate(45deg); }
+  .header-badge { font-family:'Noto Serif TC',serif; font-size:11px; font-weight:500; letter-spacing:4px; color:var(--pine-mid); margin-bottom:10px; display:block; }
+  h1 { font-family:'Noto Serif TC',serif; font-size:clamp(22px,5vw,36px); font-weight:700; color:var(--ink); letter-spacing:2px; line-height:1.2; }
+  .header-sub { margin-top:12px; font-size:13px; color:var(--ink-light); font-weight:300; line-height:1.8; }
+
+  /* CARD */
+  .card { background:rgba(255,255,255,0.78); border:1px solid var(--line); border-top:2px solid var(--pine-mid); padding:28px 24px; margin-bottom:20px; }
+  .card-title { font-family:'Noto Serif TC',serif; font-size:12px; font-weight:700; letter-spacing:3px; color:var(--pine-mid); text-transform:uppercase; margin-bottom:22px; display:flex; align-items:center; gap:10px; }
+  .card-title::after { content:''; flex:1; height:1px; background:var(--line); }
+
+  /* FIELDS */
+  .g2 { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+  @media(max-width:500px) { .g2 { grid-template-columns:1fr; } }
+  .field { margin-bottom:18px; }
+  .field:last-child { margin-bottom:0; }
+  label { display:block; font-size:12px; font-weight:500; color:var(--ink-mid); letter-spacing:1px; margin-bottom:7px; }
+  .input-wrap { position:relative; }
+  .input-wrap input { width:100%; height:48px; border:1px solid var(--paper-3); border-bottom:2px solid var(--paper-3); background:white; padding:0 52px 0 14px; font-family:'Noto Sans TC',sans-serif; font-size:15px; color:var(--ink); border-radius:var(--radius); outline:none; transition:border-color .2s; -webkit-appearance:none; }
+  .input-wrap input:focus { border-color:var(--pine-mid); border-bottom-color:var(--pine-mid); }
+  .input-unit { position:absolute; right:12px; top:50%; transform:translateY(-50%); font-size:11px; color:var(--ink-light); font-weight:500; pointer-events:none; }
+  input::placeholder { color:var(--ink-light); opacity:.5; font-size:12px; }
+  input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance:none; }
+
+  /* CHECKLIST TABLE */
+  .check-table { width:100%; border-collapse:collapse; background:white; border:1px solid var(--line); overflow:hidden; }
+  .check-table thead th { background:var(--pine-mid); color:white; padding:10px 14px; font-size:12px; font-weight:500; letter-spacing:1px; text-align:left; }
+  .check-table thead th:last-child { text-align:center; width:70px; }
+  .check-table tbody tr { border-bottom:1px dashed var(--line); transition:background .1s; }
+  .check-table tbody tr:last-child { border-bottom:none; }
+  .check-table tbody tr:hover { background:var(--pine-mist); }
+  .check-table tbody tr.checked-row { background:var(--pine-pale); }
+  .check-table td { padding:11px 14px; font-size:13px; color:var(--ink-mid); vertical-align:middle; }
+  .check-table td:last-child { text-align:center; }
+  .check-table .cat-cell { font-size:11px; letter-spacing:1px; color:var(--pine-mid); font-weight:700; white-space:nowrap; }
+  .check-table .p-badge { display:inline-block; font-family:'Noto Serif TC',serif; font-size:12px; font-weight:700; color:var(--pine); background:var(--pine-mist); border:1px solid var(--line); padding:2px 8px; border-radius:3px; white-space:nowrap; }
+
+  /* custom checkbox */
+  .check-wrap { display:flex; justify-content:center; }
+  .check-wrap input[type="checkbox"],
+  .check-wrap input[type="radio"] { display:none; }
+  .check-box {
+    width:24px; height:24px; border:2px solid var(--paper-3); border-radius:var(--radius);
+    background:white; cursor:pointer; display:flex; align-items:center; justify-content:center;
+    transition:all .15s; flex-shrink:0;
+  }
+  .check-box::after { content:''; width:12px; height:7px; border-left:2px solid white; border-bottom:2px solid white; transform:rotate(-45deg) translateY(-2px); opacity:0; transition:opacity .15s; }
+  .check-wrap input:checked ~ label .check-box { background:var(--pine-mid); border-color:var(--pine-mid); }
+  .check-wrap input:checked ~ label .check-box::after { opacity:1; }
+  .check-wrap label { cursor:pointer; }
+
+  /* COMPUTED */
+  .cfield { background:var(--paper-2); border:1px dashed var(--paper-3); border-radius:var(--radius); padding:10px 14px; display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+  .cfield:last-child { margin-bottom:0; }
+  .cfield-lbl { font-size:12px; color:var(--ink-mid); font-weight:500; }
+  .cfield-val { font-family:'Noto Serif TC',serif; font-size:16px; font-weight:700; color:var(--pine); }
+  .cfield-unit { font-size:10px; color:var(--ink-light); margin-left:3px; }
+  .cfield.highlight { background:var(--pine-pale); border-color:var(--pine-mid); }
+  .cfield.highlight .cfield-val { font-size:20px; }
+
+  /* BUTTON */
+  .btn-row { display:flex; gap:12px; justify-content:center; margin-top:8px; flex-wrap:wrap; }
+  .btn { display:inline-flex; align-items:center; height:50px; padding:0 40px; border:none; cursor:pointer; font-family:'Noto Serif TC',serif; font-size:15px; font-weight:700; letter-spacing:2px; border-radius:var(--radius); transition:all .2s; }
+  .btn-primary { background:var(--pine-mid); color:white; }
+  .btn-primary:hover { background:var(--pine-light); }
+  .btn-primary:active { transform:scale(0.98); }
+  .btn-secondary { background:transparent; color:var(--ink-mid); border:1px solid var(--paper-3); }
+  .btn-secondary:hover { border-color:var(--pine-mid); color:var(--pine-mid); }
+
+  /* ERROR */
+  .error-banner { display:none; background:#FFF0EE; border:1px solid #F5C6C0; border-left:3px solid var(--red); color:var(--red); padding:10px 14px; font-size:13px; border-radius:var(--radius); margin-top:12px; }
+  .error-banner.show { display:block; }
+
+  /* RESULT */
+  .result-area { display:none; margin-top:20px; animation:fadeUp .4s ease; }
+  .result-area.show { display:block; }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)} }
+
+  .result-hero { background:white; border:1px solid var(--line); border-top:3px solid var(--pine-mid); padding:40px 28px; text-align:center; margin-bottom:20px; border-radius:var(--radius); }
+  .result-hero-label { font-size:13px; letter-spacing:3px; color:var(--ink-light); font-weight:500; margin-bottom:10px; }
+  .result-hero-val { font-family:'Noto Serif TC',serif; font-size:clamp(36px,8vw,60px); font-weight:700; color:var(--pine); }
+  .result-hero-unit { font-size:15px; color:var(--ink-light); margin-top:6px; }
+
+  /* P cards */
+  .p-cards { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-bottom:20px; }
+  @media(max-width:580px) { .p-cards { grid-template-columns:1fr 1fr; } }
+  .pcard { background:white; border:1px solid var(--line); padding:16px 14px; text-align:center; border-radius:var(--radius); border-top:2px solid var(--pine-mid); }
+  .pcard.amber { border-top-color:var(--amber); }
+  .pcard.blue  { border-top-color:var(--blue); }
+  .pcard.red   { border-top-color:var(--red); }
+  .pcard.skip  { border-top-color:var(--paper-3); opacity:.5; }
+  .pcard-lbl { font-size:11px; letter-spacing:1px; color:var(--ink-light); font-weight:500; margin-bottom:6px; }
+  .pcard-name { font-size:11px; color:var(--ink-mid); margin-bottom:8px; line-height:1.4; min-height:28px; display:flex; align-items:center; justify-content:center; }
+  .pcard-val { font-family:'Noto Serif TC',serif; font-size:clamp(16px,3vw,22px); font-weight:700; color:var(--pine); }
+  .pcard.amber .pcard-val { color:var(--amber); }
+  .pcard.blue  .pcard-val { color:var(--blue); }
+  .pcard.red   .pcard-val { color:var(--red); }
+  .pcard.skip  .pcard-val { color:var(--ink-light); }
+  .pcard-unit { font-size:10px; color:var(--ink-light); margin-top:3px; }
+
+  /* breakdown */
+  .breakdown { background:white; border:1px solid var(--line); padding:20px 24px; border-radius:var(--radius); margin-bottom:20px; }
+  .breakdown-title { font-family:'Noto Serif TC',serif; font-size:13px; font-weight:700; letter-spacing:2px; color:var(--ink-mid); margin-bottom:16px; padding-bottom:12px; border-bottom:1px solid var(--line); }
+  .brow { display:flex; justify-content:space-between; align-items:baseline; padding:8px 0; font-size:13px; border-bottom:1px dashed var(--line); gap:12px; }
+  .brow:last-child { border-bottom:none; }
+  .brow .bl { color:var(--ink-mid); flex-shrink:0; }
+  .brow .bv { font-weight:500; color:var(--ink); font-family:'Noto Serif TC',serif; text-align:right; }
+  .brow .bl.sub { padding-left:14px; color:var(--ink-light); font-size:12px; }
+  .brow.key .bv { color:var(--pine); font-size:16px; }
+  .brow.final .bl { font-weight:700; font-size:14px; }
+  .brow.final .bv { color:var(--pine); font-size:20px; }
+  .brow.skip .bl, .brow.skip .bv { color:var(--ink-light); text-decoration:line-through; }
+  .sec-lbl { font-size:11px; letter-spacing:2px; color:var(--pine-mid); font-weight:700; text-transform:uppercase; padding:10px 0 4px; border-top:1px solid var(--line); margin-top:4px; }
+
+  /* reference tables */
+  .ref-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:16px; }
+  @media(max-width:500px) { .ref-grid { grid-template-columns:1fr; } }
+  .ref-table { width:100%; border-collapse:collapse; font-size:12px; }
+  .ref-table thead th { background:var(--paper-2); color:var(--ink-mid); padding:8px 12px; text-align:left; font-size:11px; letter-spacing:1px; border-bottom:1px solid var(--paper-3); font-weight:500; }
+  .ref-table thead th:last-child { text-align:right; }
+  .ref-table tbody td { padding:8px 12px; border-bottom:1px dashed var(--line); color:var(--ink-mid); }
+  .ref-table tbody tr:last-child td { border-bottom:none; }
+  .ref-table tbody td:last-child { text-align:right; font-family:'Noto Serif TC',serif; font-weight:500; color:var(--pine); }
+  .ref-table tbody tr.active-row { background:var(--pine-pale); }
+  .ref-table tbody tr.active-row td { color:var(--pine); font-weight:600; }
+
+  /* info */
+  .info-box { background:var(--paper-2); border-left:3px solid var(--pine-mid); padding:12px 16px; font-size:12px; color:var(--ink-mid); line-height:1.9; border-radius:0 var(--radius) var(--radius) 0; margin-top:16px; }
+  .info-box strong { color:var(--pine-mid); font-weight:500; }
+  .info-box ul { padding-left:16px; }
+  .info-box li { margin-bottom:3px; }
+
+  /* FOOTER */
+  .footer { text-align:center; margin-top:60px; padding-top:20px; border-top:1px solid var(--line); }
+  .footer p { font-size:11px; color:var(--ink-light); letter-spacing:1px; margin-top:4px; }
+  .live-dot { display:inline-block; width:6px; height:6px; background:var(--pine-light); border-radius:50%; margin-right:4px; animation:pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+  /* 宜慶地政 公司主標 */
+  .company-title {
+    font-family: 'Noto Serif TC', serif;
+    font-size: clamp(36px, 6vw, 56px);
+    font-weight: 700;
+    color: var(--ink);
+    line-height: 1.2;
+    letter-spacing: 8px;
+    margin-bottom: 18px;
+    text-indent: 8px;
+  }
+  .page-subtitle {
+    font-family: 'Noto Serif TC', serif;
+    font-size: clamp(18px, 2.6vw, 22px);
+    font-weight: 500;
+    color: var(--ink-light);
+    line-height: 1.4;
+    letter-spacing: 3px;
+    margin-top: 4px;
+  }
+
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <div class="header">
+    <div class="ornament-row">
+      <div class="orn-line"></div><div class="orn-dia"></div><div class="orn-line r"></div>
+    </div>
+    <span class="header-badge">都市更新工具</span>
+    <h1 class="company-title">宜慶地政</h1>
+    <h2 class="page-subtitle">都更規劃費用計算</h2>
+    <p class="header-sub">依勾選項目、更新單元面積與權利人人數累計方式，試算都市更新規劃費（萬元）</p>
+  </div>
+
+  <!-- SECTION 1: 基本資料 -->
+  <div class="card">
+    <div class="card-title">一、基本資料</div>
+    <div class="g2">
+      <div class="field">
+        <label>更新單元面積 A</label>
+        <div class="input-wrap">
+          <input type="number" id="area" placeholder="例：3500" min="0" step="0.01" oninput="liveCalc()">
+          <span class="input-unit">㎡</span>
+        </div>
+      </div>
+      <div class="field">
+        <label>權利人人數 N</label>
+        <div class="input-wrap">
+          <input type="number" id="owners" placeholder="例：50" min="0" step="1" oninput="liveCalc()">
+          <span class="input-unit">人</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- live X Y -->
+    <div style="margin-top:8px; padding-top:16px; border-top:1px dashed var(--line);">
+      <div style="font-size:11px; color:var(--ink-light); letter-spacing:1px; margin-bottom:10px;"><span class="live-dot"></span>即時計算 X、Y 值</div>
+      <div class="g2">
+        <div class="cfield"><span class="cfield-lbl">更新面積規模 X（累計）</span><span><span class="cfield-val" id="cv-x">—</span><span class="cfield-unit">萬元</span></span></div>
+        <div class="cfield"><span class="cfield-lbl">權屬情形 Y（累計）</span><span><span class="cfield-val" id="cv-y">—</span><span class="cfield-unit">萬元</span></span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 2: 勾選項目 -->
+  <div class="card">
+    <div class="card-title">二、勾選計費項目</div>
+    <div style="overflow-x:auto;">
+      <table class="check-table" id="check-table">
+        <thead>
+          <tr>
+            <th>類別</th>
+            <th>項目</th>
+            <th>認列標準</th>
+            <th>勾選</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- P1 -->
+          <tr id="row-p1">
+            <td class="cat-cell">更新單元劃定</td>
+            <td>自行劃定更新單元</td>
+            <td><span class="p-badge">P1 ＝ 100 萬</span></td>
+            <td>
+              <div class="check-wrap">
+                <input type="checkbox" id="chk-p1" onchange="onCheck('p1')">
+                <label for="chk-p1"><div class="check-box"></div></label>
+              </div>
+            </td>
+          </tr>
+          <!-- P2 -->
+          <tr id="row-p2">
+            <td class="cat-cell">都市更新事業概要</td>
+            <td>—</td>
+            <td><span class="p-badge">P2 ＝ 150 萬</span></td>
+            <td>
+              <div class="check-wrap">
+                <input type="checkbox" id="chk-p2" onchange="onCheck('p2')">
+                <label for="chk-p2"><div class="check-box"></div></label>
+              </div>
+            </td>
+          </tr>
+          <!-- P3a: 權利變換 -->
+          <tr id="row-p3a">
+            <td class="cat-cell" rowspan="2">計畫擬訂</td>
+            <td>都市更新事業計畫及權利變換計畫申請報核</td>
+            <td><span class="p-badge">P3 ＝ 300 ＋ X ＋ Y 萬</span></td>
+            <td>
+              <div class="check-wrap">
+                <input type="radio" id="chk-p3a" name="p3" value="p3a" onchange="onCheck('p3')">
+                <label for="chk-p3a"><div class="check-box"></div></label>
+              </div>
+            </td>
+          </tr>
+          <!-- P3b: 協議合建 -->
+          <tr id="row-p3b">
+            <td>若以協議合建或其他方式實施</td>
+            <td><span class="p-badge">P3 ＝ 200 ＋ X 萬</span></td>
+            <td>
+              <div class="check-wrap">
+                <input type="radio" id="chk-p3b" name="p3" value="p3b" onchange="onCheck('p3')">
+                <label for="chk-p3b"><div class="check-box"></div></label>
+              </div>
+            </td>
+          </tr>
+          <!-- P4a: 權利變換 -->
+          <tr id="row-p4a">
+            <td class="cat-cell" rowspan="2">計畫執行與<br>成果報核</td>
+            <td>以權利變換方式實施</td>
+            <td><span class="p-badge">P4 ＝ 150 萬</span></td>
+            <td>
+              <div class="check-wrap">
+                <input type="radio" id="chk-p4a" name="p4" value="p4a" onchange="onCheck('p4')">
+                <label for="chk-p4a"><div class="check-box"></div></label>
+              </div>
+            </td>
+          </tr>
+          <!-- P4b: 協議合建 -->
+          <tr id="row-p4b">
+            <td>若以協議合建或其他方式實施</td>
+            <td><span class="p-badge">P4 ＝ 50 萬</span></td>
+            <td>
+              <div class="check-wrap">
+                <input type="radio" id="chk-p4b" name="p4" value="p4b" onchange="onCheck('p4')">
+                <label for="chk-p4b"><div class="check-box"></div></label>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- live total -->
+    <div style="margin-top:16px;">
+      <div class="cfield highlight">
+        <span class="cfield-lbl" style="color:var(--pine);font-weight:700;">都市更新規劃費（即時）P1＋P2＋P3＋P4</span>
+        <span><span class="cfield-val" id="cv-total">—</span><span class="cfield-unit">萬元</span></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- BUTTONS -->
+  <div class="btn-row">
+    <button class="btn btn-primary" onclick="calculate()">立即試算</button>
+    <button class="btn btn-secondary" onclick="resetForm()">清除重填</button>
+  </div>
+  <div class="error-banner" id="error-banner"></div>
+
+  <!-- RESULT -->
+  <div class="result-area" id="result-area">
+
+    <div class="result-hero">
+      <div class="result-hero-label">都市更新規劃費</div>
+      <div class="result-hero-val" id="res-total">—</div>
+      <div class="result-hero-unit">萬元</div>
+    </div>
+
+    <!-- P Cards -->
+    <div class="p-cards">
+      <div class="pcard" id="pcard-p1">
+        <div class="pcard-lbl">P1</div>
+        <div class="pcard-name">更新單元劃定</div>
+        <div class="pcard-val" id="res-p1">—</div>
+        <div class="pcard-unit">萬元</div>
+      </div>
+      <div class="pcard amber" id="pcard-p2">
+        <div class="pcard-lbl">P2</div>
+        <div class="pcard-name">事業概要</div>
+        <div class="pcard-val" id="res-p2">—</div>
+        <div class="pcard-unit">萬元</div>
+      </div>
+      <div class="pcard blue" id="pcard-p3">
+        <div class="pcard-lbl">P3</div>
+        <div class="pcard-name">計畫擬訂</div>
+        <div class="pcard-val" id="res-p3">—</div>
+        <div class="pcard-unit">萬元</div>
+      </div>
+      <div class="pcard red" id="pcard-p4">
+        <div class="pcard-lbl">P4</div>
+        <div class="pcard-name">計畫執行與報核</div>
+        <div class="pcard-val" id="res-p4">—</div>
+        <div class="pcard-unit">萬元</div>
+      </div>
+    </div>
+
+    <!-- Breakdown -->
+    <div class="breakdown">
+      <div class="breakdown-title">計算明細</div>
+      <div id="breakdown-rows"></div>
+    </div>
+
+    <!-- Reference tables -->
+    <div class="card">
+      <div class="card-title">參考：X 與 Y 計算級距</div>
+      <div class="ref-grid">
+        <div>
+          <div style="font-size:12px;font-weight:600;color:var(--pine-mid);margin-bottom:8px;">更新面積規模 X（累進）</div>
+          <table class="ref-table" id="ref-x">
+            <thead><tr><th>面積範圍（㎡）</th><th>單位費率（萬/㎡）</th></tr></thead>
+            <tbody>
+              <tr data-range="0-2000"><td>A ≦ 2,000</td><td>0.10</td></tr>
+              <tr data-range="2000-4000"><td>2,000 ＜ A ≦ 4,000</td><td>0.08</td></tr>
+              <tr data-range="4000-6000"><td>4,000 ＜ A ≦ 6,000</td><td>0.06</td></tr>
+              <tr data-range="6000-10000"><td>6,000 ＜ A ≦ 10,000</td><td>0.04</td></tr>
+              <tr data-range="10000+"><td>10,000 ＜ A</td><td>0.02</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div>
+          <div style="font-size:12px;font-weight:600;color:var(--pine-mid);margin-bottom:8px;">權屬情形 Y（累進）</div>
+          <table class="ref-table" id="ref-y">
+            <thead><tr><th>人數範圍</th><th>單位費率（萬/人）</th></tr></thead>
+            <tbody>
+              <tr data-range="0-20"><td>N ≦ 20</td><td>6.0</td></tr>
+              <tr data-range="20-100"><td>20 ＜ N ≦ 100</td><td>4.0</td></tr>
+              <tr data-range="100-200"><td>100 ＜ N ≦ 200</td><td>2.5</td></tr>
+              <tr data-range="200+"><td>200 ＜ N</td><td>1.5</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="info-box">
+      <strong>計算說明：</strong>
+      <ul>
+        <li><strong>X（更新面積規模）</strong>與 <strong>Y（權屬情形）</strong>皆採<strong>累進方式</strong>計算，非單一稅率乘以全額。</li>
+        <li>P3（計畫擬訂）：權利變換 ＝ 300＋X＋Y；協議合建 ＝ 200＋X。P3 只能二擇一。</li>
+        <li>P4（計畫執行）：權利變換 ＝ 150；協議合建 ＝ 50。P4 只能二擇一。</li>
+        <li>都市更新規劃費 ＝ P1 ＋ P2 ＋ P3 ＋ P4（依勾選項目加總）。</li>
+        <li>本試算僅供概算參考，實際費用依委託合約及主管機關規定為準。</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="footer">
+    <div class="ornament-row" style="margin-bottom:12px;">
+      <div class="orn-line" style="max-width:60px;"></div>
+      <div class="orn-dia"></div>
+      <div class="orn-line r" style="max-width:60px;"></div>
+    </div>
+    <p>本試算結果僅供參考，實際費用以委託合約及主管機關規定為準</p>
+    <p>都更規劃費用計算 · 現代地政聯盟</p>
+  </div>
+</div>
+
+<script>
+function gv(id) { const v=parseFloat(document.getElementById(id).value); return isNaN(v)?null:v; }
+function fmtN(n,dec=2){ return (n===null||isNaN(n)||!isFinite(n))?'—':n.toFixed(dec); }
+
+// ── CUMULATIVE X ──
+function calcX(A) {
+  if (!A || A <= 0) return 0;
+  let x = 0;
+  x += Math.min(A, 2000) * 0.10;
+  if (A > 2000)  x += (Math.min(A, 4000)  - 2000)  * 0.08;
+  if (A > 4000)  x += (Math.min(A, 6000)  - 4000)  * 0.06;
+  if (A > 6000)  x += (Math.min(A, 10000) - 6000)  * 0.04;
+  if (A > 10000) x += (A - 10000) * 0.02;
+  return Math.ceil(x / 10) * 10;  // 無條件進位到整數10
+}
+
+// ── CUMULATIVE Y ──
+function calcY(N) {
+  if (!N || N <= 0) return 0;
+  // 人數先無條件進位到10的倍數再計算
+  const N_adj = Math.ceil(N / 10) * 10;
+  let y = 0;
+  y += Math.min(N_adj, 20) * 6.0;
+  if (N_adj > 20)  y += (Math.min(N_adj, 100) - 20) * 4.0;
+  if (N_adj > 100) y += (Math.min(N_adj, 200) - 100) * 2.5;
+  if (N_adj > 200) y += (N_adj - 200) * 1.5;
+  return y;
+}
+
+function getP1() { return document.getElementById('chk-p1').checked ? 100 : 0; }
+function getP2() { return document.getElementById('chk-p2').checked ? 150 : 0; }
+function getP3(X, Y) {
+  const a = document.getElementById('chk-p3a');
+  const b = document.getElementById('chk-p3b');
+  if (a && a.checked) return 300 + X + Y;
+  if (b && b.checked) return 200 + X;
+  return 0;
+}
+function getP4() {
+  const a = document.getElementById('chk-p4a');
+  const b = document.getElementById('chk-p4b');
+  if (a && a.checked) return 150;
+  if (b && b.checked) return 50;
+  return 0;
+}
+
+function liveCalc() {
+  const A = gv('area') ?? 0;
+  const N = gv('owners') ?? 0;
+  const X = calcX(A);
+  const Y = calcY(N);
+
+  document.getElementById('cv-x').textContent = fmtN(X, 2);
+  document.getElementById('cv-y').textContent = fmtN(Y, 2);
+
+  highlightRefRows(A, N);
+
+  const p1 = getP1(), p2 = getP2(), p3 = getP3(X, Y), p4 = getP4();
+  const total = p1 + p2 + p3 + p4;
+  document.getElementById('cv-total').textContent = fmtN(total, 2);
+}
+
+function onCheck(key) {
+  // highlight checked rows
+  if (key === 'p1') document.getElementById('row-p1').classList.toggle('checked-row', document.getElementById('chk-p1').checked);
+  if (key === 'p2') document.getElementById('row-p2').classList.toggle('checked-row', document.getElementById('chk-p2').checked);
+  if (key === 'p3') {
+    document.getElementById('row-p3a').classList.toggle('checked-row', document.getElementById('chk-p3a').checked);
+    document.getElementById('row-p3b').classList.toggle('checked-row', document.getElementById('chk-p3b').checked);
+  }
+  if (key === 'p4') {
+    document.getElementById('row-p4a').classList.toggle('checked-row', document.getElementById('chk-p4a').checked);
+    document.getElementById('row-p4b').classList.toggle('checked-row', document.getElementById('chk-p4b').checked);
+  }
+  liveCalc();
+}
+
+function highlightRefRows(A, N) {
+  // X table
+  const xRows = document.querySelectorAll('#ref-x tbody tr');
+  xRows.forEach(r => r.classList.remove('active-row'));
+  if (A > 0) {
+    if (A <= 2000)               xRows[0].classList.add('active-row');
+    if (A > 2000 && A <= 4000)   xRows[1].classList.add('active-row');
+    if (A > 4000 && A <= 6000)   xRows[2].classList.add('active-row');
+    if (A > 6000 && A <= 10000)  xRows[3].classList.add('active-row');
+    if (A > 10000)               xRows[4].classList.add('active-row');
+    // also highlight all tiers below the max (cumulative)
+    if (A > 2000) xRows[0].classList.add('active-row');
+    if (A > 4000) xRows[1].classList.add('active-row');
+    if (A > 6000) xRows[2].classList.add('active-row');
+    if (A > 10000) xRows[3].classList.add('active-row');
+  }
+  // Y table
+  const yRows = document.querySelectorAll('#ref-y tbody tr');
+  yRows.forEach(r => r.classList.remove('active-row'));
+  if (N > 0) {
+    if (N > 0)   yRows[0].classList.add('active-row');
+    if (N > 20)  yRows[1].classList.add('active-row');
+    if (N > 100) yRows[2].classList.add('active-row');
+    if (N > 200) yRows[3].classList.add('active-row');
+  }
+}
+
+function calculate() {
+  const banner = document.getElementById('error-banner');
+  banner.classList.remove('show');
+
+  const A = gv('area');
+  const N = gv('owners');
+  if (A === null) { banner.textContent = '請輸入更新單元面積'; banner.classList.add('show'); return; }
+  if (N === null) { banner.textContent = '請輸入權利人人數'; banner.classList.add('show'); return; }
+
+  const p3aChk = document.getElementById('chk-p3a').checked;
+  const p3bChk = document.getElementById('chk-p3b').checked;
+  const p4aChk = document.getElementById('chk-p4a').checked;
+  const p4bChk = document.getElementById('chk-p4b').checked;
+
+  const X = calcX(A), Y = calcY(N);
+  const p1 = getP1(), p2 = getP2(), p3 = getP3(X,Y), p4 = getP4();
+  const total = p1 + p2 + p3 + p4;
+
+  // Hero
+  document.getElementById('res-total').textContent = fmtN(total, 2);
+
+  // P Cards
+  const setCard = (id, cardId, val, selected) => {
+    document.getElementById(id).textContent = selected ? fmtN(val, 2) : '未選';
+    document.getElementById(cardId).classList.toggle('skip', !selected);
+  };
+  setCard('res-p1', 'pcard-p1', p1, document.getElementById('chk-p1').checked);
+  setCard('res-p2', 'pcard-p2', p2, document.getElementById('chk-p2').checked);
+  setCard('res-p3', 'pcard-p3', p3, p3aChk || p3bChk);
+  setCard('res-p4', 'pcard-p4', p4, p4aChk || p4bChk);
+
+  // Breakdown
+  const rows = document.getElementById('breakdown-rows');
+  const brow = (l, v, cls='') => `<div class="brow ${cls}"><span class="bl">${l}</span><span class="bv">${v}</span></div>`;
+  const browS = (l, v, cls='') => `<div class="brow ${cls}"><span class="bl sub">${l}</span><span class="bv">${v}</span></div>`;
+  const sec = t => `<div class="sec-lbl">${t}</div>`;
+
+  let html = '';
+  html += sec('基本資料');
+  html += brow('更新單元面積 A', fmtN(A,2) + ' ㎡');
+  html += brow('權利人人數 N', fmtN(N,0) + ' 人');
+
+  html += sec('累進計算：更新面積規模 X');
+  const xTiers = [
+    { lo:0,    hi:2000,  rate:0.10 },
+    { lo:2000, hi:4000,  rate:0.08 },
+    { lo:4000, hi:6000,  rate:0.06 },
+    { lo:6000, hi:10000, rate:0.04 },
+    { lo:10000,hi:Infinity,rate:0.02 },
+  ];
+  xTiers.forEach(t => {
+    if (A <= t.lo) return;
+    const portion = Math.min(A, t.hi) - t.lo;
+    const contrib = portion * t.rate;
+    const label = t.hi === Infinity ? `超過 ${t.lo.toLocaleString()} ㎡` : `${t.lo.toLocaleString()} ~ ${t.hi.toLocaleString()} ㎡`;
+    html += browS(`${label}：${fmtN(portion,2)} ㎡ × ${t.rate} ＝`, fmtN(contrib,2) + ' 萬');
+  });
+  html += brow('X 合計（無條件進位至整數10）', fmtN(X,2) + ' 萬元', 'key');
+
+  html += sec('累進計算：權屬情形 Y');
+  const N_adj = Math.ceil(N / 10) * 10;
+  const yTiers = [
+    { lo:0,   hi:20,       adjLo:0,   rate:6.0 },
+    { lo:20,  hi:100,      adjLo:20,  rate:4.0 },
+    { lo:100, hi:200,      adjLo:100, rate:2.5 },
+    { lo:200, hi:Infinity, adjLo:200, rate:1.5 },
+  ];
+  if (N !== N_adj) html += browS(`人數進位（${N}人 → ${N_adj}人）`, '');
+  yTiers.forEach(t => {
+    if (N_adj <= t.lo) return;
+    const portion = Math.min(N_adj, t.hi) - t.adjLo;
+    const contrib = portion * t.rate;
+    const label = t.hi === Infinity ? `超過 ${t.lo} 人` : `${t.lo} ~ ${t.hi} 人`;
+    html += browS(`${label}：${fmtN(portion,0)} 人 × ${t.rate} ＝`, fmtN(contrib,2) + ' 萬');
+  });
+  html += brow('Y 合計', fmtN(Y,2) + ' 萬元', 'key');
+
+  html += sec('各項費用');
+  const p1sel = document.getElementById('chk-p1').checked;
+  const p2sel = document.getElementById('chk-p2').checked;
+  html += brow('P1 更新單元劃定', p1sel ? '100 萬元' : '（未選取）', p1sel ? '' : 'skip');
+  html += brow('P2 都市更新事業概要', p2sel ? '150 萬元' : '（未選取）', p2sel ? '' : 'skip');
+  if (p3aChk) {
+    html += brow('P3 計畫擬訂（權利變換）', '300 + X + Y ＝ ' + fmtN(p3,2) + ' 萬元');
+    html += browS(`300 ＋ ${fmtN(X,2)} ＋ ${fmtN(Y,2)}`, fmtN(p3,2) + ' 萬');
+  } else if (p3bChk) {
+    html += brow('P3 計畫擬訂（協議合建）', '200 + X ＝ ' + fmtN(p3,2) + ' 萬元');
+    html += browS(`200 ＋ ${fmtN(X,2)}`, fmtN(p3,2) + ' 萬');
+  } else {
+    html += brow('P3 計畫擬訂', '（未選取）', 'skip');
+  }
+  if (p4aChk)      html += brow('P4 計畫執行（權利變換）', '150 萬元');
+  else if (p4bChk) html += brow('P4 計畫執行（協議合建）', '50 萬元');
+  else             html += brow('P4 計畫執行', '（未選取）', 'skip');
+
+  html += brow('都市更新規劃費 P1＋P2＋P3＋P4', fmtN(total,2) + ' 萬元', 'final');
+  rows.innerHTML = html;
+
+  document.getElementById('result-area').classList.add('show');
+  document.getElementById('result-area').scrollIntoView({ behavior:'smooth', block:'nearest' });
+}
+
+function resetForm() {
+  document.querySelectorAll('input[type="number"]').forEach(el => el.value = '');
+  document.getElementById('chk-p1').checked = false;
+  document.getElementById('chk-p2').checked = false;
+  document.querySelectorAll('input[name="p3"]').forEach(r => r.checked = false);
+  document.querySelectorAll('input[name="p4"]').forEach(r => r.checked = false);
+  ['row-p1','row-p2','row-p3a','row-p3b','row-p4a','row-p4b'].forEach(id => document.getElementById(id).classList.remove('checked-row'));
+  ['cv-x','cv-y','cv-total'].forEach(id => document.getElementById(id).textContent = '—');
+  document.getElementById('result-area').classList.remove('show');
+  document.getElementById('error-banner').classList.remove('show');
+  document.querySelectorAll('.ref-table tbody tr').forEach(r => r.classList.remove('active-row'));
+}
+</script>
+</body>
+</html>
