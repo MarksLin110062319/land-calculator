@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>宜慶地政｜房貸試算</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;500;700&family=Noto+Sans+TC:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --pine:        #1B4332;
+    --pine-mid:    #2D6A4F;
+    --pine-light:  #40916C;
+    --pine-pale:   #D8F3DC;
+    --pine-mist:   #F0FAF2;
+    
+    
+    --ink:         #0D1F18;
+    --ink-mid:     #2D4A3A;
+    --ink-light:   #5A7A68;
+    --paper:       #F6FBF7;
+    --paper-2:     #EBF5EE;
+    --paper-3:     #D4E8D8;
+    --red: #C0392B;
+    --green: #1A6B43;
+    --blue: #1A4A7A;
+    --line:        rgba(27,67,50,0.18);
+    --radius: 4px;
+  }
+
+  body {
+    font-family: 'Noto Sans TC', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    min-height: 100vh;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background:
+      repeating-linear-gradient(0deg, transparent, transparent 39px, var(--line) 39px, var(--line) 40px),
+      repeating-linear-gradient(90deg, transparent, transparent 39px, var(--line) 39px, var(--line) 40px);
+    pointer-events: none; z-index: 0;
+  }
+
+  .page {
+    position: relative; z-index: 1;
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 48px 20px 80px;
+  }
+
+  /* ── HEADER ── */
+  .header { text-align: center; margin-bottom: 48px; }
+  .ornament-row { display: flex; align-items: center; gap: 16px; justify-content: center; margin-bottom: 16px; }
+  .orn-line { flex: 1; max-width: 110px; height: 1px; background: linear-gradient(90deg, transparent, var(--pine-mid)); }
+  .orn-line.r { background: linear-gradient(90deg, var(--pine-mid), transparent); }
+  .orn-dia { width: 9px; height: 9px; background: var(--pine-mid); transform: rotate(45deg); }
+  .header-badge { font-family: 'Noto Serif TC', serif; font-size: 11px; font-weight: 500; letter-spacing: 4px; color: var(--pine-mid); margin-bottom: 10px; display: block; }
+  h1 { font-family: 'Noto Serif TC', serif; font-size: clamp(26px, 5vw, 40px); font-weight: 700; color: var(--ink); letter-spacing: 2px; line-height: 1.2; }
+  .header-sub { margin-top: 12px; font-size: 13px; color: var(--ink-light); font-weight: 300; line-height: 1.8; }
+
+  /* ── CARD ── */
+  .card {
+    background: rgba(255,255,255,0.72);
+    border: 1px solid var(--line);
+    border-top: 2px solid var(--pine-mid);
+    padding: 28px 24px;
+    margin-bottom: 20px;
+  }
+  .card-title {
+    font-family: 'Noto Serif TC', serif;
+    font-size: 12px; font-weight: 700;
+    letter-spacing: 3px; color: var(--pine-mid);
+    text-transform: uppercase; margin-bottom: 22px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .card-title::after { content: ''; flex: 1; height: 1px; background: var(--line); }
+
+  /* ── FORM ── */
+  .input-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+  @media (max-width: 620px) { .input-grid { grid-template-columns: 1fr; } }
+
+  .field { display: flex; flex-direction: column; gap: 7px; }
+  label { font-size: 12px; font-weight: 500; color: var(--ink-mid); letter-spacing: 1px; }
+
+  .input-wrap { position: relative; }
+  .input-wrap input {
+    width: 100%; height: 44px;
+    border: 1px solid var(--paper-3);
+    border-bottom: 2px solid var(--paper-3);
+    background: white;
+    padding: 0 48px 0 12px;
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: 15px; color: var(--ink);
+    border-radius: var(--radius); outline: none;
+    transition: border-color .2s;
+    -webkit-appearance: none;
+  }
+  .input-wrap input:focus { border-color: var(--pine-mid); border-bottom-color: var(--pine-mid); }
+  .input-unit {
+    position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+    font-size: 11px; color: var(--ink-light); font-weight: 500; letter-spacing: 1px;
+    pointer-events: none;
+  }
+  input::placeholder { color: var(--ink-light); opacity: 0.5; font-size: 12px; }
+  input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; }
+
+  /* ── SLIDER ── */
+  .slider-row { display: flex; align-items: center; gap: 12px; margin-top: 4px; }
+  .slider-row input[type="range"] {
+    flex: 1; height: 3px; -webkit-appearance: none; appearance: none;
+    background: var(--paper-3); border-radius: 2px; outline: none;
+    border: none; padding: 0;
+  }
+  .slider-row input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none; width: 16px; height: 16px;
+    background: var(--pine-mid); border-radius: 50%; cursor: pointer;
+    border: 2px solid white; box-shadow: 0 0 0 1px var(--pine-mid);
+    transition: transform .15s;
+  }
+  .slider-row input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.2); }
+  .slider-val { font-size: 13px; font-weight: 500; color: var(--pine-mid); min-width: 40px; text-align: right; }
+
+  /* ── RADIO TABS ── */
+  .tab-group { display: flex; gap: 0; border: 1px solid var(--paper-3); border-radius: var(--radius); overflow: hidden; }
+  .tab-group label { flex: 1; text-align: center; cursor: pointer; }
+  .tab-group label input { display: none; }
+  .tab-group label span {
+    display: block; padding: 10px 4px; font-size: 13px; color: var(--ink-mid);
+    background: white; transition: all .2s; letter-spacing: 0.5px; font-weight: 400;
+  }
+  .tab-group label:not(:last-child) span { border-right: 1px solid var(--paper-3); }
+  .tab-group label input:checked + span { background: var(--pine-mid); color: white; font-weight: 500; }
+
+  /* ── BUTTON ── */
+  .btn-row { display: flex; gap: 12px; justify-content: center; margin-top: 8px; flex-wrap: wrap; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    height: 50px; padding: 0 40px; border: none; cursor: pointer;
+    font-family: 'Noto Serif TC', serif; font-size: 15px; font-weight: 700;
+    letter-spacing: 2px; border-radius: var(--radius); transition: all .2s;
+  }
+  .btn-primary { background: var(--pine-mid); color: white; }
+  .btn-primary:hover { background: var(--pine-light); }
+  .btn-primary:active { transform: scale(0.98); }
+  .btn-secondary { background: transparent; color: var(--ink-mid); border: 1px solid var(--paper-3); }
+  .btn-secondary:hover { border-color: var(--pine-mid); color: var(--pine-mid); }
+
+  .error-banner {
+    display: none; background: #FFF0EE; border: 1px solid #F5C6C0;
+    border-left: 3px solid var(--red); color: var(--red);
+    padding: 10px 14px; font-size: 13px; border-radius: var(--radius); margin-top: 12px;
+  }
+  .error-banner.show { display: block; }
+
+  /* ── RESULT SUMMARY ── */
+  .result-area { display: none; margin-top: 24px; animation: fadeUp .4s ease; }
+  .result-area.show { display: block; }
+  @keyframes fadeUp { from { opacity:0; transform:translateY(14px); } to { opacity:1; transform:translateY(0); } }
+
+  .result-cards { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; margin-bottom: 20px; }
+  @media (max-width: 600px) { .result-cards { grid-template-columns: 1fr; } }
+
+  .rcard {
+    background: white; border: 1px solid var(--line);
+    padding: 20px 16px; text-align: center; border-radius: var(--radius);
+    border-top: 2px solid var(--pine-mid);
+  }
+  .rcard.accent-red { border-top-color: var(--red); }
+  .rcard.accent-blue { border-top-color: var(--blue); }
+  .rcard.accent-green { border-top-color: var(--green); }
+  .rcard-label { font-size: 11px; letter-spacing: 2px; color: var(--ink-light); font-weight: 500; margin-bottom: 10px; }
+  .rcard-val { font-family: 'Noto Serif TC', serif; font-size: clamp(17px,3.5vw,26px); font-weight: 700; color: var(--ink); word-break: break-all; }
+  .rcard.accent-red .rcard-val { color: var(--red); }
+  .rcard.accent-blue .rcard-val { color: var(--blue); }
+  .rcard.accent-green .rcard-val { color: var(--green); }
+  .rcard-unit { font-size: 11px; color: var(--ink-light); margin-top: 4px; }
+
+  /* ── COMPARE ROW ── */
+  .compare-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+  @media (max-width: 560px) { .compare-grid { grid-template-columns: 1fr; } }
+
+  .cmp-card {
+    background: white; border: 1px solid var(--line);
+    border-radius: var(--radius); overflow: hidden;
+  }
+  .cmp-header {
+    padding: 12px 16px; font-family: 'Noto Serif TC', serif;
+    font-size: 13px; font-weight: 700; letter-spacing: 1px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .cmp-header.equal { background: var(--pine-pale); color: var(--pine-mid); border-bottom: 1px solid rgba(184,147,58,.2); }
+  .cmp-header.principal { background: #EAF3F7; color: var(--blue); border-bottom: 1px solid rgba(26,74,122,.15); }
+  .cmp-body { padding: 14px 16px; }
+  .cmp-row { display: flex; justify-content: space-between; padding: 7px 0; font-size: 13px; border-bottom: 1px dashed var(--line); }
+  .cmp-row:last-child { border-bottom: none; }
+  .cmp-row .l { color: var(--ink-mid); }
+  .cmp-row .v { font-weight: 500; color: var(--ink); font-family: 'Noto Serif TC', serif; }
+  .cmp-row .v.red { color: var(--red); }
+  .cmp-row .v.blu { color: var(--blue); }
+
+  /* ── AMORTIZATION TABLE ── */
+  .table-section { margin-top: 20px; }
+  .table-tabs { display: flex; gap: 0; margin-bottom: 0; border-bottom: 2px solid var(--pine-mid); }
+  .table-tab {
+    padding: 10px 24px; font-size: 13px; cursor: pointer; font-weight: 400;
+    color: var(--ink-mid); background: white; border: 1px solid var(--line);
+    border-bottom: none; border-radius: var(--radius) var(--radius) 0 0;
+    margin-right: 4px; transition: all .15s; letter-spacing: 0.5px;
+  }
+  .table-tab.active { background: var(--pine-mid); color: white; font-weight: 500; border-color: var(--pine-mid); }
+
+  .table-wrap { background: white; border: 1px solid var(--line); border-top: none; overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  thead th {
+    background: var(--paper-2); color: var(--ink-mid); font-weight: 500;
+    padding: 10px 12px; text-align: right; letter-spacing: 0.5px;
+    border-bottom: 1px solid var(--paper-3); font-size: 11px;
+    white-space: nowrap;
+  }
+  thead th:first-child { text-align: center; }
+  tbody tr { border-bottom: 1px solid var(--line); transition: background .1s; }
+  tbody tr:hover { background: var(--paper-2); }
+  tbody tr.year-summary { background: var(--pine-pale); }
+  tbody td { padding: 8px 12px; text-align: right; color: var(--ink-mid); font-family: 'Noto Serif TC', serif; }
+  tbody td:first-child { text-align: center; color: var(--ink); font-family: 'Noto Sans TC', sans-serif; font-weight: 500; font-size: 11px; }
+  tbody td.principal-col { color: var(--blue); }
+  tbody td.interest-col { color: var(--red); }
+  tbody td.balance-col { color: var(--ink); }
+
+  .table-note { font-size: 11px; color: var(--ink-light); padding: 10px 16px; background: var(--paper-2); border-top: 1px dashed var(--line); }
+
+  /* ── FOOTER ── */
+  .footer { text-align: center; margin-top: 60px; padding-top: 20px; border-top: 1px solid var(--line); }
+  .footer p { font-size: 11px; color: var(--ink-light); letter-spacing: 1px; margin-top: 4px; }
+
+  /* ── SHOW CONTROL ── */
+  .show-all-row { text-align: center; padding: 12px; background: var(--paper-2); border-top: 1px dashed var(--line); cursor: pointer; }
+  .show-all-row span { font-size: 12px; color: var(--pine-mid); letter-spacing: 1px; font-weight: 500; }
+  .show-all-row:hover span { text-decoration: underline; }
+
+  /* 宜慶地政 公司主標 */
+  .company-title {
+    font-family: 'Noto Serif TC', serif;
+    font-size: clamp(36px, 6vw, 56px);
+    font-weight: 700;
+    color: var(--ink);
+    line-height: 1.2;
+    letter-spacing: 8px;
+    margin-bottom: 18px;
+    text-indent: 8px;
+  }
+  .page-subtitle {
+    font-family: 'Noto Serif TC', serif;
+    font-size: clamp(18px, 2.6vw, 22px);
+    font-weight: 500;
+    color: var(--ink-light);
+    line-height: 1.4;
+    letter-spacing: 3px;
+    margin-top: 4px;
+  }
+
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="ornament-row">
+      <div class="orn-line"></div><div class="orn-dia"></div><div class="orn-line r"></div>
+    </div>
+    <span class="header-badge">不動產金融工具</span>
+    <h1 class="company-title">宜慶地政</h1>
+    <h2 class="page-subtitle">房貸試算</h2>
+    <p class="header-sub">輸入貸款金額、年限與利率，取得本息平均攤還與本金平均攤還的月付金額與完整明細</p>
+  </div>
+
+  <!-- INPUT CARD -->
+  <div class="card">
+    <div class="card-title">輸入貸款條件</div>
+
+    <div class="input-grid" style="margin-bottom:20px;">
+      <div class="field">
+        <label>貸款金額</label>
+        <div class="input-wrap">
+          <input type="number" id="loanAmt" placeholder="1000" min="0" step="1" value="1000">
+          <span class="input-unit">萬元</span>
+        </div>
+        <div class="slider-row">
+          <input type="range" id="loanSlider" min="100" max="5000" step="50" value="1000">
+          <span class="slider-val" id="loanSliderVal">1000萬</span>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>貸款年限</label>
+        <div class="input-wrap">
+          <input type="number" id="loanYears" placeholder="30" min="1" max="40" step="1" value="30">
+          <span class="input-unit">年</span>
+        </div>
+        <div class="slider-row">
+          <input type="range" id="yearsSlider" min="1" max="40" step="1" value="30">
+          <span class="slider-val" id="yearsSliderVal">30年</span>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>年利率</label>
+        <div class="input-wrap">
+          <input type="number" id="loanRate" placeholder="2.00" min="0.01" max="20" step="0.01" value="2.00">
+          <span class="input-unit">%</span>
+        </div>
+        <div class="slider-row">
+          <input type="range" id="rateSlider" min="0.5" max="10" step="0.01" value="2.00">
+          <span class="slider-val" id="rateSliderVal">2.00%</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="field" style="max-width:360px;">
+      <label>寬限期（僅繳息期間）</label>
+      <div class="input-wrap">
+        <input type="number" id="gracePeriod" placeholder="0" min="0" max="5" step="1" value="0">
+        <span class="input-unit">年</span>
+      </div>
+    </div>
+
+    <div class="btn-row" style="margin-top:24px;">
+      <button class="btn btn-primary" onclick="calculate()">開始試算</button>
+      <button class="btn btn-secondary" onclick="resetForm()">清除重填</button>
+    </div>
+    <div class="error-banner" id="error-banner"></div>
+  </div>
+
+  <!-- RESULT -->
+  <div class="result-area" id="result-area">
+
+    <!-- COMPARE -->
+    <div class="compare-grid">
+      <div class="cmp-card">
+        <div class="cmp-header equal">
+          <span>本息平均攤還</span>
+          <span style="font-size:11px;opacity:.7;">每月固定</span>
+        </div>
+        <div class="cmp-body">
+          <div class="cmp-row"><span class="l">每月固定還款</span><span class="v red" id="eq-monthly">—</span></div>
+          <div class="cmp-row"><span class="l">寬限期月付（僅息）</span><span class="v" id="eq-grace">—</span></div>
+          <div class="cmp-row"><span class="l">總還款金額</span><span class="v" id="eq-total">—</span></div>
+          <div class="cmp-row"><span class="l">總利息支出</span><span class="v red" id="eq-interest">—</span></div>
+        </div>
+      </div>
+      <div class="cmp-card">
+        <div class="cmp-header principal">
+          <span>本金平均攤還</span>
+          <span style="font-size:11px;opacity:.7;">逐月遞減</span>
+        </div>
+        <div class="cmp-body">
+          <div class="cmp-row"><span class="l">第一期月還款</span><span class="v blu" id="pr-first">—</span></div>
+          <div class="cmp-row"><span class="l">最末期月還款</span><span class="v" id="pr-last">—</span></div>
+          <div class="cmp-row"><span class="l">總還款金額</span><span class="v" id="pr-total">—</span></div>
+          <div class="cmp-row"><span class="l">總利息支出</span><span class="v blu" id="pr-interest">—</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SUMMARY CARDS -->
+    <div class="result-cards">
+      <div class="rcard accent-red">
+        <div class="rcard-label">利息節省（本金法）</div>
+        <div class="rcard-val" id="save-interest">—</div>
+        <div class="rcard-unit">元</div>
+      </div>
+      <div class="rcard accent-blue">
+        <div class="rcard-label">本息法 總利息率</div>
+        <div class="rcard-val" id="eq-rate-pct">—</div>
+        <div class="rcard-unit">相對貸款本金</div>
+      </div>
+      <div class="rcard accent-green">
+        <div class="rcard-label">本金法 總利息率</div>
+        <div class="rcard-val" id="pr-rate-pct">—</div>
+        <div class="rcard-unit">相對貸款本金</div>
+      </div>
+    </div>
+
+    <!-- AMORTIZATION TABLE -->
+    <div class="table-section">
+      <div class="table-tabs">
+        <div class="table-tab active" id="tab-eq" onclick="switchTab('eq')">本息平均攤還明細</div>
+        <div class="table-tab" id="tab-pr" onclick="switchTab('pr')">本金平均攤還明細</div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th style="text-align:center;width:60px;">期次</th>
+              <th>月份</th>
+              <th>月還款額（元）</th>
+              <th class="principal-col">還本金（元）</th>
+              <th class="interest-col">還利息（元）</th>
+              <th>剩餘本金（元）</th>
+            </tr>
+          </thead>
+          <tbody id="table-body"></tbody>
+        </table>
+        <div class="show-all-row" id="show-all-btn" onclick="showAllRows()" style="display:none;">
+          <span id="show-all-text">▼ 展開全部明細</span>
+        </div>
+        <div class="table-note">金額均四捨五入至元；最末期差額已自動調整</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <div class="ornament-row" style="margin-bottom:12px;">
+      <div class="orn-line" style="max-width:60px;"></div>
+      <div class="orn-dia"></div>
+      <div class="orn-line r" style="max-width:60px;"></div>
+    </div>
+    <p>本試算結果僅供參考，實際貸款條件請洽詢各金融機構</p>
+    <p>房貸試算工具 · Equal Payment & Principal Payment Method</p>
+  </div>
+
+</div>
+
+<script>
+// ── STATE ──
+let eqSchedule = [];
+let prSchedule = [];
+let currentTab = 'eq';
+let showAll = false;
+const PREVIEW_ROWS = 36;
+
+// ── SLIDER SYNC ──
+function syncSliders() {
+  const pairs = [
+    ['loanAmt',   'loanSlider',  'loanSliderVal',  v => v + '萬'],
+    ['loanYears', 'yearsSlider', 'yearsSliderVal', v => v + '年'],
+    ['loanRate',  'rateSlider',  'rateSliderVal',  v => parseFloat(v).toFixed(2) + '%'],
+  ];
+  pairs.forEach(([inp, sl, sv, fmt]) => {
+    const input  = document.getElementById(inp);
+    const slider = document.getElementById(sl);
+    const label  = document.getElementById(sv);
+
+    slider.addEventListener('input', () => {
+      input.value = slider.value;
+      label.textContent = fmt(slider.value);
+    });
+    input.addEventListener('input', () => {
+      slider.value = input.value;
+      label.textContent = fmt(input.value);
+    });
+  });
+}
+syncSliders();
+
+// ── HELPERS ──
+function fmt(n) {
+  if (isNaN(n) || n === null) return '—';
+  return Math.round(n).toLocaleString('zh-TW');
+}
+function fmtDec(n, d=2) { return parseFloat(n).toFixed(d); }
+
+function getVal(id, def=0) { return parseFloat(document.getElementById(id).value) || def; }
+
+// ── EQUAL PAYMENT SCHEDULE ──
+function calcEqualPayment(P, months, monthlyRate, graceMonths) {
+  const schedule = [];
+  let balance = P;
+
+  // Grace period (interest only)
+  for (let i = 1; i <= graceMonths; i++) {
+    const interest = balance * monthlyRate;
+    schedule.push({ period: i, principal: 0, interest, payment: interest, balance });
+  }
+
+  // Amortization months remaining
+  const amortMonths = months - graceMonths;
+  let monthlyPayment;
+  if (monthlyRate === 0) {
+    monthlyPayment = balance / amortMonths;
+  } else {
+    monthlyPayment = balance * monthlyRate * Math.pow(1 + monthlyRate, amortMonths) /
+                     (Math.pow(1 + monthlyRate, amortMonths) - 1);
+  }
+
+  for (let i = 1; i <= amortMonths; i++) {
+    const period = graceMonths + i;
+    const interest = balance * monthlyRate;
+    let principal = monthlyPayment - interest;
+    if (i === amortMonths) principal = balance; // last period adjustment
+    const payment = i === amortMonths ? (interest + balance) : monthlyPayment;
+    balance = Math.max(0, balance - principal);
+    schedule.push({ period, principal, interest, payment, balance });
+  }
+  return schedule;
+}
+
+// ── PRINCIPAL PAYMENT SCHEDULE ──
+function calcPrincipalPayment(P, months, monthlyRate, graceMonths) {
+  const schedule = [];
+  let balance = P;
+  const amortMonths = months - graceMonths;
+  const fixedPrincipal = P / amortMonths;
+
+  for (let i = 1; i <= graceMonths; i++) {
+    const interest = balance * monthlyRate;
+    schedule.push({ period: i, principal: 0, interest, payment: interest, balance });
+  }
+
+  for (let i = 1; i <= amortMonths; i++) {
+    const period = graceMonths + i;
+    const interest = balance * monthlyRate;
+    const principal = i === amortMonths ? balance : fixedPrincipal;
+    const payment = principal + interest;
+    balance = Math.max(0, balance - principal);
+    schedule.push({ period, principal, interest, payment, balance });
+  }
+  return schedule;
+}
+
+// ── CALCULATE ──
+function calculate() {
+  const banner = document.getElementById('error-banner');
+  banner.classList.remove('show');
+
+  const amtWan    = getVal('loanAmt');
+  const years     = getVal('loanYears');
+  const annualRate= getVal('loanRate');
+  const gracePeriod = getVal('gracePeriod');
+
+  if (!amtWan || amtWan <= 0) { banner.textContent = '請輸入貸款金額'; banner.classList.add('show'); return; }
+  if (!years || years < 1)    { banner.textContent = '請輸入貸款年限（至少1年）'; banner.classList.add('show'); return; }
+  if (!annualRate || annualRate <= 0) { banner.textContent = '請輸入年利率'; banner.classList.add('show'); return; }
+  if (gracePeriod >= years)   { banner.textContent = '寬限期不可大於或等於貸款年限'; banner.classList.add('show'); return; }
+
+  const P = amtWan * 10000;
+  const months = years * 12;
+  const graceMonths = gracePeriod * 12;
+  const monthlyRate = annualRate / 100 / 12;
+
+  eqSchedule = calcEqualPayment(P, months, monthlyRate, graceMonths);
+  prSchedule = calcPrincipalPayment(P, months, monthlyRate, graceMonths);
+
+  // ── SUMMARIES ──
+  const eqTotal    = eqSchedule.reduce((s, r) => s + r.payment, 0);
+  const eqInterest = eqSchedule.reduce((s, r) => s + r.interest, 0);
+  const prTotal    = prSchedule.reduce((s, r) => s + r.payment, 0);
+  const prInterest = prSchedule.reduce((s, r) => s + r.interest, 0);
+
+  const graceMonthlyInterest = P * monthlyRate;
+  const eqMonthly = eqSchedule.find(r => r.principal > 0)?.payment || 0;
+  const prFirst   = prSchedule.find(r => r.principal > 0)?.payment || 0;
+  const prLast    = [...prSchedule].reverse().find(r => r.principal > 0)?.payment || 0;
+
+  document.getElementById('eq-monthly').textContent  = fmt(eqMonthly) + ' 元';
+  document.getElementById('eq-grace').textContent    = graceMonths > 0 ? fmt(graceMonthlyInterest) + ' 元' : '無寬限期';
+  document.getElementById('eq-total').textContent    = fmt(eqTotal) + ' 元';
+  document.getElementById('eq-interest').textContent = fmt(eqInterest) + ' 元';
+
+  document.getElementById('pr-first').textContent    = fmt(prFirst) + ' 元';
+  document.getElementById('pr-last').textContent     = fmt(prLast) + ' 元';
+  document.getElementById('pr-total').textContent    = fmt(prTotal) + ' 元';
+  document.getElementById('pr-interest').textContent = fmt(prInterest) + ' 元';
+
+  document.getElementById('save-interest').textContent = fmt(eqInterest - prInterest);
+  document.getElementById('eq-rate-pct').textContent   = fmtDec(eqInterest / P * 100) + '%';
+  document.getElementById('pr-rate-pct').textContent   = fmtDec(prInterest / P * 100) + '%';
+
+  showAll = false;
+  renderTable();
+
+  document.getElementById('result-area').classList.add('show');
+  document.getElementById('result-area').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+// ── RENDER TABLE ──
+function renderTable() {
+  const schedule = currentTab === 'eq' ? eqSchedule : prSchedule;
+  const body = document.getElementById('table-body');
+  const showAllBtn = document.getElementById('show-all-btn');
+  const limit = showAll ? schedule.length : Math.min(PREVIEW_ROWS, schedule.length);
+
+  let html = '';
+  for (let i = 0; i < limit; i++) {
+    const r = schedule[i];
+    const isGrace = r.principal === 0 && r.period <= (getVal('gracePeriod') * 12);
+    const row_class = isGrace ? ' style="background:rgba(184,147,58,0.04);"' : '';
+    const mo = ((r.period - 1) % 12) + 1;
+    const yr = Math.floor((r.period - 1) / 12) + 1;
+    const label = isGrace ? `寬限 ${yr}年${mo}月` : `第${r.period}期`;
+    html += `<tr${row_class}>
+      <td>${label}</td>
+      <td style="text-align:right;">${yr}年${mo}月</td>
+      <td>${fmt(r.payment)}</td>
+      <td class="principal-col">${fmt(r.principal)}</td>
+      <td class="interest-col">${fmt(r.interest)}</td>
+      <td class="balance-col">${fmt(r.balance)}</td>
+    </tr>`;
+  }
+  body.innerHTML = html;
+
+  if (schedule.length > PREVIEW_ROWS && !showAll) {
+    showAllBtn.style.display = '';
+    document.getElementById('show-all-text').textContent = `▼ 展開全部 ${schedule.length} 筆明細`;
+  } else {
+    showAllBtn.style.display = 'none';
+  }
+}
+
+function showAllRows() { showAll = true; renderTable(); }
+
+function switchTab(tab) {
+  currentTab = tab;
+  document.getElementById('tab-eq').classList.toggle('active', tab === 'eq');
+  document.getElementById('tab-pr').classList.toggle('active', tab === 'pr');
+  showAll = false;
+  renderTable();
+}
+
+function resetForm() {
+  document.getElementById('loanAmt').value   = '1000';
+  document.getElementById('loanYears').value = '30';
+  document.getElementById('loanRate').value  = '2.00';
+  document.getElementById('gracePeriod').value = '0';
+  document.getElementById('loanSlider').value  = '1000';
+  document.getElementById('yearsSlider').value = '30';
+  document.getElementById('rateSlider').value  = '2.00';
+  document.getElementById('loanSliderVal').textContent  = '1000萬';
+  document.getElementById('yearsSliderVal').textContent = '30年';
+  document.getElementById('rateSliderVal').textContent  = '2.00%';
+  document.getElementById('result-area').classList.remove('show');
+  document.getElementById('error-banner').classList.remove('show');
+}
+</script>
+</body>
+</html>
