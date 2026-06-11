@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>宜慶地政｜信託期間規劃</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;500;700&family=Noto+Sans+TC:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --pine:        #1B4332;
+    --pine-mid:    #2D6A4F;
+    --pine-light:  #40916C;
+    --pine-pale:   #D8F3DC;
+    --pine-mist:   #F0FAF2;
+    --ink:         #0D1F18;
+    --ink-mid:     #2D4A3A;
+    --ink-light:   #5A7A68;
+    --paper:       #F6FBF7;
+    --paper-2:     #EBF5EE;
+    --paper-3:     #D4E8D8;
+    --red:         #C0392B;
+    --amber:       #B7791F;
+    --blue:        #1A4A7A;
+    --line:        rgba(27,67,50,0.18);
+    --radius:      4px;
+  }
+
+  body {
+    font-family: 'Noto Sans TC', sans-serif;
+    background: var(--paper); color: var(--ink);
+    min-height: 100vh; position: relative; overflow-x: hidden;
+  }
+  body::before {
+    content: ''; position: fixed; inset: 0;
+    background:
+      repeating-linear-gradient(0deg, transparent, transparent 39px, var(--line) 39px, var(--line) 40px),
+      repeating-linear-gradient(90deg, transparent, transparent 39px, var(--line) 39px, var(--line) 40px);
+    pointer-events: none; z-index: 0;
+  }
+
+  .page { position: relative; z-index: 1; max-width: 760px; margin: 0 auto; padding: 48px 20px 80px; }
+
+  /* ── HEADER ── */
+  .header { text-align: center; margin-bottom: 48px; }
+  .ornament-row { display: flex; align-items: center; gap: 16px; justify-content: center; margin-bottom: 16px; }
+  .orn-line { flex: 1; max-width: 110px; height: 1px; background: linear-gradient(90deg, transparent, var(--pine-mid)); }
+  .orn-line.r { background: linear-gradient(90deg, var(--pine-mid), transparent); }
+  .orn-dia { width: 9px; height: 9px; background: var(--pine-mid); transform: rotate(45deg); }
+  .header-badge { font-family: 'Noto Serif TC', serif; font-size: 11px; font-weight: 500; letter-spacing: 4px; color: var(--pine-mid); margin-bottom: 10px; display: block; }
+  h1 { font-family: 'Noto Serif TC', serif; font-size: clamp(26px,5vw,40px); font-weight: 700; color: var(--ink); letter-spacing: 2px; line-height: 1.2; }
+  .header-sub { margin-top: 12px; font-size: 13px; color: var(--ink-light); font-weight: 300; line-height: 1.8; }
+
+  .formula-banner {
+    margin-top: 18px; display: inline-flex; align-items: center; gap: 10px;
+    background: var(--pine-mist); border: 1px solid var(--line);
+    padding: 10px 22px; border-radius: var(--radius);
+    font-family: 'Noto Serif TC', serif; font-size: 13px; color: var(--pine);
+    letter-spacing: 1px; flex-wrap: wrap; justify-content: center;
+  }
+  .formula-banner span { color: var(--pine-mid); font-weight: 700; }
+
+  /* ── CARD ── */
+  .card { background: rgba(255,255,255,0.78); border: 1px solid var(--line); border-top: 2px solid var(--pine-mid); padding: 28px 24px; margin-bottom: 20px; }
+  .card-title { font-family: 'Noto Serif TC', serif; font-size: 12px; font-weight: 700; letter-spacing: 3px; color: var(--pine-mid); text-transform: uppercase; margin-bottom: 22px; display: flex; align-items: center; gap: 10px; }
+  .card-title::after { content: ''; flex: 1; height: 1px; background: var(--line); }
+
+  /* ── FIELD ── */
+  .field { margin-bottom: 20px; }
+  .field:last-child { margin-bottom: 0; }
+  label { display: block; font-size: 12px; font-weight: 500; color: var(--ink-mid); letter-spacing: 1px; margin-bottom: 7px; }
+  .label-hint { font-size: 11px; color: var(--ink-light); font-weight: 300; margin-left: 6px; letter-spacing: 0; }
+  .var-tag { display: inline-block; font-family: 'Noto Serif TC', serif; font-size: 13px; font-weight: 700; color: var(--pine); background: var(--pine-mist); border: 1px solid var(--line); padding: 1px 8px; border-radius: 3px; margin-right: 4px; }
+
+  .input-wrap { position: relative; }
+  .input-wrap input {
+    width: 100%; height: 48px;
+    border: 1px solid var(--paper-3); border-bottom: 2px solid var(--paper-3);
+    background: white; padding: 0 52px 0 14px;
+    font-family: 'Noto Sans TC', sans-serif; font-size: 15px; color: var(--ink);
+    border-radius: var(--radius); outline: none; transition: border-color .2s; -webkit-appearance: none;
+  }
+  .input-wrap input:focus { border-color: var(--pine-mid); border-bottom-color: var(--pine-mid); }
+  .input-unit { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); font-size: 11px; color: var(--ink-light); font-weight: 500; pointer-events: none; }
+  input::placeholder { color: var(--ink-light); opacity: 0.5; font-size: 12px; }
+  input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; }
+
+  /* ── RELATION DISPLAY ── */
+  .relation-bar {
+    display: flex; align-items: center; gap: 0;
+    margin: 8px 0 20px; border: 1px solid var(--line);
+    border-radius: var(--radius); overflow: hidden; background: white;
+  }
+  .rel-box { flex: 1; padding: 12px 14px; text-align: center; }
+  .rel-box.pv-box { border-right: 1px solid var(--line); }
+  .rel-box.fv-box { border-left: 1px solid var(--line); }
+  .rel-mid { padding: 12px 10px; display: flex; flex-direction: column; align-items: center; gap: 2px; background: var(--pine-mist); }
+  .rel-lbl { font-size: 10px; color: var(--ink-light); letter-spacing: 1px; }
+  .rel-val { font-family: 'Noto Serif TC', serif; font-size: 16px; font-weight: 700; color: var(--pine); }
+  .rel-arrow { font-size: 18px; color: var(--pine-mid); }
+  .rel-ratio-lbl { font-size: 10px; color: var(--pine-mid); font-weight: 500; }
+
+  /* ── COMPUTED ── */
+  .computed { display: flex; align-items: center; justify-content: space-between; min-height: 44px; border: 1px dashed var(--paper-3); background: var(--paper-2); padding: 10px 14px; border-radius: var(--radius); font-size: 13px; color: var(--ink-mid); gap: 12px; }
+  .computed .val { font-weight: 500; color: var(--pine); font-family: 'Noto Serif TC', serif; font-size: 16px; text-align: right; white-space: nowrap; }
+
+  /* ── BUTTON ── */
+  .btn-row { display: flex; gap: 12px; justify-content: center; margin-top: 8px; flex-wrap: wrap; }
+  .btn { display: inline-flex; align-items: center; height: 50px; padding: 0 40px; border: none; cursor: pointer; font-family: 'Noto Serif TC', serif; font-size: 15px; font-weight: 700; letter-spacing: 2px; border-radius: var(--radius); transition: all .2s; }
+  .btn-primary { background: var(--pine-mid); color: white; }
+  .btn-primary:hover { background: var(--pine-light); }
+  .btn-primary:active { transform: scale(0.98); }
+  .btn-secondary { background: transparent; color: var(--ink-mid); border: 1px solid var(--paper-3); }
+  .btn-secondary:hover { border-color: var(--pine-mid); color: var(--pine-mid); }
+
+  /* ── ERROR ── */
+  .error-banner { display: none; background: #FFF0EE; border: 1px solid #F5C6C0; border-left: 3px solid var(--red); color: var(--red); padding: 10px 14px; font-size: 13px; border-radius: var(--radius); margin-top: 12px; }
+  .error-banner.show { display: block; }
+
+  /* ── RESULT ── */
+  .result-area { display: none; margin-top: 20px; animation: fadeUp .4s ease; }
+  .result-area.show { display: block; }
+  @keyframes fadeUp { from { opacity:0; transform:translateY(14px); } to { opacity:1; transform:translateY(0); } }
+
+  /* hero */
+  .result-hero { background: white; border: 1px solid var(--line); border-top: 3px solid var(--pine-mid); padding: 40px 28px; text-align: center; margin-bottom: 20px; border-radius: var(--radius); }
+  .result-hero-label { font-size: 13px; letter-spacing: 3px; color: var(--ink-light); font-weight: 500; margin-bottom: 6px; }
+  .result-hero-val { font-family: 'Noto Serif TC', serif; font-size: clamp(48px,10vw,72px); font-weight: 700; color: var(--pine); line-height: 1; }
+  .result-hero-unit { font-size: 16px; color: var(--ink-light); margin-top: 8px; }
+  .result-hero-sub { font-size: 13px; color: var(--ink-mid); margin-top: 12px; line-height: 1.7; }
+
+  /* result cards */
+  .result-cards { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin-bottom: 20px; }
+  @media(max-width:500px) { .result-cards { grid-template-columns: 1fr; } }
+  .rcard { background: white; border: 1px solid var(--line); padding: 18px 16px; text-align: center; border-radius: var(--radius); border-top: 2px solid var(--pine-mid); }
+  .rcard.amber { border-top-color: var(--amber); }
+  .rcard.blue  { border-top-color: var(--blue); }
+  .rcard-label { font-size: 10px; letter-spacing: 1.5px; color: var(--ink-light); font-weight: 500; margin-bottom: 8px; min-height: 28px; display: flex; align-items: center; justify-content: center; line-height: 1.4; }
+  .rcard-val { font-family: 'Noto Serif TC', serif; font-size: clamp(16px,3vw,22px); font-weight: 700; color: var(--pine); word-break: break-all; }
+  .rcard.amber .rcard-val { color: var(--amber); }
+  .rcard.blue  .rcard-val { color: var(--blue); }
+  .rcard-unit { font-size: 11px; color: var(--ink-light); margin-top: 3px; }
+
+  /* formula card */
+  .formula-card { background: var(--pine-mist); border: 1px solid var(--line); border-left: 3px solid var(--pine-mid); padding: 16px 20px; border-radius: 0 var(--radius) var(--radius) 0; margin-bottom: 20px; }
+  .formula-card .f-title { font-size: 11px; letter-spacing: 2px; color: var(--pine-mid); font-weight: 700; margin-bottom: 10px; }
+  .formula-card .f-eq { font-family: 'Noto Serif TC', serif; font-size: 14px; color: var(--ink); line-height: 2.4; }
+  .formula-card .fv { color: var(--pine); font-weight: 700; }
+  .formula-card .fa { color: var(--amber); font-weight: 700; }
+
+  /* breakdown */
+  .breakdown { background: white; border: 1px solid var(--line); padding: 20px 24px; border-radius: var(--radius); margin-bottom: 20px; }
+  .breakdown-title { font-family: 'Noto Serif TC', serif; font-size: 13px; font-weight: 700; letter-spacing: 2px; color: var(--ink-mid); margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--line); }
+  .brow { display: flex; justify-content: space-between; align-items: baseline; padding: 9px 0; font-size: 13px; border-bottom: 1px dashed var(--line); gap: 12px; }
+  .brow:last-child { border-bottom: none; }
+  .brow .bl { color: var(--ink-mid); flex-shrink: 0; }
+  .brow .bv { font-weight: 500; color: var(--ink); font-family: 'Noto Serif TC', serif; text-align: right; }
+  .brow.key  .bv { color: var(--pine);  font-size: 16px; }
+  .brow.key2 .bv { color: var(--amber); font-size: 16px; }
+  .brow.final .bl { font-weight: 700; font-size: 14px; }
+  .brow.final .bv { color: var(--pine); font-size: 22px; }
+  .sec-lbl { font-size: 11px; letter-spacing: 2px; color: var(--pine-mid); font-weight: 700; text-transform: uppercase; padding: 10px 0 4px; border-top: 1px solid var(--line); margin-top: 4px; }
+
+  /* info */
+  .info-box { background: var(--paper-2); border-left: 3px solid var(--pine-mid); padding: 12px 16px; font-size: 12px; color: var(--ink-mid); line-height: 1.9; border-radius: 0 var(--radius) var(--radius) 0; }
+  .info-box strong { color: var(--pine-mid); font-weight: 500; }
+  .info-box ul { padding-left: 16px; }
+  .info-box li { margin-bottom: 3px; }
+
+  /* FOOTER */
+  .footer { text-align: center; margin-top: 60px; padding-top: 20px; border-top: 1px solid var(--line); }
+  .footer p { font-size: 11px; color: var(--ink-light); letter-spacing: 1px; margin-top: 4px; }
+
+  /* 宜慶地政 公司主標 */
+  .company-title {
+    font-family: 'Noto Serif TC', serif;
+    font-size: clamp(36px, 6vw, 56px);
+    font-weight: 700;
+    color: var(--ink);
+    line-height: 1.2;
+    letter-spacing: 8px;
+    margin-bottom: 18px;
+    text-indent: 8px;
+  }
+  .page-subtitle {
+    font-family: 'Noto Serif TC', serif;
+    font-size: clamp(18px, 2.6vw, 22px);
+    font-weight: 500;
+    color: var(--ink-light);
+    line-height: 1.4;
+    letter-spacing: 3px;
+    margin-top: 4px;
+  }
+
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="ornament-row">
+      <div class="orn-line"></div><div class="orn-dia"></div><div class="orn-line r"></div>
+    </div>
+    <span class="header-badge">不動產信託工具</span>
+    <h1 class="company-title">宜慶地政</h1>
+    <h2 class="page-subtitle">信託期間規劃</h2>
+    <p class="header-sub">輸入原本受益價值 Pv、公定現值 Fv 與年利率 r，反推信託所需期間 n（年）</p>
+    <div class="formula-banner">
+      <span>n</span> ＝ ln（Fv ÷ Pv）÷ ln（1 ＋ r）
+    </div>
+  </div>
+
+  <!-- INPUT CARD -->
+  <div class="card">
+    <div class="card-title">一、輸入資料</div>
+
+    <div class="field">
+      <label><span class="var-tag">Pv</span>原本受益價值<span class="label-hint">信託財產原本受益人之現值（元）</span></label>
+      <div class="input-wrap">
+        <input type="number" id="pv" placeholder="例：6000000" min="0" oninput="liveCalc()">
+        <span class="input-unit">元</span>
+      </div>
+    </div>
+
+    <div class="field">
+      <label><span class="var-tag">Fv</span>公定現值<span class="label-hint">信託財產之公告現值或評定現值（元）</span></label>
+      <div class="input-wrap">
+        <input type="number" id="fv" placeholder="例：10000000" min="0" oninput="liveCalc()">
+        <span class="input-unit">元</span>
+      </div>
+    </div>
+
+    <div class="field">
+      <label><span class="var-tag">r</span>年利率<span class="label-hint">財政部公告之複利年金現值利率（%）</span></label>
+      <div class="input-wrap">
+        <input type="number" id="rate" placeholder="例：3.00" min="0" max="100" step="0.01" oninput="liveCalc()">
+        <span class="input-unit">%</span>
+      </div>
+    </div>
+
+    <!-- Relation bar -->
+    <div class="relation-bar" id="relation-bar">
+      <div class="rel-box pv-box">
+        <div class="rel-lbl">Pv 原本受益價值</div>
+        <div class="rel-val" id="rel-pv">—</div>
+        <div class="rel-lbl">元</div>
+      </div>
+      <div class="rel-mid">
+        <div class="rel-ratio-lbl">Fv ÷ Pv</div>
+        <div class="rel-arrow">→</div>
+        <div class="rel-val" id="rel-ratio" style="font-size:13px;">—</div>
+      </div>
+      <div class="rel-box fv-box">
+        <div class="rel-lbl">Fv 公定現值</div>
+        <div class="rel-val" id="rel-fv">—</div>
+        <div class="rel-lbl">元</div>
+      </div>
+    </div>
+
+    <!-- Live preview -->
+    <div class="field">
+      <label>信託期間 n（即時預覽）</label>
+      <div class="computed">
+        <span id="live-formula-txt">ln(Fv÷Pv) ÷ ln(1+r)</span>
+        <span class="val" id="live-n">— 年</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- BUTTONS -->
+  <div class="btn-row">
+    <button class="btn btn-primary" onclick="calculate()">開始計算</button>
+    <button class="btn btn-secondary" onclick="resetForm()">清除重填</button>
+  </div>
+  <div class="error-banner" id="error-banner"></div>
+
+  <!-- RESULT -->
+  <div class="result-area" id="result-area">
+
+    <!-- Hero -->
+    <div class="result-hero">
+      <div class="result-hero-label">信託期間 n</div>
+      <div class="result-hero-val" id="res-n">—</div>
+      <div class="result-hero-unit">年</div>
+      <div class="result-hero-sub" id="res-sub">—</div>
+    </div>
+
+    <!-- Detail cards -->
+    <div class="result-cards">
+      <div class="rcard">
+        <div class="rcard-label">Fv ÷ Pv 倍率</div>
+        <div class="rcard-val" id="res-ratio">—</div>
+        <div class="rcard-unit">倍</div>
+      </div>
+      <div class="rcard amber">
+        <div class="rcard-label">ln(Fv÷Pv) 自然對數</div>
+        <div class="rcard-val" id="res-lnratio">—</div>
+        <div class="rcard-unit"></div>
+      </div>
+      <div class="rcard blue">
+        <div class="rcard-label">ln(1+r) 對數因子</div>
+        <div class="rcard-val" id="res-lnr">—</div>
+        <div class="rcard-unit"></div>
+      </div>
+    </div>
+
+    <!-- Formula detail -->
+    <div class="formula-card">
+      <div class="f-title">計算公式展開</div>
+      <div class="f-eq" id="formula-detail">—</div>
+    </div>
+
+    <!-- Breakdown -->
+    <div class="breakdown">
+      <div class="breakdown-title">計算明細</div>
+      <div id="breakdown-rows"></div>
+    </div>
+
+    <div class="info-box">
+      <strong>說明：</strong>
+      <ul>
+        <li><strong>信託期間 n</strong>係由複利現值公式 Pv ＝ Fv ÷ (1＋r)ⁿ 反推而得，結果顯示至小數點第1位。</li>
+        <li>推導：(1＋r)ⁿ ＝ Fv ÷ Pv　⟹　n ＝ ln(Fv÷Pv) ÷ ln(1＋r)</li>
+        <li>Fv 須大於 Pv（資產增值），否則無法以此公式求解。</li>
+        <li>年利率 r 應採財政部每年公告之複利年金現值計算利率。</li>
+        <li>本試算結果僅供參考，實際規劃請洽稅務專業人員。</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <div class="ornament-row" style="margin-bottom:12px;">
+      <div class="orn-line" style="max-width:60px;"></div>
+      <div class="orn-dia"></div>
+      <div class="orn-line r" style="max-width:60px;"></div>
+    </div>
+    <p>本試算結果僅供參考，實際規劃請洽稅務專業人員</p>
+    <p>信託期間規劃 · n ＝ ln(Fv÷Pv) ÷ ln(1＋r)</p>
+  </div>
+
+</div>
+
+<script>
+function fmt(n) {
+  if (isNaN(n) || !isFinite(n)) return '—';
+  return Math.round(n).toLocaleString('zh-TW');
+}
+function fmtDec(n, d=4) { return (isNaN(n) || !isFinite(n)) ? '—' : n.toFixed(d); }
+function getVal(id) { const v = parseFloat(document.getElementById(id).value); return isNaN(v) ? null : v; }
+
+function compute(pv, fv, r) {
+  if (pv === null || fv === null || r === null) return null;
+  if (pv <= 0 || fv <= 0 || r <= 0) return null;
+  if (fv <= pv) return { error: 'Fv 須大於 Pv，才能計算出正的信託期間' };
+  // 用 Number(r.toFixed(10)) 避免浮點精度誤差（如 2.5/100 產生 0.024999...）
+  const rDec    = Number((r / 100).toFixed(10));
+  const ratio   = fv / pv;
+  const lnRatio = Math.log(ratio);
+  const lnR     = Math.log(1 + rDec);
+  const n       = lnRatio / lnR;
+  return { pv, fv, r, rDec, ratio, lnRatio, lnR, n };
+}
+
+// ── LIVE CALC ──
+function liveCalc() {
+  const pv = getVal('pv');
+  const fv = getVal('fv');
+  const r  = getVal('rate');
+
+  // Update relation bar
+  document.getElementById('rel-pv').textContent    = pv ? fmt(pv)  : '—';
+  document.getElementById('rel-fv').textContent    = fv ? fmt(fv)  : '—';
+  document.getElementById('rel-ratio').textContent = (pv && fv && pv > 0) ? (fv/pv).toFixed(4) + ' 倍' : '—';
+
+  const res = compute(pv, fv, r);
+  if (res && !res.error) {
+    document.getElementById('live-formula-txt').textContent = `ln(${fmt(fv)}÷${fmt(pv)}) ÷ ln(1+${r}%)`;
+    document.getElementById('live-n').textContent = res.n.toFixed(1) + ' 年';
+  } else {
+    document.getElementById('live-formula-txt').textContent = 'ln(Fv÷Pv) ÷ ln(1+r)';
+    document.getElementById('live-n').textContent = '— 年';
+  }
+}
+
+// ── CALCULATE ──
+function calculate() {
+  const banner = document.getElementById('error-banner');
+  banner.classList.remove('show');
+
+  const pv = getVal('pv');
+  const fv = getVal('fv');
+  const r  = getVal('rate');
+
+  if (pv === null || pv <= 0) { banner.textContent = '請輸入原本受益價值 Pv（須大於0）'; banner.classList.add('show'); return; }
+  if (fv === null || fv <= 0) { banner.textContent = '請輸入公定現值 Fv（須大於0）';     banner.classList.add('show'); return; }
+  if (r  === null || r  <= 0) { banner.textContent = '請輸入年利率 r（須大於0）';         banner.classList.add('show'); return; }
+
+  const res = compute(pv, fv, r);
+  if (res.error) { banner.textContent = res.error; banner.classList.add('show'); return; }
+
+  const nYrs   = Math.floor(res.n);
+  const nMos   = Math.round((res.n - nYrs) * 12);
+
+  // Hero
+  document.getElementById('res-n').textContent   = res.n.toFixed(1);
+  document.getElementById('res-sub').textContent =
+    `約 ${nYrs} 年${nMos > 0 ? ' ' + nMos + ' 個月' : ''}　｜　驗算：${fmt(fv)} ÷ (1+${r}%)^${res.n.toFixed(1)} ≈ ${fmt(fv / Math.pow(1 + res.rDec, res.n))} 元`;
+
+  // Cards
+  document.getElementById('res-ratio').textContent   = res.ratio.toFixed(6);
+  document.getElementById('res-lnratio').textContent = fmtDec(res.lnRatio, 6);
+  document.getElementById('res-lnr').textContent     = fmtDec(res.lnR, 6);
+
+  // Formula detail
+  document.getElementById('formula-detail').innerHTML =
+    `n ＝ ln（<span class="fv">${fmt(fv)}</span> ÷ <span class="fv">${fmt(pv)}</span>）÷ ln（1 ＋ <span class="fv">${r}%</span>）<br>` +
+    `　＝ ln（<span class="fv">${res.ratio.toFixed(6)}</span>）÷ ln（<span class="fv">${(1 + res.rDec).toFixed(4)}</span>）<br>` +
+    `　＝ <span class="fa">${fmtDec(res.lnRatio, 6)}</span> ÷ <span class="fa">${fmtDec(res.lnR, 6)}</span><br>` +
+    `　＝ <span class="fv">${res.n.toFixed(1)}</span> 年`;
+
+  // Breakdown
+  const rows = document.getElementById('breakdown-rows');
+  const brow = (l, v, cls='') =>
+    `<div class="brow ${cls}"><span class="bl">${l}</span><span class="bv">${v}</span></div>`;
+  const sec = t => `<div class="sec-lbl">${t}</div>`;
+
+  let html = '';
+  html += sec('輸入參數');
+  html += brow('原本受益價值 Pv', fmt(pv) + ' 元');
+  html += brow('公定現值 Fv',     fmt(fv) + ' 元');
+  html += brow('年利率 r',        r + '%　（小數：' + res.rDec.toFixed(4) + '）');
+
+  html += sec('中間計算');
+  html += brow('Fv ÷ Pv 倍率',          res.ratio.toFixed(6) + ' 倍',   'key');
+  html += brow('ln(Fv÷Pv) 自然對數',    fmtDec(res.lnRatio, 8),         'key2');
+  html += brow('ln(1+r) 對數因子',       fmtDec(res.lnR, 8));
+  html += brow('n ＝ ln(Fv÷Pv) ÷ ln(1+r)', res.n.toFixed(8) + ' 年');
+
+  html += sec('計算結果');
+  html += brow('信託期間 n（1位小數）',  res.n.toFixed(1) + ' 年',       'final');
+  html += brow('換算（年＋月）',          `${nYrs} 年${nMos > 0 ? ' ' + nMos + ' 個月' : ''}`);
+  html += brow('驗算（Fv ÷ (1+r)ⁿ ≈ Pv）', fmt(fv / Math.pow(1 + res.rDec, res.n)) + ' 元');
+
+  rows.innerHTML = html;
+
+  document.getElementById('result-area').classList.add('show');
+  document.getElementById('result-area').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+// ── RESET ──
+function resetForm() {
+  ['pv','fv','rate'].forEach(id => document.getElementById(id).value = '');
+  ['rel-pv','rel-fv'].forEach(id => document.getElementById(id).textContent = '—');
+  document.getElementById('rel-ratio').textContent      = '—';
+  document.getElementById('live-formula-txt').textContent = 'ln(Fv÷Pv) ÷ ln(1+r)';
+  document.getElementById('live-n').textContent         = '— 年';
+  document.getElementById('result-area').classList.remove('show');
+  document.getElementById('error-banner').classList.remove('show');
+}
+</script>
+</body>
+</html>
