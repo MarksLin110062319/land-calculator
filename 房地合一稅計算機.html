@@ -1,0 +1,1177 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>宜慶地政｜房地合一稅2.0 試算</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;500;700&family=Noto+Sans+TC:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --pine:        #1B4332;
+    --pine-mid:    #2D6A4F;
+    --pine-light:  #40916C;
+    --pine-pale:   #D8F3DC;
+    --pine-mist:   #F0FAF2;
+
+    --ink:         #0D1F18;
+    --ink-mid:     #2D4A3A;
+    --ink-light:   #5A7A68;
+    --paper:       #F6FBF7;
+    --paper-2:     #EBF5EE;
+    --paper-3:     #D4E8D8;
+    --red-accent: #C0392B;
+    --green-accent: #1A6B43;
+    --line:        rgba(27,67,50,0.18);
+    --radius: 4px;
+  }
+
+  html { font-size: 16px; }
+
+  body {
+    font-family: 'Noto Sans TC', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    min-height: 100vh;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      repeating-linear-gradient(0deg, transparent, transparent 39px, var(--line) 39px, var(--line) 40px),
+      repeating-linear-gradient(90deg, transparent, transparent 39px, var(--line) 39px, var(--line) 40px);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .page {
+    position: relative;
+    z-index: 1;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 48px 24px 80px;
+  }
+
+  /* ── HEADER ── */
+  .header {
+    text-align: center;
+    margin-bottom: 56px;
+    position: relative;
+  }
+
+  .header-ornament {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    justify-content: center;
+    margin-bottom: 20px;
+  }
+
+  .ornament-line {
+    flex: 1;
+    max-width: 120px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--pine-mid));
+  }
+  .ornament-line.right { background: linear-gradient(90deg, var(--pine-mid), transparent); }
+
+  .ornament-diamond {
+    width: 10px; height: 10px;
+    background: var(--pine-mid);
+    transform: rotate(45deg);
+  }
+
+  .header-badge {
+    display: inline-block;
+    font-family: 'Noto Serif TC', serif;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 4px;
+    color: var(--pine-mid);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  .company-title {
+    font-family: 'Noto Serif TC', serif;
+    font-size: clamp(36px, 6vw, 56px);
+    font-weight: 700;
+    color: var(--ink);
+    line-height: 1.2;
+    letter-spacing: 8px;
+    margin-bottom: 18px;
+    padding-right: 0;
+    text-indent: 8px;
+  }
+
+  .page-subtitle {
+    font-family: 'Noto Serif TC', serif;
+    font-size: clamp(18px, 2.6vw, 22px);
+    font-weight: 500;
+    color: var(--ink-light);
+    line-height: 1.4;
+    letter-spacing: 3px;
+    margin-top: 4px;
+  }
+
+  h1 {
+    font-family: 'Noto Serif TC', serif;
+    font-size: clamp(28px, 5vw, 42px);
+    font-weight: 700;
+    color: var(--ink);
+    line-height: 1.2;
+    letter-spacing: 2px;
+  }
+
+  .header-sub {
+    margin-top: 14px;
+    font-size: 13px;
+    color: var(--ink-light);
+    line-height: 1.8;
+    font-weight: 300;
+    max-width: 560px;
+    margin-inline: auto;
+  }
+
+  /* ── GRID ── */
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  @media (max-width: 640px) { .grid { grid-template-columns: 1fr; } }
+
+  .grid-full { grid-column: 1 / -1; }
+
+  /* ── SECTION CARD ── */
+  .card {
+    background: rgba(255,255,255,0.7);
+    border: 1px solid var(--line);
+    border-top: 2px solid var(--pine-mid);
+    padding: 28px 24px;
+    position: relative;
+  }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    top: -1px; left: 24px;
+    width: 40px; height: 2px;
+    background: var(--paper);
+  }
+
+  .card-title {
+    font-family: 'Noto Serif TC', serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    color: var(--pine-mid);
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .card-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--line);
+  }
+
+  /* ── FIELD ── */
+  .field { margin-bottom: 18px; }
+  .field:last-child { margin-bottom: 0; }
+
+  label {
+    display: block;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--ink-mid);
+    letter-spacing: 1px;
+    margin-bottom: 7px;
+  }
+
+  label .req {
+    color: var(--red-accent);
+    margin-left: 3px;
+  }
+
+  .help-btn {
+    display: inline-block;
+    font-size: 10px;
+    color: var(--pine-mid);
+    border: 1px solid var(--pine-mid);
+    border-radius: 2px;
+    padding: 0 5px;
+    cursor: pointer;
+    margin-left: 6px;
+    vertical-align: middle;
+    transition: background .15s, color .15s;
+    font-weight: 400;
+    letter-spacing: 0;
+  }
+  .help-btn:hover { background: var(--pine-mid); color: white; }
+
+  input[type="text"],
+  input[type="number"],
+  select {
+    width: 100%;
+    height: 42px;
+    border: 1px solid var(--paper-3);
+    border-bottom: 2px solid var(--paper-3);
+    background: white;
+    padding: 0 12px;
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: 14px;
+    color: var(--ink);
+    border-radius: var(--radius);
+    outline: none;
+    transition: border-color .2s;
+    -webkit-appearance: none;
+  }
+  input:focus, select:focus { border-color: var(--pine-mid); border-bottom-color: var(--pine-mid); }
+  input::placeholder { color: var(--ink-light); opacity: 0.6; font-size: 12px; }
+
+  /* date row */
+  .date-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 6px;
+  }
+
+  /* ── RADIO GROUP ── */
+  .radio-group {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .radio-opt {
+    position: relative;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .radio-opt input { display: none; }
+
+  .radio-opt span {
+    display: inline-flex;
+    align-items: center;
+    height: 36px;
+    padding: 0 16px;
+    border: 1px solid var(--paper-3);
+    border-radius: var(--radius);
+    font-size: 13px;
+    color: var(--ink-mid);
+    background: white;
+    cursor: pointer;
+    transition: all .2s;
+    font-weight: 400;
+  }
+
+  .radio-opt input:checked + span {
+    background: var(--pine-mid);
+    border-color: var(--pine-mid);
+    color: white;
+    font-weight: 500;
+  }
+
+  /* ── DERIVED INFO ── */
+  .info-row {
+    background: var(--paper-2);
+    border-left: 3px solid var(--pine-mid);
+    padding: 10px 14px;
+    font-size: 13px;
+    color: var(--ink-mid);
+    margin-top: 8px;
+    border-radius: 0 var(--radius) var(--radius) 0;
+  }
+
+  .info-row strong { color: var(--pine-mid); font-weight: 500; }
+
+  /* ── TOOLTIP ── */
+  .tooltip-box {
+    display: none;
+    background: var(--ink);
+    color: var(--paper);
+    padding: 14px 18px;
+    font-size: 12px;
+    line-height: 1.8;
+    border-radius: var(--radius);
+    margin-top: 8px;
+    position: relative;
+  }
+  .tooltip-box.open { display: block; }
+
+  /* ── COMPUTED FIELD ── */
+  .computed {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 42px;
+    border: 1px dashed var(--paper-3);
+    background: var(--paper-2);
+    padding: 0 12px;
+    border-radius: var(--radius);
+    font-size: 14px;
+    color: var(--ink-mid);
+  }
+  .computed .val { font-weight: 500; color: var(--ink); }
+
+  /* ── SECTION DIVIDER ── */
+  .section-gap { margin-bottom: 28px; }
+
+  /* ── BUTTON ── */
+  .btn-row {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin-top: 32px;
+    flex-wrap: wrap;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    height: 52px;
+    padding: 0 36px;
+    border: none;
+    cursor: pointer;
+    font-family: 'Noto Serif TC', serif;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    border-radius: var(--radius);
+    transition: all .2s;
+  }
+
+  .btn-primary {
+    background: var(--pine-mid);
+    color: white;
+  }
+  .btn-primary:hover { background: var(--pine-light); }
+  .btn-primary:active { transform: scale(0.98); }
+
+  .btn-secondary {
+    background: transparent;
+    color: var(--ink-mid);
+    border: 1px solid var(--paper-3);
+  }
+  .btn-secondary:hover { border-color: var(--pine-mid); color: var(--pine-mid); }
+
+  /* ── RESULT PANEL ── */
+  .result-panel {
+    display: none;
+    margin-top: 32px;
+    animation: fadeUp .4s ease;
+  }
+  .result-panel.show { display: block; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .result-header {
+    text-align: center;
+    margin-bottom: 28px;
+  }
+
+  .result-main {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  @media (max-width: 600px) { .result-main { grid-template-columns: 1fr; } }
+
+  .result-card {
+    background: white;
+    border: 1px solid var(--line);
+    padding: 24px 20px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .result-card.primary { border-top: 3px solid var(--pine-mid); }
+  .result-card.danger  { border-top: 3px solid var(--red-accent); }
+  .result-card.info    { border-top: 3px solid var(--green-accent); }
+
+  .result-label {
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: var(--ink-light);
+    font-weight: 500;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  .result-value {
+    font-family: 'Noto Serif TC', serif;
+    font-size: clamp(20px, 4vw, 30px);
+    font-weight: 700;
+    color: var(--ink);
+    word-break: break-all;
+  }
+
+  .result-card.primary .result-value { color: var(--red-accent); }
+  .result-card.danger  .result-value { color: var(--red-accent); }
+  .result-card.info    .result-value { color: var(--green-accent); }
+
+  .result-unit {
+    font-size: 12px;
+    color: var(--ink-light);
+    margin-top: 4px;
+  }
+
+  /* ── BREAKDOWN ── */
+  .breakdown {
+    background: white;
+    border: 1px solid var(--line);
+    padding: 20px 24px;
+  }
+
+  .breakdown-title {
+    font-family: 'Noto Serif TC', serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: var(--ink-mid);
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .breakdown-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 9px 0;
+    font-size: 13px;
+    border-bottom: 1px dashed var(--line);
+  }
+  .breakdown-row:last-child { border-bottom: none; }
+  .breakdown-row .lbl { color: var(--ink-mid); }
+  .breakdown-row .amt { font-weight: 500; color: var(--ink); font-family: 'Noto Serif TC', serif; }
+  .breakdown-row.total { padding-top: 14px; }
+  .breakdown-row.total .lbl { font-weight: 700; color: var(--ink); }
+  .breakdown-row.total .amt { font-size: 18px; color: var(--red-accent); }
+
+  /* ── ERROR ── */
+  .error-msg {
+    display: none;
+    color: var(--red-accent);
+    font-size: 12px;
+    margin-top: 6px;
+  }
+  .error-msg.show { display: block; }
+
+  /* ── FOOTER ── */
+  .footer {
+    text-align: center;
+    margin-top: 60px;
+    padding-top: 24px;
+    border-top: 1px solid var(--line);
+  }
+
+  .footer-ornament {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    justify-content: center;
+    margin-bottom: 12px;
+  }
+
+  .footer-dot {
+    width: 6px; height: 6px;
+    background: var(--pine-mid);
+    transform: rotate(45deg);
+  }
+
+  .footer p {
+    font-size: 11px;
+    color: var(--ink-light);
+    letter-spacing: 1px;
+  }
+
+  /* ── NUMBER UTIL ── */
+  input[type="number"]::-webkit-outer-spin-button,
+  input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; }
+
+  .error-banner {
+    display: none;
+    background: #FFF0EE;
+    border: 1px solid #F5C6C0;
+    border-left: 3px solid var(--red-accent);
+    color: var(--red-accent);
+    padding: 12px 16px;
+    font-size: 13px;
+    border-radius: var(--radius);
+    margin-top: 16px;
+  }
+  .error-banner.show { display: block; }
+
+  .regime-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 2px;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 1px;
+  }
+  .regime-new { background: #EDF7F1; color: var(--green-accent); }
+  .regime-old { background: var(--pine-pale); color: var(--pine-mid); }
+  .regime-none { background: var(--paper-3); color: var(--ink-light); }
+</style>
+</head>
+<body>
+
+<div class="page">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-ornament">
+      <div class="ornament-line"></div>
+      <div class="ornament-diamond"></div>
+      <div class="ornament-line right"></div>
+    </div>
+    <h1 class="company-title">宜慶地政</h1>
+    <div class="header-badge">稅務試算工具</div>
+    <h2 class="page-subtitle">房地合一稅 2.0</h2>
+    <p class="header-sub">依取得/交易日期判斷新舊制，輸入交易收入、成本費用、出售必要費用與土地漲價總額，試算應納房地合一稅額</p>
+  </div>
+
+  <!-- SECTION 1: 日期與持有 -->
+  <div class="card grid-full section-gap">
+    <div class="card-title">一、取得與交易日期</div>
+    <div class="grid">
+      <div class="field">
+        <label>取得日期（民國年）<span class="req">*</span>
+          <span class="help-btn" onclick="toggleHelp('help-acq')">HELP</span>
+        </label>
+        <div class="date-row">
+          <input type="number" id="acqY" placeholder="年" min="50" max="200">
+          <input type="number" id="acqM" placeholder="月" min="1" max="12">
+          <input type="number" id="acqD" placeholder="日" min="1" max="31">
+        </div>
+        <div class="tooltip-box" id="help-acq">
+          原則：以取得之房屋、土地完成所有權移轉登記日為準（含贈與）。<br>
+          例外：<br>
+          ① 強制執行案，為拍定人領得權利移轉證書之日。<br>
+          ② 無法辦理建物所有權登記之房屋，為訂定買賣契約之日。<br>
+          ③ 原取得日：建物第一次登記之建築完成日、區段徵收、市地重劃、都市更新、剩餘財產差額分配、共有物分割價值相當、自益信託之原取得登記日。
+        </div>
+      </div>
+
+      <div class="field">
+        <label>交易日期（民國年）<span class="req">*</span>
+          <span class="help-btn" onclick="toggleHelp('help-tx')">HELP</span>
+        </label>
+        <div class="date-row">
+          <input type="number" id="txY" placeholder="年" min="50" max="200">
+          <input type="number" id="txM" placeholder="月" min="1" max="12">
+          <input type="number" id="txD" placeholder="日" min="1" max="31">
+        </div>
+        <div class="tooltip-box" id="help-tx">
+          原則：以所出售或交換之房屋、土地完成所有權移轉登記日為準。<br>
+          例外：<br>
+          ① 強制執行案，為拍定人領得權利移轉證書之日。<br>
+          ② 無法辦理建物所有權登記之房屋，為訂定買賣契約之日。
+        </div>
+      </div>
+    </div>
+
+    <div class="info-row" id="regime-info">
+      請輸入取得及交易日期以顯示適用新舊制與持有期間
+    </div>
+  </div>
+
+  <!-- SECTION 2: 交易收入 -->
+  <div class="card grid-full section-gap">
+    <div class="card-title">二、交易收入</div>
+    <div class="field">
+      <label>交易收入（元）<span class="req">*</span></label>
+      <input type="number" id="revenue" placeholder="請輸入交易金額" min="0">
+    </div>
+  </div>
+
+  <!-- SECTION 3: 取得成本 -->
+  <div class="card grid-full section-gap">
+    <div class="card-title">三、取得成本</div>
+
+    <div class="field">
+      <label>取得方式</label>
+      <div class="radio-group">
+        <label class="radio-opt"><input type="radio" name="acqType" value="purchase" checked><span>出價取得</span></label>
+        <label class="radio-opt"><input type="radio" name="acqType" value="inherit"><span>繼承／受贈取得</span></label>
+      </div>
+    </div>
+
+    <div id="purchase-fields">
+      <div class="field">
+        <label>取得成本（元）</label>
+        <input type="number" id="acqCost" placeholder="實際取得成本" min="0">
+      </div>
+    </div>
+
+    <div id="inherit-fields" style="display:none;">
+      <div class="grid">
+        <div class="field">
+          <label>取得時公告土地現值（元）</label>
+          <input type="number" id="inheritLand" placeholder="0" min="0">
+        </div>
+        <div class="field">
+          <label>取得時房屋評定現值（元）</label>
+          <input type="number" id="inheritBuilding" placeholder="0" min="0">
+        </div>
+        <div class="field">
+          <label>物價總指數（%）</label>
+          <input type="number" id="priceIndex" placeholder="例：115.3" min="0" step="0.01">
+        </div>
+        <div class="field">
+          <label>繼承、受贈取得成本總額（元）</label>
+          <div class="computed"><span>自動計算</span><span class="val" id="inheritTotal">—</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>取得房地達可供使用狀態前必要費用（元）
+        <span class="help-btn" onclick="toggleHelp('help-cost')">HELP</span>
+      </label>
+      <input type="number" id="necessaryCost" placeholder="契稅、印花稅、代書費、仲介費等" min="0">
+      <div class="tooltip-box" id="help-cost">
+        購入房地達可供使用狀態前支付之必要費用（如契稅、印花稅、代書費、規費、公證費、仲介費等）、所有權移轉登記完成前向金融機構借款之利息，以及取得房屋後非2年內能耗竭之增置改良修繕費。
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 4: 出售費用 -->
+  <div class="card grid-full section-gap">
+    <div class="card-title">四、出售必要費用
+      <span class="help-btn" onclick="toggleHelp('help-sell')">HELP</span>
+    </div>
+    <div class="tooltip-box" id="help-sell" style="margin-bottom:16px;">
+      取得、改良及移轉而支付之費用：如仲介費、廣告費、清潔費、搬運費等。<br>
+      未能提示相關費用證明文件或提示金額小於成交價額×3%者，按成交價額3%計算。<br>
+      ※ 使用期間繳納之房屋稅、地價稅、管理費、金融機構借款利息等不得列為成本費用。
+    </div>
+
+    <div class="field">
+      <label>費用計算方式</label>
+      <div class="radio-group">
+        <label class="radio-opt"><input type="radio" name="sellType" value="auto" checked><span>按成交價3%計算</span></label>
+        <label class="radio-opt"><input type="radio" name="sellType" value="manual"><span>列舉實際費用</span></label>
+      </div>
+    </div>
+
+    <div id="sell-auto" class="field">
+      <label>自動計算費用（元）</label>
+      <div class="computed"><span>成交價 × 3%</span><span class="val" id="autoSellFee">—</span></div>
+    </div>
+
+    <div id="sell-manual" style="display:none;" class="field">
+      <label>列舉費用合計（元）</label>
+      <input type="number" id="manualSellFee" placeholder="請輸入列舉費用合計" min="0">
+    </div>
+
+    <div class="field">
+      <label>3年內房地交易損失（元）</label>
+      <input type="number" id="priorLoss" placeholder="0" min="0">
+    </div>
+  </div>
+
+  <!-- SECTION 5: 持有人身分 -->
+  <div class="card grid-full section-gap">
+    <div class="card-title">五、持有者身分與類別</div>
+
+    <div class="field">
+      <label>持有者身分</label>
+      <div class="radio-group">
+        <label class="radio-opt"><input type="radio" name="owner" value="local" checked><span>本國個人</span></label>
+        <label class="radio-opt"><input type="radio" name="owner" value="corp"><span>本國公司</span></label>
+        <label class="radio-opt"><input type="radio" name="owner" value="foreign"><span>外資（個人或境外公司）</span></label>
+      </div>
+    </div>
+
+    <div id="local-type" class="field">
+      <label>持有類別</label>
+      <div class="radio-group">
+        <label class="radio-opt"><input type="radio" name="localType" value="general" checked><span>一般房地</span></label>
+        <label class="radio-opt"><input type="radio" name="localType" value="selfuse"><span>自住房地</span></label>
+        <label class="radio-opt"><input type="radio" name="localType" value="involuntary"><span>非自願等</span></label>
+        <label class="radio-opt"><input type="radio" name="localType" value="construct"><span>合建或自地自建</span></label>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 6: 土地漲價 -->
+  <div class="card grid-full section-gap">
+    <div class="card-title">六、土地漲價總數額</div>
+
+    <div class="grid">
+      <div class="field">
+        <label>土地總面積（平方公尺）</label>
+        <input type="number" id="landArea" placeholder="0" min="0" step="0.01">
+      </div>
+      <div class="field">
+        <label>權利範圍（分子 / 分母）</label>
+        <div class="date-row">
+          <input type="number" id="rightNum" placeholder="分子" min="1">
+          <span style="display:flex;align-items:center;justify-content:center;color:var(--ink-light);">/</span>
+          <input type="number" id="rightDen" placeholder="分母" min="1">
+        </div>
+      </div>
+      <div class="field">
+        <label>公告現值（元／每平方公尺）</label>
+        <input type="number" id="currentVal" placeholder="0" min="0">
+      </div>
+      <div class="field">
+        <label>前次現值（元／每平方公尺）</label>
+        <input type="number" id="prevVal" placeholder="0" min="0">
+      </div>
+      <div class="field">
+        <label>前因日期（民國年/月，例：89/05）</label>
+        <div class="date-row" style="grid-template-columns:1fr 1fr;">
+          <input type="number" id="prevY" placeholder="年" min="50">
+          <input type="number" id="prevM" placeholder="月" min="1" max="12">
+        </div>
+      </div>
+      <div class="field">
+        <label>土地漲價物價指數（%）</label>
+        <input type="number" id="landIdx" placeholder="0" min="0" step="0.01">
+      </div>
+    </div>
+
+    <div class="field">
+      <label>本筆土地漲價總數額（元）</label>
+      <div class="computed"><span>自動計算</span><span class="val" id="landAppreciation">—</span></div>
+    </div>
+
+    <div class="field">
+      <label>漲價總數額合計（多筆土地合計，元）</label>
+      <input type="number" id="totalAppreciation" placeholder="若僅一筆則同上" min="0">
+    </div>
+
+    <div class="field">
+      <label>扣除項目（土地改良費／工程受益費／土地重劃費／捐贈公設地等，元）</label>
+      <input type="number" id="landDeduction" placeholder="0" min="0">
+    </div>
+
+    <div class="field">
+      <label>扣除後漲價總數額（元）</label>
+      <div class="computed"><span>合計 − 扣除項目</span><span class="val" id="netAppreciation">—</span></div>
+    </div>
+  </div>
+
+  <!-- BUTTONS -->
+  <div class="btn-row">
+    <button class="btn btn-primary" onclick="calculate()">開始計算</button>
+    <button class="btn btn-secondary" onclick="resetForm()">清除重填</button>
+  </div>
+
+  <div class="error-banner" id="error-banner"></div>
+
+  <!-- RESULT -->
+  <div class="result-panel" id="result-panel">
+    <div class="header-ornament" style="margin:32px 0 24px;">
+      <div class="ornament-line"></div>
+      <div class="ornament-diamond"></div>
+      <div class="ornament-line right"></div>
+    </div>
+
+    <div class="result-main">
+      <div class="result-card primary">
+        <div class="result-label">房地合一稅</div>
+        <div class="result-value" id="res-tax">—</div>
+        <div class="result-unit">元</div>
+      </div>
+      <div class="result-card info">
+        <div class="result-label">房地合一所得額</div>
+        <div class="result-value" id="res-income">—</div>
+        <div class="result-unit">元</div>
+      </div>
+      <div class="result-card danger">
+        <div class="result-label">適用稅率</div>
+        <div class="result-value" id="res-rate">—</div>
+        <div class="result-unit">%</div>
+      </div>
+    </div>
+
+    <div class="breakdown" id="breakdown">
+      <div class="breakdown-title">計算明細</div>
+      <div id="breakdown-rows"></div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <div class="footer-ornament">
+      <div class="ornament-line" style="max-width:60px;"></div>
+      <div class="footer-dot"></div>
+      <div class="ornament-line right" style="max-width:60px;"></div>
+    </div>
+    <p>本試算結果僅供參考，實際稅額請依主管機關核定為準</p>
+    <p style="margin-top:4px;">房地合一稅 2.0 · 民國110年7月起適用</p>
+  </div>
+
+</div>
+
+<script>
+// ── HELPERS ──
+function fmt(n) {
+  if (isNaN(n) || n === null) return '—';
+  return Math.round(n).toLocaleString('zh-TW');
+}
+
+function getVal(id) {
+  return parseFloat(document.getElementById(id).value) || 0;
+}
+
+function toggleHelp(id) {
+  const el = document.getElementById(id);
+  el.classList.toggle('open');
+}
+
+// ── DATE UTILS ──
+function parseROCDate(y, m, d) {
+  const gy = parseInt(y) + 1911;
+  return new Date(gy, parseInt(m) - 1, parseInt(d));
+}
+
+function daysDiff(d1, d2) {
+  return (d2 - d1) / (1000 * 60 * 60 * 24);
+}
+
+function yearsDiff(d1, d2) {
+  const diff = daysDiff(d1, d2);
+  return diff / 365.25;
+}
+
+// ── REGIME DETECTION ──
+function detectRegime() {
+  const acqY = document.getElementById('acqY').value;
+  const acqM = document.getElementById('acqM').value;
+  const acqD = document.getElementById('acqD').value;
+  const txY  = document.getElementById('txY').value;
+  const txM  = document.getElementById('txM').value;
+  const txD  = document.getElementById('txD').value;
+
+  if (!acqY || !acqM || !acqD || !txY || !txM || !txD) return null;
+
+  const acqDate = parseROCDate(acqY, acqM, acqD);
+  const txDate  = parseROCDate(txY, txM, txD);
+
+  if (isNaN(acqDate) || isNaN(txDate)) return null;
+
+  const newLawStart = new Date(2016, 0, 1);   // 105/1/1 新制
+  const new20Start  = new Date(2021, 6, 1);   // 110/7/1 2.0
+
+  let regime, years;
+  years = yearsDiff(acqDate, txDate);
+
+  if (txDate < newLawStart) {
+    regime = 'old';
+  } else if (txDate >= new20Start) {
+    // 交易日期 >= 110/7/1 → 一律適用 2.0 稅率表
+    regime = 'new2';
+  } else {
+    // 交易日期在 105/1/1 ~ 110/6/30 之間 → 適用 1.0 稅率表
+    regime = 'new1';
+  }
+
+  return { regime, years, acqDate, txDate };
+}
+
+function updateRegimeInfo() {
+  const info = document.getElementById('regime-info');
+  const result = detectRegime();
+  if (!result) {
+    info.innerHTML = '請輸入取得及交易日期以顯示適用新舊制與持有期間';
+    return;
+  }
+  const { regime, years } = result;
+  const yrs = Math.floor(years);
+  const mos = Math.round((years - yrs) * 12);
+
+  let badge, regLabel;
+  if (regime === 'old') {
+    badge = '<span class="regime-badge regime-old">舊制（土地增值稅＋財交所得稅）</span>';
+    regLabel = '交易日期在105年1月1日前，適用舊制';
+  } else if (regime.startsWith('new2')) {
+    badge = '<span class="regime-badge regime-new">新制 2.0（民國110年7月起）</span>';
+    regLabel = '適用房地合一稅2.0';
+  } else {
+    badge = '<span class="regime-badge regime-new">新制 1.0（民國105年起）</span>';
+    regLabel = '適用房地合一稅1.0';
+  }
+
+  info.innerHTML = `${badge}　持有期間：<strong>${yrs}年${mos > 0 ? mos + '個月' : ''}</strong>　${regLabel}`;
+  updateAutoFee();
+}
+
+// ── DATE INPUTS AUTO TRIGGER ──
+['acqY','acqM','acqD','txY','txM','txD'].forEach(id => {
+  document.getElementById(id).addEventListener('input', updateRegimeInfo);
+});
+
+// ── ACQ TYPE TOGGLE ──
+document.querySelectorAll('input[name="acqType"]').forEach(r => {
+  r.addEventListener('change', () => {
+    const v = r.value;
+    document.getElementById('purchase-fields').style.display = v === 'purchase' ? '' : 'none';
+    document.getElementById('inherit-fields').style.display = v === 'inherit' ? '' : 'none';
+    updateInheritTotal();
+  });
+});
+
+// ── INHERIT TOTAL ──
+function updateInheritTotal() {
+  const land = getVal('inheritLand');
+  const bldg = getVal('inheritBuilding');
+  const idx  = getVal('priceIndex') / 100 || 1;
+  if (land + bldg === 0) { document.getElementById('inheritTotal').textContent = '—'; return; }
+  const total = (land + bldg) * idx;
+  document.getElementById('inheritTotal').textContent = fmt(total);
+}
+['inheritLand','inheritBuilding','priceIndex'].forEach(id => {
+  document.getElementById(id).addEventListener('input', updateInheritTotal);
+});
+
+// ── OWNER TOGGLE ──
+document.querySelectorAll('input[name="owner"]').forEach(r => {
+  r.addEventListener('change', () => {
+    document.getElementById('local-type').style.display = r.value === 'local' ? '' : 'none';
+  });
+});
+
+// ── SELL TYPE TOGGLE ──
+document.querySelectorAll('input[name="sellType"]').forEach(r => {
+  r.addEventListener('change', () => {
+    document.getElementById('sell-auto').style.display   = r.value === 'auto' ? '' : 'none';
+    document.getElementById('sell-manual').style.display = r.value === 'manual' ? '' : 'none';
+  });
+});
+
+function updateAutoFee() {
+  const rev = getVal('revenue');
+  document.getElementById('autoSellFee').textContent = rev > 0 ? fmt(rev * 0.03) : '—';
+}
+document.getElementById('revenue').addEventListener('input', updateAutoFee);
+
+// ── LAND APPRECIATION ──
+function updateLandCalc() {
+  const area    = getVal('landArea');
+  const rNum    = getVal('rightNum') || 1;
+  const rDen    = getVal('rightDen') || 1;
+  const curr    = getVal('currentVal');
+  const prev    = getVal('prevVal');
+  const idx     = getVal('landIdx') / 100 || 1;
+
+  if (!area || !curr) {
+    document.getElementById('landAppreciation').textContent = '—';
+    document.getElementById('netAppreciation').textContent = '—';
+    return;
+  }
+  const adjustedPrev = prev * idx;
+  const appreciation = (curr - adjustedPrev) * area * (rNum / rDen);
+  const appVal = Math.max(0, appreciation);
+  document.getElementById('landAppreciation').textContent = fmt(appVal);
+
+  const totalApp = getVal('totalAppreciation') || appVal;
+  const deduct   = getVal('landDeduction');
+  document.getElementById('netAppreciation').textContent = fmt(Math.max(0, totalApp - deduct));
+}
+
+['landArea','rightNum','rightDen','currentVal','prevVal','landIdx','totalAppreciation','landDeduction'].forEach(id => {
+  document.getElementById(id).addEventListener('input', updateLandCalc);
+});
+
+// ── TAX RATE TABLE ──
+function getTaxRate(years, owner, localType, regime) {
+  if (owner === 'foreign') {
+    // 境外
+    return years <= 1 ? 45 : years <= 2 ? 35 : 20;
+  }
+  if (owner === 'corp') {
+    // 本國公司 2.0
+    return years <= 2 ? 45 : years <= 5 ? 35 : 20;
+  }
+  // 本國個人
+  if (localType === 'selfuse') {
+    return 10; // 自住優惠
+  }
+  if (localType === 'involuntary') {
+    // 非自願 — 視持有超過2年適用20%，否則一般稅率
+    return years > 2 ? 20 : (years <= 1 ? 45 : 35);
+  }
+  if (localType === 'construct') {
+    // 合建/自地自建 — 2.0 特殊稅率
+    return years <= 2 ? 45 : years <= 5 ? 35 : 20;
+  }
+  // 一般房地
+  if (regime && regime.startsWith('new2')) {
+    if (years <= 2) return 45;
+    if (years <= 5) return 35;
+    if (years <= 10) return 20;
+    return 15;
+  } else {
+    if (years <= 1) return 45;
+    if (years <= 2) return 35;
+    if (years <= 10) return 20;
+    return 15;
+  }
+}
+
+// ── CALCULATE ──
+function calculate() {
+  const banner = document.getElementById('error-banner');
+  banner.classList.remove('show');
+
+  const regimeData = detectRegime();
+  if (!regimeData) {
+    banner.textContent = '請完整輸入取得日期及交易日期';
+    banner.classList.add('show');
+    return;
+  }
+
+  const { regime, years } = regimeData;
+
+  if (regime === 'old') {
+    banner.textContent = '您的房地適用舊制（交易日期105年1月1日前），不適用房地合一稅，請依土地增值稅及財產交易所得稅申報。';
+    banner.classList.add('show');
+    return;
+  }
+
+  const revenue = getVal('revenue');
+  if (!revenue) {
+    banner.textContent = '請輸入交易收入';
+    banner.classList.add('show');
+    return;
+  }
+
+  // 成本
+  const acqType = document.querySelector('input[name="acqType"]:checked').value;
+  let acqCost;
+  if (acqType === 'purchase') {
+    acqCost = getVal('acqCost');
+  } else {
+    const land = getVal('inheritLand');
+    const bldg = getVal('inheritBuilding');
+    const idx  = getVal('priceIndex') / 100 || 1;
+    acqCost = (land + bldg) * idx;
+  }
+  const necessaryCost = getVal('necessaryCost');
+
+  // 出售費用
+  const sellType = document.querySelector('input[name="sellType"]:checked').value;
+  let sellFee;
+  if (sellType === 'auto') {
+    sellFee = revenue * 0.03;
+  } else {
+    const manual = getVal('manualSellFee');
+    sellFee = Math.max(manual, revenue * 0.03);
+  }
+
+  const priorLoss = getVal('priorLoss');
+
+  // 土地漲價：若多筆合計欄空白，自動取本筆計算值
+  const _area   = getVal('landArea');
+  const _rNum   = getVal('rightNum') || 1;
+  const _rDen   = getVal('rightDen') || 1;
+  const _curr   = getVal('currentVal');
+  const _prev   = getVal('prevVal');
+  const _idx    = getVal('landIdx') / 100 || 1;
+  const _adjPrev = _prev * _idx;
+  const singleApp = _area && _curr ? Math.max(0, (_curr - _adjPrev) * _area * (_rNum / _rDen)) : 0;
+
+  const totalAppRaw = getVal('totalAppreciation');
+  const totalApp    = totalAppRaw > 0 ? totalAppRaw : singleApp;
+  const landDed     = getVal('landDeduction');
+  const netLandApp  = Math.max(0, totalApp - landDed);
+
+  // 所得額
+  const totalCost = acqCost + necessaryCost + sellFee;
+  const grossIncome = revenue - totalCost;
+  const income = Math.max(0, grossIncome - netLandApp - priorLoss);
+
+  // 身分
+  const owner     = document.querySelector('input[name="owner"]:checked').value;
+  const localType = owner === 'local'
+    ? document.querySelector('input[name="localType"]:checked').value
+    : 'general';
+
+  const rate = getTaxRate(years, owner, localType, regime);
+
+  // 自住免稅上限
+  let taxableIncome = income;
+  if (owner === 'local' && localType === 'selfuse') {
+    taxableIncome = Math.max(0, income - 4000000); // 自住400萬免稅
+  }
+
+  const tax = Math.round(taxableIncome * rate / 100);
+
+  // DISPLAY
+  document.getElementById('res-tax').textContent    = fmt(tax);
+  document.getElementById('res-income').textContent = fmt(income);
+  document.getElementById('res-rate').textContent   = rate;
+
+  // BREAKDOWN
+  const rows = [
+    ['交易收入',                      revenue,         false],
+    ['取得成本',                      -acqCost,        true],
+    necessaryCost > 0 ? ['取得前必要費用',  -necessaryCost,  true] : null,
+    ['出售必要費用',                  -sellFee,        true],
+    ['交易毛所得',                    grossIncome,     false],
+    netLandApp > 0 ? ['減：土地漲價總數額（扣除後）', -netLandApp, true] : null,
+    priorLoss  > 0 ? ['減：3年內交易損失',            -priorLoss,  true] : null,
+    (owner === 'local' && localType === 'selfuse') ? ['減：自住免稅額（400萬）', -4000000, true] : null,
+    ['課稅所得額',                    taxableIncome,   false],
+    [`適用稅率（${rate}%）`,          null,            false],
+    ['應納稅額',                      tax,             false],
+  ].filter(r => r !== null && r[0] !== null && r[1] !== null);
+
+  const container = document.getElementById('breakdown-rows');
+  container.innerHTML = rows.map((r, i) => {
+    const isTotal = r[0] === '應納稅額';
+    const isSub = r[2];
+    const v = r[1];
+    const display = v === null ? `${rate}%` : (Math.abs(v) < 0.5 ? '0' : (v < 0 ? `- ${fmt(-v)}` : fmt(v)));
+    const style = isTotal ? ' class="breakdown-row total"' : ' class="breakdown-row"';
+    const lblStyle = isSub ? 'color:var(--ink-light);' : '';
+    return `<div${style}><span class="lbl" style="${lblStyle}">${r[0]}</span><span class="amt">${display}</span></div>`;
+  }).join('');
+
+  document.getElementById('result-panel').classList.add('show');
+  document.getElementById('result-panel').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+// ── RESET ──
+function resetForm() {
+  document.querySelectorAll('input[type="number"], input[type="text"]').forEach(el => el.value = '');
+  document.querySelectorAll('input[type="radio"]').forEach(el => el.checked = el.defaultChecked);
+  document.getElementById('regime-info').textContent = '請輸入取得及交易日期以顯示適用新舊制與持有期間';
+  document.getElementById('result-panel').classList.remove('show');
+  document.getElementById('error-banner').classList.remove('show');
+  document.getElementById('autoSellFee').textContent = '—';
+  document.getElementById('landAppreciation').textContent = '—';
+  document.getElementById('netAppreciation').textContent = '—';
+  document.getElementById('inheritTotal').textContent = '—';
+  document.getElementById('purchase-fields').style.display = '';
+  document.getElementById('inherit-fields').style.display = 'none';
+  document.getElementById('sell-auto').style.display = '';
+  document.getElementById('sell-manual').style.display = 'none';
+  document.getElementById('local-type').style.display = '';
+}
+</script>
+</body>
+</html>
