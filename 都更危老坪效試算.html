@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>宜慶地政｜都更危老坪效試算</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;500;700&family=Noto+Sans+TC:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --pine:       #1B4332; --pine-mid:   #2D6A4F; --pine-light: #40916C;
+    --pine-pale:  #D8F3DC; --pine-mist:  #F0FAF2;
+    --ink:        #0D1F18; --ink-mid:    #2D4A3A; --ink-light:  #5A7A68;
+    --paper:      #F6FBF7; --paper-2:   #EBF5EE; --paper-3:   #D4E8D8;
+    --red:        #C0392B; --amber:      #B7791F; --blue:       #1A4A7A;
+    --line:       rgba(27,67,50,0.18); --radius: 4px;
+  }
+  body { font-family:'Noto Sans TC',sans-serif; background:var(--paper); color:var(--ink); min-height:100vh; position:relative; overflow-x:hidden; }
+  body::before { content:''; position:fixed; inset:0; background: repeating-linear-gradient(0deg,transparent,transparent 39px,var(--line) 39px,var(--line) 40px), repeating-linear-gradient(90deg,transparent,transparent 39px,var(--line) 39px,var(--line) 40px); pointer-events:none; z-index:0; }
+  .page { position:relative; z-index:1; max-width:960px; margin:0 auto; padding:48px 20px 80px; }
+
+  /* HEADER */
+  .header { text-align:center; margin-bottom:48px; }
+  .ornament-row { display:flex; align-items:center; gap:16px; justify-content:center; margin-bottom:16px; }
+  .orn-line { flex:1; max-width:110px; height:1px; background:linear-gradient(90deg,transparent,var(--pine-mid)); }
+  .orn-line.r { background:linear-gradient(90deg,var(--pine-mid),transparent); }
+  .orn-dia { width:9px; height:9px; background:var(--pine-mid); transform:rotate(45deg); }
+  .header-badge { font-family:'Noto Serif TC',serif; font-size:11px; font-weight:500; letter-spacing:4px; color:var(--pine-mid); margin-bottom:10px; display:block; }
+  h1 { font-family:'Noto Serif TC',serif; font-size:clamp(24px,5vw,38px); font-weight:700; color:var(--ink); letter-spacing:2px; line-height:1.2; }
+  .header-sub { margin-top:12px; font-size:13px; color:var(--ink-light); font-weight:300; line-height:1.8; }
+
+  /* CARD */
+  .card { background:rgba(255,255,255,0.78); border:1px solid var(--line); border-top:2px solid var(--pine-mid); padding:28px 24px; margin-bottom:20px; }
+  .card-title { font-family:'Noto Serif TC',serif; font-size:12px; font-weight:700; letter-spacing:3px; color:var(--pine-mid); text-transform:uppercase; margin-bottom:22px; display:flex; align-items:center; gap:10px; }
+  .card-title::after { content:''; flex:1; height:1px; background:var(--line); }
+
+  /* GRID */
+  .g2 { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  .g3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px; }
+  .g4 { display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:14px; }
+  @media(max-width:680px) { .g4,.g3 { grid-template-columns:1fr 1fr; } }
+  @media(max-width:460px) { .g4,.g3,.g2 { grid-template-columns:1fr; } }
+
+  /* FIELD */
+  .field { margin-bottom:16px; }
+  .field:last-child { margin-bottom:0; }
+  label { display:block; font-size:11px; font-weight:500; color:var(--ink-mid); letter-spacing:1px; margin-bottom:6px; }
+  .label-sub { font-size:10px; color:var(--ink-light); font-weight:300; display:block; margin-top:2px; }
+
+  .input-wrap { position:relative; }
+  .input-wrap input {
+    width:100%; height:42px; border:1px solid var(--paper-3); border-bottom:2px solid var(--paper-3);
+    background:white; padding:0 44px 0 12px; font-family:'Noto Sans TC',sans-serif;
+    font-size:14px; color:var(--ink); border-radius:var(--radius); outline:none;
+    transition:border-color .2s; -webkit-appearance:none;
+  }
+  .input-wrap input:focus { border-color:var(--pine-mid); border-bottom-color:var(--pine-mid); }
+  .input-unit { position:absolute; right:8px; top:50%; transform:translateY(-50%); font-size:10px; color:var(--ink-light); font-weight:500; pointer-events:none; white-space:nowrap; }
+  input::placeholder { color:var(--ink-light); opacity:.5; font-size:12px; }
+  input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance:none; }
+
+  /* COMPUTED row */
+  .computed-group { display:grid; gap:8px; }
+  .cfield { background:var(--paper-2); border:1px dashed var(--paper-3); border-radius:var(--radius); padding:8px 12px; display:flex; justify-content:space-between; align-items:center; }
+  .cfield-lbl { font-size:11px; color:var(--ink-mid); font-weight:500; }
+  .cfield-val { font-family:'Noto Serif TC',serif; font-size:15px; font-weight:700; color:var(--pine); }
+  .cfield-unit { font-size:10px; color:var(--ink-light); margin-left:3px; }
+
+  /* BUTTON */
+  .btn-row { display:flex; gap:12px; justify-content:center; margin-top:8px; flex-wrap:wrap; }
+  .btn { display:inline-flex; align-items:center; height:50px; padding:0 40px; border:none; cursor:pointer; font-family:'Noto Serif TC',serif; font-size:15px; font-weight:700; letter-spacing:2px; border-radius:var(--radius); transition:all .2s; }
+  .btn-primary { background:var(--pine-mid); color:white; }
+  .btn-primary:hover { background:var(--pine-light); }
+  .btn-primary:active { transform:scale(0.98); }
+  .btn-secondary { background:transparent; color:var(--ink-mid); border:1px solid var(--paper-3); }
+  .btn-secondary:hover { border-color:var(--pine-mid); color:var(--pine-mid); }
+
+  /* ERROR */
+  .error-banner { display:none; background:#FFF0EE; border:1px solid #F5C6C0; border-left:3px solid var(--red); color:var(--red); padding:10px 14px; font-size:13px; border-radius:var(--radius); margin-top:12px; }
+  .error-banner.show { display:block; }
+
+  /* RESULT */
+  .result-area { display:none; margin-top:20px; animation:fadeUp .4s ease; }
+  .result-area.show { display:block; }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)} }
+
+  /* result hero grid */
+  .res-hero-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-bottom:20px; }
+  @media(max-width:560px) { .res-hero-grid { grid-template-columns:1fr; } }
+  .rhero { background:white; border:1px solid var(--line); border-top:2px solid var(--pine-mid); padding:20px 16px; text-align:center; border-radius:var(--radius); }
+  .rhero.amber { border-top-color:var(--amber); }
+  .rhero.blue  { border-top-color:var(--blue); }
+  .rhero.red   { border-top-color:var(--red); }
+  .rhero-lbl { font-size:11px; letter-spacing:1.5px; color:var(--ink-light); font-weight:500; margin-bottom:8px; min-height:28px; display:flex; align-items:center; justify-content:center; }
+  .rhero-val { font-family:'Noto Serif TC',serif; font-size:clamp(18px,3.5vw,26px); font-weight:700; color:var(--pine); word-break:break-all; }
+  .rhero.amber .rhero-val { color:var(--amber); }
+  .rhero.blue  .rhero-val { color:var(--blue); }
+  .rhero.red   .rhero-val { color:var(--red); }
+  .rhero-unit { font-size:11px; color:var(--ink-light); margin-top:3px; }
+
+  /* result detail table */
+  .res-table { width:100%; border-collapse:collapse; background:white; border:1px solid var(--line); border-radius:var(--radius); overflow:hidden; margin-bottom:20px; }
+  .res-table thead th { background:var(--paper-2); color:var(--ink-mid); font-weight:500; padding:10px 14px; text-align:left; font-size:11px; letter-spacing:1px; border-bottom:1px solid var(--paper-3); }
+  .res-table thead th:last-child { text-align:right; }
+  .res-table tbody td { padding:10px 14px; font-size:13px; border-bottom:1px dashed var(--line); color:var(--ink-mid); }
+  .res-table tbody tr:last-child td { border-bottom:none; }
+  .res-table tbody td:last-child { text-align:right; font-family:'Noto Serif TC',serif; font-weight:500; color:var(--pine); }
+  .res-table tbody tr:hover { background:var(--pine-mist); }
+  .res-table tbody tr.section-row td { background:var(--paper-2); font-size:10px; letter-spacing:2px; color:var(--pine-mid); font-weight:700; text-transform:uppercase; padding:6px 14px; }
+
+  /* info */
+  .info-box { background:var(--paper-2); border-left:3px solid var(--pine-mid); padding:12px 16px; font-size:12px; color:var(--ink-mid); line-height:1.9; border-radius:0 var(--radius) var(--radius) 0; margin-top:16px; }
+  .info-box strong { color:var(--pine-mid); font-weight:500; }
+  .info-box ul { padding-left:16px; }
+  .info-box li { margin-bottom:3px; }
+
+  /* FOOTER */
+  .footer { text-align:center; margin-top:60px; padding-top:20px; border-top:1px solid var(--line); }
+  .footer p { font-size:11px; color:var(--ink-light); letter-spacing:1px; margin-top:4px; }
+
+  /* ping badge for live */
+  .live-dot { display:inline-block; width:6px; height:6px; background:var(--pine-light); border-radius:50%; margin-right:4px; animation:pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+  /* 宜慶地政 公司主標 */
+  .company-title {
+    font-family: 'Noto Serif TC', serif;
+    font-size: clamp(36px, 6vw, 56px);
+    font-weight: 700;
+    color: var(--ink);
+    line-height: 1.2;
+    letter-spacing: 8px;
+    margin-bottom: 18px;
+    text-indent: 8px;
+  }
+  .page-subtitle {
+    font-family: 'Noto Serif TC', serif;
+    font-size: clamp(18px, 2.6vw, 22px);
+    font-weight: 500;
+    color: var(--ink-light);
+    line-height: 1.4;
+    letter-spacing: 3px;
+    margin-top: 4px;
+  }
+
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <div class="header">
+    <div class="ornament-row">
+      <div class="orn-line"></div><div class="orn-dia"></div><div class="orn-line r"></div>
+    </div>
+    <span class="header-badge">都市更新估算工具</span>
+    <h1 class="company-title">宜慶地政</h1>
+    <h2 class="page-subtitle">都更危老坪效試算</h2>
+    <p class="header-sub">輸入基地面積、容積率、獎勵值等條件，即可試算都更／危老的坪效與相關面積指標</p>
+  </div>
+
+  <!-- SECTION 1: 基地與容積 -->
+  <div class="card">
+    <div class="card-title">一、基地面積與容積條件</div>
+    <div class="g3">
+      <div class="field">
+        <label>土地面積（㎡）</label>
+        <div class="input-wrap">
+          <input type="number" id="landPing" placeholder="例：330" min="0" step="0.01" oninput="liveCalc()">
+          <span class="input-unit">㎡</span>
+        </div>
+        <span class="label-sub">輸入㎡，坪數 = ㎡ ÷ 3.3058（例：100㎡ = 30.25坪）</span>
+      </div>
+      <div class="field">
+        <label>法定容積率</label>
+        <div class="input-wrap">
+          <input type="number" id="farBase" placeholder="例：300" min="0" step="0.01" oninput="liveCalc()">
+          <span class="input-unit">%</span>
+        </div>
+      </div>
+      <div class="field">
+        <label>建蔽率</label>
+        <div class="input-wrap">
+          <input type="number" id="bcr" placeholder="例：60" min="0" max="100" step="0.01" oninput="liveCalc()">
+          <span class="input-unit">%</span>
+        </div>
+      </div>
+    </div>
+    <div class="g3" style="margin-top:8px;">
+      <div class="field">
+        <label>獎勵值（容積獎勵）</label>
+        <div class="input-wrap">
+          <input type="number" id="bonus" placeholder="例：50" min="0" step="0.01" oninput="liveCalc()">
+          <span class="input-unit">%</span>
+        </div>
+        <span class="label-sub">相對法定容積之獎勵比率</span>
+      </div>
+      <div class="field">
+        <label>停車獎勵值</label>
+        <div class="input-wrap">
+          <input type="number" id="parkBonus" placeholder="例：10" min="0" step="0.01" oninput="liveCalc()">
+          <span class="input-unit">%</span>
+        </div>
+        <span class="label-sub">停車空間獎勵比率</span>
+      </div>
+      <div class="field">
+        <label>屋突層數</label>
+        <div class="input-wrap">
+          <input type="number" id="roofFloors" placeholder="例：1" min="0" step="1" oninput="liveCalc()">
+          <span class="input-unit">層</span>
+        </div>
+        <span class="label-sub">屋突佔建蔽面積 1/8</span>
+      </div>
+    </div>
+
+    <!-- live computed area -->
+    <div style="margin-top:16px; padding-top:16px; border-top:1px dashed var(--line);">
+      <div style="font-size:11px; color:var(--ink-light); letter-spacing:1px; margin-bottom:10px;"><span class="live-dot"></span>即時面積計算</div>
+      <div class="g4">
+        <div class="cfield"><span class="cfield-lbl">基準容積</span><span><span class="cfield-val" id="cv-base">—</span><span class="cfield-unit">坪</span></span></div>
+        <div class="cfield"><span class="cfield-lbl">獎勵面積</span><span><span class="cfield-val" id="cv-bonus">—</span><span class="cfield-unit">坪</span></span></div>
+        <div class="cfield"><span class="cfield-lbl">停獎面積</span><span><span class="cfield-val" id="cv-park">—</span><span class="cfield-unit">坪</span></span></div>
+        <div class="cfield"><span class="cfield-lbl">屋突面積</span><span><span class="cfield-val" id="cv-roof">—</span><span class="cfield-unit">坪</span></span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 2: 地下層 -->
+  <div class="card">
+    <div class="card-title">二、地下層條件</div>
+    <div class="g4">
+      <div class="field">
+        <label>地下層數</label>
+        <div class="input-wrap">
+          <input type="number" id="bFloors" placeholder="例：2" min="0" step="1" oninput="liveCalc()">
+          <span class="input-unit">層</span>
+        </div>
+      </div>
+      <div class="field">
+        <label>地下室開挖率</label>
+        <div class="input-wrap">
+          <input type="number" id="bExcavRate" placeholder="例：80" min="0" max="100" step="0.01" oninput="liveCalc()">
+          <span class="input-unit">%</span>
+        </div>
+      </div>
+      <div class="field">
+        <label>地下層供公設範圍</label>
+        <div class="input-wrap">
+          <input type="number" id="bPublicRate" placeholder="例：20" min="0" max="100" step="0.01" oninput="liveCalc()">
+          <span class="input-unit">%</span>
+        </div>
+      </div>
+      <div class="cfield" style="align-self:flex-end; margin-bottom:16px;">
+        <span class="cfield-lbl">地下室面積</span>
+        <span><span class="cfield-val" id="cv-basement">—</span><span class="cfield-unit">坪</span></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 3: 公設比例 -->
+  <div class="card">
+    <div class="card-title">三、公設比例設定</div>
+    <div class="g3">
+      <div class="field">
+        <label>機電比例</label>
+        <div class="input-wrap">
+          <input type="number" id="mechRate" placeholder="例：5" min="0" max="100" step="0.01" oninput="liveCalc()">
+          <span class="input-unit">%</span>
+        </div>
+        <span class="label-sub">機電設備佔允建面積</span>
+      </div>
+      <div class="field">
+        <label>梯廳比例</label>
+        <div class="input-wrap">
+          <input type="number" id="hallRate" placeholder="例：10" min="0" max="100" step="0.01" oninput="liveCalc()">
+          <span class="input-unit">%</span>
+        </div>
+        <span class="label-sub">電梯廳梯間佔允建面積</span>
+      </div>
+      <div class="field">
+        <label>陽台比例</label>
+        <div class="input-wrap">
+          <input type="number" id="balcRate" placeholder="例：8" min="0" max="100" step="0.01" oninput="liveCalc()">
+          <span class="input-unit">%</span>
+        </div>
+        <span class="label-sub">陽台佔允建面積（免計容積）</span>
+      </div>
+    </div>
+    <div class="g3" style="margin-top:8px;">
+      <div class="cfield"><span class="cfield-lbl">機電面積</span><span><span class="cfield-val" id="cv-mech">—</span><span class="cfield-unit">坪</span></span></div>
+      <div class="cfield"><span class="cfield-lbl">梯廳面積</span><span><span class="cfield-val" id="cv-hall">—</span><span class="cfield-unit">坪</span></span></div>
+      <div class="cfield"><span class="cfield-lbl">陽台面積</span><span><span class="cfield-val" id="cv-balc">—</span><span class="cfield-unit">坪</span></span></div>
+    </div>
+  </div>
+
+  <!-- SECTION 4: 車位與造價 -->
+  <div class="card">
+    <div class="card-title">四、車位與造價條件</div>
+    <div class="g3">
+      <div class="field">
+        <label>車位數</label>
+        <div class="input-wrap">
+          <input type="number" id="parkNum" placeholder="例：20" min="0" step="1" oninput="liveCalc()">
+          <span class="input-unit">個</span>
+        </div>
+      </div>
+      <div class="field">
+        <label>車位售價</label>
+        <div class="input-wrap">
+          <input type="number" id="parkPrice" placeholder="例：200" min="0" step="0.1" oninput="liveCalc()">
+          <span class="input-unit">萬/個</span>
+        </div>
+      </div>
+      <div class="field">
+        <label>每坪造價</label>
+        <div class="input-wrap">
+          <input type="number" id="buildCost" placeholder="例：12" min="0" step="0.1" oninput="liveCalc()">
+          <span class="input-unit">萬/坪</span>
+        </div>
+      </div>
+      <div class="field">
+        <label>每坪總成本</label>
+        <div class="input-wrap">
+          <input type="number" id="totalCost" placeholder="例：18" min="0" step="0.1" oninput="liveCalc()">
+          <span class="input-unit">萬/坪</span>
+        </div>
+        <span class="label-sub">含土地、營建、管銷等</span>
+      </div>
+      <div class="field">
+        <label>重建後房屋售價</label>
+        <div class="input-wrap">
+          <input type="number" id="salePrice" placeholder="例：60" min="0" step="0.1" oninput="liveCalc()">
+          <span class="input-unit">萬/坪</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BUTTONS -->
+  <div class="btn-row">
+    <button class="btn btn-primary" onclick="calculate()">開始試算</button>
+    <button class="btn btn-secondary" onclick="resetForm()">清除重填</button>
+  </div>
+  <div class="error-banner" id="error-banner"></div>
+
+  <!-- RESULT -->
+  <div class="result-area" id="result-area">
+
+    <div class="res-hero-grid">
+      <div class="rhero">
+        <div class="rhero-lbl">實建面積（允建面積）</div>
+        <div class="rhero-val" id="res-built">—</div>
+        <div class="rhero-unit">坪</div>
+      </div>
+      <div class="rhero amber">
+        <div class="rhero-lbl">總銷售面積</div>
+        <div class="rhero-val" id="res-sales">—</div>
+        <div class="rhero-unit">坪</div>
+      </div>
+      <div class="rhero blue">
+        <div class="rhero-lbl">公設比</div>
+        <div class="rhero-val" id="res-public-pct">—</div>
+        <div class="rhero-unit">%</div>
+      </div>
+      <div class="rhero red">
+        <div class="rhero-lbl">土地坪效</div>
+        <div class="rhero-val" id="res-ping-eff">—</div>
+        <div class="rhero-unit">倍</div>
+      </div>
+      <div class="rhero">
+        <div class="rhero-lbl">建坪係數</div>
+        <div class="rhero-val" id="res-build-coeff">—</div>
+        <div class="rhero-unit">倍</div>
+      </div>
+      <div class="rhero amber">
+        <div class="rhero-lbl">營建面積</div>
+        <div class="rhero-val" id="res-const-area">—</div>
+        <div class="rhero-unit">坪</div>
+      </div>
+    </div>
+
+    <!-- Detail table -->
+    <table class="res-table">
+      <thead>
+        <tr><th>項目</th><th>說明</th><th>數值</th></tr>
+      </thead>
+      <tbody id="res-table-body"></tbody>
+    </table>
+
+    <div class="info-box">
+      <strong>計算說明：</strong>
+      <ul>
+        <li><strong>實建面積（允建）</strong> ＝ 基準容積 ＋ 獎勵面積 ＋ 停獎面積（容積允建，不含屋突陽台）</li>
+        <li><strong>地下室面積</strong> ＝ 土地面積(㎡) × 地下室開挖率 × 地下層數 ÷ 3.3058</li>
+        <li><strong>公設比</strong> ＝ (機電＋梯廳) ÷ [容積允建×(1－陽台%)] × 100%</li>
+        <li><strong>總銷售面積</strong> ＝ 容積允建 ＋ 陽台 ＋ 地下室全部面積</li>
+        <li><strong>土地坪效</strong> ＝ 總銷售面積 ÷ 土地坪數（每坪土地可產生多少銷售坪）</li>
+        <li><strong>建坪係數</strong> ＝ 總銷售面積 ÷ 實建面積</li>
+        <li>本試算版本：都更危老坪效試算 3.1，僅供規劃參考，實際數值依主管機關核定為準。</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="footer">
+    <div class="ornament-row" style="margin-bottom:12px;">
+      <div class="orn-line" style="max-width:60px;"></div>
+      <div class="orn-dia"></div>
+      <div class="orn-line r" style="max-width:60px;"></div>
+    </div>
+    <p>本試算結果僅供參考，實際數值請依主管機關核定為準</p>
+    <p>都更危老坪效試算 3.1 · 現代地政聯盟</p>
+  </div>
+
+</div>
+
+<script>
+function fmt(n, dec=2) {
+  if (n === null || isNaN(n) || !isFinite(n)) return '—';
+  return n.toLocaleString('zh-TW', { minimumFractionDigits: dec, maximumFractionDigits: dec });
+}
+function fmtN(n, dec=2) { return (n === null || isNaN(n) || !isFinite(n)) ? '—' : n.toFixed(dec); }
+function gv(id) { const v = parseFloat(document.getElementById(id).value); return isNaN(v) ? null : v; }
+function sv(id, val, dec=2) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = (val === null || isNaN(val)) ? '—' : fmtN(val, dec);
+}
+
+function calcAll() {
+  const landSqm    = gv('landPing');   // 輸入單位：㎡
+  const farBase    = gv('farBase');
+  const bonus      = gv('bonus') ?? 0;
+  const parkBonus  = gv('parkBonus') ?? 0;
+  const bcr        = gv('bcr') ?? 0;
+  const roofFloors = gv('roofFloors') ?? 0;
+  const bFloors    = gv('bFloors') ?? 0;
+  const bExcavRate = gv('bExcavRate') ?? 0;
+  const bPublicRate= gv('bPublicRate') ?? 0;
+  const mechRate   = gv('mechRate') ?? 0;
+  const hallRate   = gv('hallRate') ?? 0;
+  const balcRate   = gv('balcRate') ?? 0;
+  const parkNum    = gv('parkNum') ?? 0;
+  const parkPrice  = gv('parkPrice') ?? 0;
+  const buildCost  = gv('buildCost') ?? 0;
+  const totalCost  = gv('totalCost') ?? 0;
+  const salePrice  = gv('salePrice') ?? 0;
+
+  if (!landSqm || !farBase) return null;
+
+  const PING = 3.305785;  // 1坪 = 3.305785 ㎡
+  const landPing = landSqm / PING;  // 土地坪數
+
+  // ── 1. 容積面積（㎡計算，最後轉坪）──
+  const baseVol_sqm    = landSqm * farBase / 100;
+  const bonusArea_sqm  = baseVol_sqm * bonus / 100;
+  const parkBonus_sqm  = baseVol_sqm * parkBonus / 100;
+  const allowVol_sqm   = baseVol_sqm + bonusArea_sqm + parkBonus_sqm;
+
+  // 建蔽與屋突
+  const bcrArea_sqm    = landSqm * bcr / 100;
+  const roofArea_sqm   = bcrArea_sqm * roofFloors / 8;
+
+  // 地下室
+  const basement_sqm   = landSqm * bExcavRate / 100 * bFloors;
+  const basePub_sqm    = basement_sqm * bPublicRate / 100;
+  const baseSale_sqm   = basement_sqm - basePub_sqm;
+
+  // 機電（基底：容積允建㎡）
+  const mech_sqm       = allowVol_sqm * mechRate / 100;
+
+  // 陽台（基底：容積允建㎡ + 地下室㎡×(1-地下公設%-建蔽率%)）
+  const balcBase_sqm   = allowVol_sqm + basement_sqm * (1 - (bPublicRate + bcr) / 100);
+  const balcArea_sqm   = balcBase_sqm * balcRate / 100;
+
+  // 梯廳（基底：容積允建㎡ + 地下室㎡×(1-建蔽率%) + 機電㎡）
+  const hallBase_sqm   = allowVol_sqm + basement_sqm * (1 - bcr / 100) + mech_sqm;
+  const hallArea_sqm   = hallBase_sqm * hallRate / 100;
+
+  // ── 2. 轉換為坪 ──
+  const baseVol     = baseVol_sqm    / PING;
+  const bonusArea   = bonusArea_sqm  / PING;
+  const parkBonusArea = parkBonus_sqm / PING;
+  const bcrArea     = bcrArea_sqm    / PING;
+  const roofArea    = roofArea_sqm   / PING;
+  const allowVol    = allowVol_sqm   / PING;
+  const basementArea  = basement_sqm / PING;
+  const basementPublic= basePub_sqm  / PING;
+  const basementSale  = baseSale_sqm / PING;
+  const mechArea    = mech_sqm       / PING;
+  const hallArea    = hallArea_sqm   / PING;
+  const balcArea    = balcArea_sqm   / PING;
+
+  // ── 3. 彙總面積 ──
+  // 實建面積 = 容積允建（不含屋突陽台，與原版一致）
+  const builtArea   = allowVol;
+
+  // 公設比 = (機電+梯廳) / (容積允建×(1-陽台%)) × 100
+  const publicArea  = mechArea + hallArea;
+  const publicPct   = allowVol > 0 ? publicArea / (allowVol * (1 - balcRate / 100)) * 100 : 0;
+
+  // 總銷售面積 = 容積允建 + 陽台 + 地下室全部
+  const salesArea   = allowVol + balcArea + basementArea;
+
+  // 土地坪效 = 總銷售 / 土地坪
+  const pingEff     = landPing > 0 ? salesArea / landPing : null;
+
+  // 營建面積 = 容積允建 + 屋突 + 機電 + 梯廳 + 地下室全部
+  const constArea   = allowVol + roofArea + mechArea + hallArea + basementArea;
+
+  // 建坪係數 = 總銷售面積 / 實建面積
+  const buildCoeff  = builtArea > 0 ? salesArea / builtArea : null;
+
+  // 車位 & 造價
+  const parkValue      = parkNum * parkPrice;
+  const buildTotalCost = constArea * buildCost;
+  const totalCostAmt   = constArea * totalCost;
+  const totalSaleAmt   = salesArea * salePrice + parkValue;
+  const profit         = totalCostAmt > 0 ? (totalSaleAmt - totalCostAmt) / totalCostAmt * 100 : null;
+
+  return {
+    landSqm, landPing, farBase, bonus, parkBonus, bcr, roofFloors,
+    bFloors, bExcavRate, bPublicRate,
+    mechRate, hallRate, balcRate,
+    parkNum, parkPrice, buildCost, totalCost, salePrice,
+    baseVol, bonusArea, parkBonusArea, bcrArea, roofArea,
+    allowVol, balcArea, builtArea,
+    mechArea, hallArea, publicArea, publicPct,
+    basementArea, basementPublic, basementSale,
+    salesArea, pingEff,
+    constArea, buildCoeff,
+    parkValue, buildTotalCost, totalCostAmt, totalSaleAmt, profit
+  };
+}
+
+function liveCalc() {
+  const r = calcAll();
+  if (!r) return;
+  sv('cv-base',     r.baseVol);
+  sv('cv-bonus',    r.bonusArea);
+  sv('cv-park',     r.parkBonusArea);
+  sv('cv-roof',     r.roofArea);
+  sv('cv-basement', r.basementArea);
+  sv('cv-mech',     r.mechArea);
+  sv('cv-hall',     r.hallArea);
+  sv('cv-balc',     r.balcArea);
+}
+
+function calculate() {
+  const banner = document.getElementById('error-banner');
+  banner.classList.remove('show');
+  if (!gv('landPing')) { banner.textContent = '請輸入土地坪數'; banner.classList.add('show'); return; }
+  if (!gv('farBase'))  { banner.textContent = '請輸入法定容積率'; banner.classList.add('show'); return; }
+
+  const r = calcAll();
+  if (!r) { banner.textContent = '計算失敗，請確認輸入值'; banner.classList.add('show'); return; }
+
+  // Hero cards
+  document.getElementById('res-built').textContent      = fmtN(r.builtArea);
+  document.getElementById('res-sales').textContent      = fmtN(r.salesArea);
+  document.getElementById('res-public-pct').textContent = fmtN(r.publicPct);
+  document.getElementById('res-ping-eff').textContent   = r.pingEff !== null ? fmtN(r.pingEff, 2) : '—';
+  document.getElementById('res-build-coeff').textContent= r.buildCoeff !== null ? fmtN(r.buildCoeff, 2) : '—';
+  document.getElementById('res-const-area').textContent = fmtN(r.constArea);
+
+  // Detail table
+  const tbody = document.getElementById('res-table-body');
+  const row = (name, desc, val, unit='坪') =>
+    `<tr><td>${name}</td><td style="font-size:12px;color:var(--ink-light)">${desc}</td><td>${val} ${unit}</td></tr>`;
+  const sec = t =>
+    `<tr class="section-row"><td colspan="3">${t}</td></tr>`;
+
+  let html = '';
+  html += sec('地上層面積');
+  html += row('基準容積', '土地面積(㎡) × 法定容積率 ÷ 3.3058',           fmtN(r.baseVol));
+  html += row('獎勵面積', '基準容積 × 獎勵值',               fmtN(r.bonusArea));
+  html += row('停獎面積', '基準容積 × 停車獎勵值',            fmtN(r.parkBonusArea));
+  html += row('容積允建小計', '',                              fmtN(r.allowVol));
+  html += row('屋突面積', '建蔽面積 × 層數 ÷ 8',             fmtN(r.roofArea));
+  html += row('陽台面積', '允建 × 陽台比例（免計容積）',       fmtN(r.balcArea));
+  html += row('實建面積（允建面積）', '容積允建＋屋突＋陽台',  fmtN(r.builtArea), '坪');
+
+  html += sec('公設面積');
+  html += row('機電面積', '允建 × 機電比例',   fmtN(r.mechArea));
+  html += row('梯廳面積', '允建 × 梯廳比例',   fmtN(r.hallArea));
+  html += row('公設面積合計', '',               fmtN(r.publicArea));
+  html += row('公設比', '公設÷實建×100',        fmtN(r.publicPct), '%');
+
+  html += sec('地下層面積');
+  html += row('地下室面積', '土地面積(㎡) × 開挖率 × 層數 ÷ 3.3058',        fmtN(r.basementArea));
+  html += row('地下層公設', '地下室 × 供公設範圍',              fmtN(r.basementPublic));
+  html += row('地下室銷售', '地下室 − 地下層公設',              fmtN(r.basementSale));
+
+  html += sec('銷售與坪效');
+  html += row('總銷售面積', '容積允建＋陽台＋地下室全部',                fmtN(r.salesArea));
+  html += row('營建面積',   '允建＋屋突＋機電＋梯廳＋地下室全部',              fmtN(r.constArea));
+  html += row('土地坪效',   '總銷售面積 ÷ 土地坪數',              r.pingEff !== null ? fmtN(r.pingEff,2) : '—', '倍');
+  html += row('建坪係數',   '總銷售面積 ÷ 實建面積',            r.buildCoeff !== null ? fmtN(r.buildCoeff,2) : '—', '倍');
+
+  if (r.salePrice > 0 || r.totalCost > 0) {
+    html += sec('造價與效益試算');
+    if (r.parkNum > 0) html += row('車位總售價', `${r.parkNum}個 × ${r.parkPrice}萬`, fmtN(r.parkValue, 0), '萬元');
+    if (r.buildCost > 0) html += row('總營建費用', `營建面積 × ${r.buildCost}萬/坪`,  fmtN(r.buildTotalCost, 0), '萬元');
+    if (r.totalCost > 0) html += row('總成本金額', `營建面積 × ${r.totalCost}萬/坪`,  fmtN(r.totalCostAmt, 0), '萬元');
+    if (r.salePrice > 0) html += row('總銷售金額', `銷售面積×${r.salePrice}萬＋車位`,fmtN(r.totalSaleAmt, 0), '萬元');
+    if (r.profit !== null) html += row('毛利率', '（總銷−總成本）÷ 總成本',          fmtN(r.profit, 1), '%');
+  }
+
+  tbody.innerHTML = html;
+  document.getElementById('result-area').classList.add('show');
+  document.getElementById('result-area').scrollIntoView({ behavior:'smooth', block:'nearest' });
+}
+
+function resetForm() {
+  document.querySelectorAll('input[type="number"]').forEach(el => el.value = '');
+  ['cv-base','cv-bonus','cv-park','cv-roof','cv-basement','cv-mech','cv-hall','cv-balc'].forEach(id => {
+    document.getElementById(id).textContent = '—';
+  });
+  document.getElementById('result-area').classList.remove('show');
+  document.getElementById('error-banner').classList.remove('show');
+}
+</script>
+</body>
+</html>
