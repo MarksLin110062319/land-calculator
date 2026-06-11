@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>宜慶地政｜地上權價格試算</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;500;700&family=Noto+Sans+TC:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --pine:        #1B4332;
+    --pine-mid:    #2D6A4F;
+    --pine-light:  #40916C;
+    --pine-pale:   #D8F3DC;
+    --pine-mist:   #F0FAF2;
+    --ink:         #0D1F18;
+    --ink-mid:     #2D4A3A;
+    --ink-light:   #5A7A68;
+    --paper:       #F6FBF7;
+    --paper-2:     #EBF5EE;
+    --paper-3:     #D4E8D8;
+    --red:         #C0392B;
+    --amber:       #B7791F;
+    --blue:        #1A4A7A;
+    --line:        rgba(27,67,50,0.18);
+    --radius:      4px;
+  }
+
+  body {
+    font-family: 'Noto Sans TC', sans-serif;
+    background: var(--paper); color: var(--ink);
+    min-height: 100vh; position: relative; overflow-x: hidden;
+  }
+  body::before {
+    content: ''; position: fixed; inset: 0;
+    background:
+      repeating-linear-gradient(0deg, transparent, transparent 39px, var(--line) 39px, var(--line) 40px),
+      repeating-linear-gradient(90deg, transparent, transparent 39px, var(--line) 39px, var(--line) 40px);
+    pointer-events: none; z-index: 0;
+  }
+
+  .page { position: relative; z-index: 1; max-width: 780px; margin: 0 auto; padding: 48px 20px 80px; }
+
+  /* ── HEADER ── */
+  .header { text-align: center; margin-bottom: 48px; }
+  .ornament-row { display: flex; align-items: center; gap: 16px; justify-content: center; margin-bottom: 16px; }
+  .orn-line { flex: 1; max-width: 110px; height: 1px; background: linear-gradient(90deg, transparent, var(--pine-mid)); }
+  .orn-line.r { background: linear-gradient(90deg, var(--pine-mid), transparent); }
+  .orn-dia { width: 9px; height: 9px; background: var(--pine-mid); transform: rotate(45deg); }
+  .header-badge { font-family: 'Noto Serif TC', serif; font-size: 11px; font-weight: 500; letter-spacing: 4px; color: var(--pine-mid); margin-bottom: 10px; display: block; }
+  h1 { font-family: 'Noto Serif TC', serif; font-size: clamp(26px,5vw,40px); font-weight: 700; color: var(--ink); letter-spacing: 2px; line-height: 1.2; }
+  .header-sub { margin-top: 12px; font-size: 13px; color: var(--ink-light); font-weight: 300; line-height: 1.9; }
+
+  .formula-banner {
+    margin-top: 18px; display: inline-flex; align-items: center; gap: 10px;
+    background: var(--pine-mist); border: 1px solid var(--line);
+    padding: 10px 22px; border-radius: var(--radius);
+    font-family: 'Noto Serif TC', serif; font-size: 13px; color: var(--pine);
+    letter-spacing: 1px; flex-wrap: wrap; justify-content: center; line-height: 2;
+  }
+  .formula-banner span { color: var(--pine-mid); font-weight: 700; }
+
+  /* ── CARD ── */
+  .card { background: rgba(255,255,255,0.78); border: 1px solid var(--line); border-top: 2px solid var(--pine-mid); padding: 28px 24px; margin-bottom: 20px; }
+  .card-title { font-family: 'Noto Serif TC', serif; font-size: 12px; font-weight: 700; letter-spacing: 3px; color: var(--pine-mid); text-transform: uppercase; margin-bottom: 22px; display: flex; align-items: center; gap: 10px; }
+  .card-title::after { content: ''; flex: 1; height: 1px; background: var(--line); }
+
+  /* ── FIELD ── */
+  .field { margin-bottom: 20px; }
+  .field:last-child { margin-bottom: 0; }
+  label { display: block; font-size: 12px; font-weight: 500; color: var(--ink-mid); letter-spacing: 1px; margin-bottom: 7px; }
+  .label-hint { font-size: 11px; color: var(--ink-light); font-weight: 300; margin-left: 6px; letter-spacing: 0; }
+  .var-tag { display: inline-block; font-family: 'Noto Serif TC', serif; font-size: 13px; font-weight: 700; color: var(--pine); background: var(--pine-mist); border: 1px solid var(--line); padding: 1px 8px; border-radius: 3px; margin-right: 4px; }
+
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media(max-width:560px) { .grid-2 { grid-template-columns: 1fr; } }
+
+  .input-wrap { position: relative; }
+  .input-wrap input {
+    width: 100%; height: 48px;
+    border: 1px solid var(--paper-3); border-bottom: 2px solid var(--paper-3);
+    background: white; padding: 0 52px 0 14px;
+    font-family: 'Noto Sans TC', sans-serif; font-size: 15px; color: var(--ink);
+    border-radius: var(--radius); outline: none; transition: border-color .2s; -webkit-appearance: none;
+  }
+  .input-wrap input:focus { border-color: var(--pine-mid); border-bottom-color: var(--pine-mid); }
+  .input-unit { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); font-size: 11px; color: var(--ink-light); font-weight: 500; pointer-events: none; white-space: nowrap; }
+  input::placeholder { color: var(--ink-light); opacity: 0.5; font-size: 12px; }
+  input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; }
+
+  /* ── COMPUTED ── */
+  .computed { display: flex; align-items: center; justify-content: space-between; min-height: 44px; border: 1px dashed var(--paper-3); background: var(--paper-2); padding: 10px 14px; border-radius: var(--radius); font-size: 13px; color: var(--ink-mid); gap: 12px; }
+  .computed .val { font-weight: 500; color: var(--pine); font-family: 'Noto Serif TC', serif; font-size: 16px; text-align: right; }
+
+  /* ── BUTTON ── */
+  .btn-row { display: flex; gap: 12px; justify-content: center; margin-top: 8px; flex-wrap: wrap; }
+  .btn { display: inline-flex; align-items: center; height: 50px; padding: 0 40px; border: none; cursor: pointer; font-family: 'Noto Serif TC', serif; font-size: 15px; font-weight: 700; letter-spacing: 2px; border-radius: var(--radius); transition: all .2s; }
+  .btn-primary { background: var(--pine-mid); color: white; }
+  .btn-primary:hover { background: var(--pine-light); }
+  .btn-primary:active { transform: scale(0.98); }
+  .btn-secondary { background: transparent; color: var(--ink-mid); border: 1px solid var(--paper-3); }
+  .btn-secondary:hover { border-color: var(--pine-mid); color: var(--pine-mid); }
+
+  /* ── ERROR ── */
+  .error-banner { display: none; background: #FFF0EE; border: 1px solid #F5C6C0; border-left: 3px solid var(--red); color: var(--red); padding: 10px 14px; font-size: 13px; border-radius: var(--radius); margin-top: 12px; }
+  .error-banner.show { display: block; }
+
+  /* ── RESULT ── */
+  .result-area { display: none; margin-top: 20px; animation: fadeUp .4s ease; }
+  .result-area.show { display: block; }
+  @keyframes fadeUp { from { opacity:0; transform:translateY(14px); } to { opacity:1; transform:translateY(0); } }
+
+  /* hero */
+  .result-hero { background: white; border: 1px solid var(--line); border-top: 3px solid var(--pine-mid); padding: 40px 28px; text-align: center; margin-bottom: 20px; border-radius: var(--radius); }
+  .result-hero-label { font-size: 13px; letter-spacing: 3px; color: var(--ink-light); font-weight: 500; margin-bottom: 10px; }
+  .result-hero-val { font-family: 'Noto Serif TC', serif; font-size: clamp(30px,7vw,52px); font-weight: 700; color: var(--pine); word-break: break-all; }
+  .result-hero-unit { font-size: 14px; color: var(--ink-light); margin-top: 6px; }
+
+  /* result cards */
+  .result-cards { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin-bottom: 20px; }
+  @media(max-width:520px) { .result-cards { grid-template-columns: 1fr; } }
+  .rcard { background: white; border: 1px solid var(--line); padding: 18px 16px; text-align: center; border-radius: var(--radius); border-top: 2px solid var(--pine-mid); }
+  .rcard.amber { border-top-color: var(--amber); }
+  .rcard.blue  { border-top-color: var(--blue);  }
+  .rcard.red   { border-top-color: var(--red);   }
+  .rcard-label { font-size: 11px; letter-spacing: 1px; color: var(--ink-light); font-weight: 500; margin-bottom: 8px; min-height: 32px; display: flex; align-items: center; justify-content: center; line-height: 1.5; text-align: center; }
+  .rcard-val { font-family: 'Noto Serif TC', serif; font-size: clamp(15px,3vw,20px); font-weight: 700; color: var(--pine); word-break: break-all; }
+  .rcard.amber .rcard-val { color: var(--amber); }
+  .rcard.blue  .rcard-val { color: var(--blue);  }
+  .rcard.red   .rcard-val { color: var(--red);   }
+  .rcard-unit { font-size: 11px; color: var(--ink-light); margin-top: 3px; }
+
+  /* formula card */
+  .formula-card { background: var(--pine-mist); border: 1px solid var(--line); border-left: 3px solid var(--pine-mid); padding: 16px 20px; border-radius: 0 var(--radius) var(--radius) 0; margin-bottom: 20px; }
+  .formula-card .f-title { font-size: 11px; letter-spacing: 2px; color: var(--pine-mid); font-weight: 700; margin-bottom: 10px; }
+  .formula-card .f-eq { font-family: 'Noto Serif TC', serif; font-size: 14px; color: var(--ink); line-height: 2.4; }
+  .formula-card .fv { color: var(--pine); font-weight: 700; }
+  .formula-card .fa { color: var(--amber); font-weight: 700; }
+  .formula-card .fr { color: var(--red); font-weight: 700; }
+
+  /* breakdown */
+  .breakdown { background: white; border: 1px solid var(--line); padding: 20px 24px; border-radius: var(--radius); margin-bottom: 20px; }
+  .breakdown-title { font-family: 'Noto Serif TC', serif; font-size: 13px; font-weight: 700; letter-spacing: 2px; color: var(--ink-mid); margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--line); }
+  .brow { display: flex; justify-content: space-between; align-items: baseline; padding: 9px 0; font-size: 13px; border-bottom: 1px dashed var(--line); gap: 12px; }
+  .brow:last-child { border-bottom: none; }
+  .brow .bl { color: var(--ink-mid); flex-shrink: 0; }
+  .brow .bv { font-weight: 500; color: var(--ink); font-family: 'Noto Serif TC', serif; text-align: right; }
+  .brow.key  .bv { color: var(--pine);  font-size: 16px; }
+  .brow.key2 .bv { color: var(--amber); font-size: 15px; }
+  .brow.key3 .bv { color: var(--red);   font-size: 15px; }
+  .brow.final .bl { font-weight: 700; font-size: 14px; }
+  .brow.final .bv { color: var(--pine); font-size: 20px; }
+  .sec-lbl { font-size: 11px; letter-spacing: 2px; color: var(--pine-mid); font-weight: 700; text-transform: uppercase; padding: 10px 0 4px; border-top: 1px solid var(--line); margin-top: 4px; }
+
+  /* info */
+  .info-box { background: var(--paper-2); border-left: 3px solid var(--pine-mid); padding: 12px 16px; font-size: 12px; color: var(--ink-mid); line-height: 1.9; border-radius: 0 var(--radius) var(--radius) 0; }
+  .info-box strong { color: var(--pine-mid); font-weight: 500; }
+  .info-box ul { padding-left: 16px; }
+  .info-box li { margin-bottom: 3px; }
+
+  /* FOOTER */
+  .footer { text-align: center; margin-top: 60px; padding-top: 20px; border-top: 1px solid var(--line); }
+  .footer p { font-size: 11px; color: var(--ink-light); letter-spacing: 1px; margin-top: 4px; }
+
+  /* 宜慶地政 公司主標 */
+  .company-title {
+    font-family: 'Noto Serif TC', serif;
+    font-size: clamp(36px, 6vw, 56px);
+    font-weight: 700;
+    color: var(--ink);
+    line-height: 1.2;
+    letter-spacing: 8px;
+    margin-bottom: 18px;
+    text-indent: 8px;
+  }
+  .page-subtitle {
+    font-family: 'Noto Serif TC', serif;
+    font-size: clamp(18px, 2.6vw, 22px);
+    font-weight: 500;
+    color: var(--ink-light);
+    line-height: 1.4;
+    letter-spacing: 3px;
+    margin-top: 4px;
+  }
+
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="ornament-row">
+      <div class="orn-line"></div><div class="orn-dia"></div><div class="orn-line r"></div>
+    </div>
+    <span class="header-badge">不動產估價工具</span>
+    <h1 class="company-title">宜慶地政</h1>
+    <h2 class="page-subtitle">地上權價格試算</h2>
+    <p class="header-sub">
+      依「土地每年淨收益 − 地租金」與收益資本化率、剩餘年數<br>
+      採年金現值法估算地上權價格
+    </p>
+    <div class="formula-banner">
+      地上權價格 ＝ <span>（淨收益 − 地租）÷ 資本化率</span><br>
+      × [ 1 − (1 ＋ 資本化率)^(−剩餘年數) ]
+    </div>
+  </div>
+
+  <!-- INPUT CARD -->
+  <div class="card">
+    <div class="card-title">一、輸入資料</div>
+
+    <div class="grid-2">
+      <div class="field">
+        <label><span class="var-tag">A</span>土地每年淨收益<span class="label-hint">扣除費用後之年淨收益</span></label>
+        <div class="input-wrap">
+          <input type="number" id="netIncome" placeholder="例：600000" min="0" oninput="liveCalc()">
+          <span class="input-unit">元／年</span>
+        </div>
+      </div>
+
+      <div class="field">
+        <label><span class="var-tag">G</span>地上權每年地租金<span class="label-hint">每年應付予地主之地租</span></label>
+        <div class="input-wrap">
+          <input type="number" id="groundRent" placeholder="例：100000" min="0" oninput="liveCalc()">
+          <span class="input-unit">元／年</span>
+        </div>
+      </div>
+
+      <div class="field">
+        <label><span class="var-tag">r</span>收益資本化率<span class="label-hint">地區與用途之市場資本化率</span></label>
+        <div class="input-wrap">
+          <input type="number" id="capRate" placeholder="例：3.00" min="0" max="100" step="0.01" oninput="liveCalc()">
+          <span class="input-unit">%</span>
+        </div>
+      </div>
+
+      <div class="field">
+        <label><span class="var-tag">n</span>地上權剩餘年數<span class="label-hint">地上權契約剩餘期間</span></label>
+        <div class="input-wrap">
+          <input type="number" id="years" placeholder="例：50" min="1" step="1" oninput="liveCalc()">
+          <span class="input-unit">年</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- live derived -->
+    <div style="border-top:1px dashed var(--line); padding-top:18px; margin-top:8px;">
+      <div class="field">
+        <label>年超額收益（淨收益 − 地租）</label>
+        <div class="computed"><span>A − G</span><span class="val" id="live-excess">— 元</span></div>
+      </div>
+      <div class="field">
+        <label>年金現值因子（即時）<span class="label-hint">[ 1 − (1+r)^(−n) ] ÷ r</span></label>
+        <div class="computed"><span id="live-factor-txt">請輸入資本化率與年數</span><span class="val" id="live-factor">—</span></div>
+      </div>
+      <div class="field">
+        <label>地上權價格估算（即時預覽）</label>
+        <div class="computed"><span>超額收益 ÷ r × 年金因子</span><span class="val" id="live-price">— 元</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BUTTONS -->
+  <div class="btn-row">
+    <button class="btn btn-primary" onclick="calculate()">開始計算</button>
+    <button class="btn btn-secondary" onclick="resetForm()">清除重填</button>
+  </div>
+  <div class="error-banner" id="error-banner"></div>
+
+  <!-- RESULT -->
+  <div class="result-area" id="result-area">
+
+    <!-- Hero -->
+    <div class="result-hero">
+      <div class="result-hero-label">地上權價格</div>
+      <div class="result-hero-val" id="res-price">—</div>
+      <div class="result-hero-unit">元</div>
+    </div>
+
+    <!-- Cards -->
+    <div class="result-cards">
+      <div class="rcard red">
+        <div class="rcard-label">年超額收益（A − G）</div>
+        <div class="rcard-val" id="res-excess">—</div>
+        <div class="rcard-unit">元／年</div>
+      </div>
+      <div class="rcard amber">
+        <div class="rcard-label">年金現值因子</div>
+        <div class="rcard-val" id="res-cap">—</div>
+        <div class="rcard-unit">元</div>
+      </div>
+      <div class="rcard blue">
+        <div class="rcard-label">年金現值因子</div>
+        <div class="rcard-val" id="res-factor">—</div>
+        <div class="rcard-unit"></div>
+      </div>
+    </div>
+
+    <!-- Formula detail -->
+    <div class="formula-card">
+      <div class="f-title">計算公式展開</div>
+      <div class="f-eq" id="formula-detail">—</div>
+    </div>
+
+    <!-- Breakdown -->
+    <div class="breakdown">
+      <div class="breakdown-title">計算明細</div>
+      <div id="breakdown-rows"></div>
+    </div>
+
+    <div class="info-box">
+      <strong>估價說明：</strong>
+      <ul>
+        <li><strong>地上權價格</strong>係以「超額收益年金現值法」估算：先求年超額收益（淨收益 − 地租），再乘以年金現值因子（考量有限期間折現）得地上權價格。</li>
+        <li>當剩餘年數趨近無限時，年金因子趨近 1，地上權價格趨近於永久性地上權價值（超額收益 ÷ r）。</li>
+        <li>收益資本化率依不動產估價技術規則，應參考當地同類型不動產之市場資本化率。</li>
+        <li>本試算結果顯示至 2 位小數，僅供參考，實際估價請洽不動產估價師。</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <div class="ornament-row" style="margin-bottom:12px;">
+      <div class="orn-line" style="max-width:60px;"></div>
+      <div class="orn-dia"></div>
+      <div class="orn-line r" style="max-width:60px;"></div>
+    </div>
+    <p>本試算結果僅供參考，實際估價請洽不動產估價師</p>
+    <p>地上權價格試算 · 年金現值法</p>
+  </div>
+
+</div>
+
+<script>
+function fmt(n, dec=2) {
+  if (isNaN(n) || !isFinite(n)) return '—';
+  return n.toLocaleString('zh-TW', { minimumFractionDigits: dec, maximumFractionDigits: dec });
+}
+function fmtInt(n) { return (isNaN(n) || !isFinite(n)) ? '—' : Math.round(n).toLocaleString('zh-TW'); }
+function getVal(id) { const v = parseFloat(document.getElementById(id).value); return isNaN(v) ? null : v; }
+
+function annuityFactor(r, n) {
+  if (r === 0) return n;
+  return (1 - Math.pow(1 + r, -n)) / r;
+}
+
+function compute(a, g, r, n) {
+  if (a === null || g === null || r === null || n === null) return null;
+  if (r <= 0 || n < 1) return null;
+  // 用 toFixed(10) 避免浮點精度誤差
+  const rDec   = Number((r / 100).toFixed(10));
+  const excess = a - g;
+  const factor = annuityFactor(rDec, n);     // 年金現值因子 = [1-(1+r)^-n] / r
+  const price  = excess * factor;            // 地上權價格 = 超額收益 × 年金現值因子
+  return { a, g, r, rDec, n, excess, factor, price };
+}
+
+// ── LIVE CALC ──
+function liveCalc() {
+  const a = getVal('netIncome');
+  const g = getVal('groundRent');
+  const r = getVal('capRate');
+  const n = getVal('years');
+
+  const excess = (a !== null && g !== null) ? a - g : null;
+  document.getElementById('live-excess').textContent =
+    excess !== null ? fmt(excess, 0) + ' 元' : '— 元';
+
+  const res = compute(a, g, r, n);
+  if (res) {
+    document.getElementById('live-factor-txt').textContent =
+      `[ 1 − (1+${r}%)^(−${n}) ] ÷ ${r}%`;
+    document.getElementById('live-factor').textContent = res.factor.toFixed(6);
+    document.getElementById('live-price').textContent  = fmt(res.price) + ' 元';
+  } else {
+    document.getElementById('live-factor-txt').textContent = '請輸入資本化率與年數';
+    document.getElementById('live-factor').textContent = '—';
+    document.getElementById('live-price').textContent  = '— 元';
+  }
+}
+
+// ── CALCULATE ──
+function calculate() {
+  const banner = document.getElementById('error-banner');
+  banner.classList.remove('show');
+
+  const a = getVal('netIncome');
+  const g = getVal('groundRent');
+  const r = getVal('capRate');
+  const n = getVal('years');
+
+  if (a === null)       { banner.textContent = '請輸入土地每年淨收益'; banner.classList.add('show'); return; }
+  if (g === null)       { banner.textContent = '請輸入地上權每年地租金'; banner.classList.add('show'); return; }
+  if (r === null || r <= 0) { banner.textContent = '請輸入收益資本化率（須大於0）'; banner.classList.add('show'); return; }
+  if (n === null || n < 1)  { banner.textContent = '請輸入地上權剩餘年數（至少1年）'; banner.classList.add('show'); return; }
+
+  const res = compute(a, g, r, n);
+
+  // Hero — 2位小數
+  document.getElementById('res-price').textContent  = fmt(res.price, 2);
+
+  // Cards
+  document.getElementById('res-excess').textContent = fmt(res.excess, 2);
+  document.getElementById('res-cap').textContent    = res.factor.toFixed(6);
+  document.getElementById('res-factor').textContent = res.factor.toFixed(6);
+
+  // Formula detail
+  document.getElementById('formula-detail').innerHTML =
+    `地上權價格<br>` +
+    `　＝ <span class="fr">（${fmtInt(a)} − ${fmtInt(g)}）</span> × <span class="fv">[ 1 − (1＋${r}%)^(−${n}) ] ÷ ${r}%</span><br>` +
+    `　＝ <span class="fr">${fmt(res.excess, 2)}</span> × <span class="fv">${res.factor.toFixed(6)}</span><br>` +
+    `　＝ <span class="fv">${fmt(res.price, 2)}</span> 元`;
+
+  // Breakdown
+  const rows = document.getElementById('breakdown-rows');
+  const brow = (l, v, cls='') =>
+    `<div class="brow ${cls}"><span class="bl">${l}</span><span class="bv">${v}</span></div>`;
+  const sec = t => `<div class="sec-lbl">${t}</div>`;
+
+  let html = '';
+  html += sec('輸入參數');
+  html += brow('土地每年淨收益 A', fmt(a, 0) + ' 元');
+  html += brow('地上權每年地租金 G', fmt(g, 0) + ' 元');
+  html += brow('收益資本化率 r', r + '%　（小數：' + res.rDec.toFixed(4) + '）');
+  html += brow('地上權剩餘年數 n', n + ' 年');
+
+  html += sec('中間計算');
+  html += brow('年超額收益（A − G）', fmt(res.excess, 2) + ' 元', 'key3');
+  html += brow('年金現值因子 [ 1−(1+r)^(−n) ] ÷ r', res.factor.toFixed(8), 'key');
+
+  html += sec('計算結果');
+  html += brow('地上權價格（超額收益 × 年金因子）', fmt(res.price, 2) + ' 元', 'final');
+
+  rows.innerHTML = html;
+
+  document.getElementById('result-area').classList.add('show');
+  document.getElementById('result-area').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+// ── RESET ──
+function resetForm() {
+  ['netIncome','groundRent','capRate','years'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('live-excess').textContent      = '— 元';
+  document.getElementById('live-factor-txt').textContent  = '請輸入資本化率與年數';
+  document.getElementById('live-factor').textContent      = '—';
+  document.getElementById('live-price').textContent       = '— 元';
+  document.getElementById('result-area').classList.remove('show');
+  document.getElementById('error-banner').classList.remove('show');
+}
+</script>
+</body>
+</html>
