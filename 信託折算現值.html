@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>宜慶地政｜信託折算現值</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;500;700&family=Noto+Sans+TC:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --pine:        #1B4332;
+    --pine-mid:    #2D6A4F;
+    --pine-light:  #40916C;
+    --pine-pale:   #D8F3DC;
+    --pine-mist:   #F0FAF2;
+    --ink:         #0D1F18;
+    --ink-mid:     #2D4A3A;
+    --ink-light:   #5A7A68;
+    --paper:       #F6FBF7;
+    --paper-2:     #EBF5EE;
+    --paper-3:     #D4E8D8;
+    --red:         #C0392B;
+    --amber:       #B7791F;
+    --blue:        #1A4A7A;
+    --line:        rgba(27,67,50,0.18);
+    --radius:      4px;
+  }
+
+  body {
+    font-family: 'Noto Sans TC', sans-serif;
+    background: var(--paper); color: var(--ink);
+    min-height: 100vh; position: relative; overflow-x: hidden;
+  }
+  body::before {
+    content: ''; position: fixed; inset: 0;
+    background:
+      repeating-linear-gradient(0deg, transparent, transparent 39px, var(--line) 39px, var(--line) 40px),
+      repeating-linear-gradient(90deg, transparent, transparent 39px, var(--line) 39px, var(--line) 40px);
+    pointer-events: none; z-index: 0;
+  }
+
+  .page { position: relative; z-index: 1; max-width: 760px; margin: 0 auto; padding: 48px 20px 80px; }
+
+  /* ── HEADER ── */
+  .header { text-align: center; margin-bottom: 48px; }
+  .ornament-row { display: flex; align-items: center; gap: 16px; justify-content: center; margin-bottom: 16px; }
+  .orn-line { flex: 1; max-width: 110px; height: 1px; background: linear-gradient(90deg, transparent, var(--pine-mid)); }
+  .orn-line.r { background: linear-gradient(90deg, var(--pine-mid), transparent); }
+  .orn-dia { width: 9px; height: 9px; background: var(--pine-mid); transform: rotate(45deg); }
+  .header-badge { font-family: 'Noto Serif TC', serif; font-size: 11px; font-weight: 500; letter-spacing: 4px; color: var(--pine-mid); margin-bottom: 10px; display: block; }
+  h1 { font-family: 'Noto Serif TC', serif; font-size: clamp(26px,5vw,40px); font-weight: 700; color: var(--ink); letter-spacing: 2px; line-height: 1.2; }
+  .header-sub { margin-top: 12px; font-size: 13px; color: var(--ink-light); font-weight: 300; line-height: 1.8; }
+
+  .formula-banner {
+    margin-top: 18px; display: inline-flex; align-items: center; gap: 12px;
+    background: var(--pine-mist); border: 1px solid var(--line);
+    padding: 10px 20px; border-radius: var(--radius);
+    font-family: 'Noto Serif TC', serif; font-size: 13px; color: var(--pine);
+    letter-spacing: 1px;
+  }
+  .formula-banner span { color: var(--pine-mid); font-weight: 700; }
+
+  /* ── CARD ── */
+  .card { background: rgba(255,255,255,0.78); border: 1px solid var(--line); border-top: 2px solid var(--pine-mid); padding: 28px 24px; margin-bottom: 20px; }
+  .card-title { font-family: 'Noto Serif TC', serif; font-size: 12px; font-weight: 700; letter-spacing: 3px; color: var(--pine-mid); text-transform: uppercase; margin-bottom: 22px; display: flex; align-items: center; gap: 10px; }
+  .card-title::after { content: ''; flex: 1; height: 1px; background: var(--line); }
+
+  /* ── FIELD ── */
+  .field { margin-bottom: 20px; }
+  .field:last-child { margin-bottom: 0; }
+  label { display: block; font-size: 12px; font-weight: 500; color: var(--ink-mid); letter-spacing: 1px; margin-bottom: 7px; }
+  .label-hint { font-size: 11px; color: var(--ink-light); font-weight: 300; margin-left: 6px; letter-spacing: 0; }
+
+  .input-wrap { position: relative; }
+  .input-wrap input {
+    width: 100%; height: 48px;
+    border: 1px solid var(--paper-3); border-bottom: 2px solid var(--paper-3);
+    background: white; padding: 0 52px 0 14px;
+    font-family: 'Noto Sans TC', sans-serif; font-size: 15px; color: var(--ink);
+    border-radius: var(--radius); outline: none; transition: border-color .2s; -webkit-appearance: none;
+  }
+  .input-wrap input:focus { border-color: var(--pine-mid); border-bottom-color: var(--pine-mid); }
+  .input-unit { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); font-size: 11px; color: var(--ink-light); font-weight: 500; pointer-events: none; }
+  input::placeholder { color: var(--ink-light); opacity: 0.5; font-size: 12px; }
+  input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; }
+
+  /* variable tag */
+  .var-tag { display: inline-block; font-family: 'Noto Serif TC', serif; font-size: 13px; font-weight: 700; color: var(--pine); background: var(--pine-mist); border: 1px solid var(--line); padding: 1px 8px; border-radius: 3px; margin-right: 4px; }
+
+  /* ── COMPUTED ── */
+  .computed { display: flex; align-items: center; justify-content: space-between; height: 44px; border: 1px dashed var(--paper-3); background: var(--paper-2); padding: 0 14px; border-radius: var(--radius); font-size: 13px; color: var(--ink-mid); }
+  .computed .val { font-weight: 500; color: var(--pine); font-family: 'Noto Serif TC', serif; font-size: 16px; }
+
+  /* ── BUTTON ── */
+  .btn-row { display: flex; gap: 12px; justify-content: center; margin-top: 8px; flex-wrap: wrap; }
+  .btn { display: inline-flex; align-items: center; height: 50px; padding: 0 40px; border: none; cursor: pointer; font-family: 'Noto Serif TC', serif; font-size: 15px; font-weight: 700; letter-spacing: 2px; border-radius: var(--radius); transition: all .2s; }
+  .btn-primary { background: var(--pine-mid); color: white; }
+  .btn-primary:hover { background: var(--pine-light); }
+  .btn-primary:active { transform: scale(0.98); }
+  .btn-secondary { background: transparent; color: var(--ink-mid); border: 1px solid var(--paper-3); }
+  .btn-secondary:hover { border-color: var(--pine-mid); color: var(--pine-mid); }
+
+  /* ── ERROR ── */
+  .error-banner { display: none; background: #FFF0EE; border: 1px solid #F5C6C0; border-left: 3px solid var(--red); color: var(--red); padding: 10px 14px; font-size: 13px; border-radius: var(--radius); margin-top: 12px; }
+  .error-banner.show { display: block; }
+
+  /* ── RESULT ── */
+  .result-area { display: none; margin-top: 20px; animation: fadeUp .4s ease; }
+  .result-area.show { display: block; }
+  @keyframes fadeUp { from { opacity:0; transform:translateY(14px); } to { opacity:1; transform:translateY(0); } }
+
+  /* result cards */
+  .result-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 20px; }
+  @media(max-width:480px) { .result-cards { grid-template-columns: 1fr; } }
+
+  .rcard { background: white; border: 1px solid var(--line); padding: 24px 20px; text-align: center; border-radius: var(--radius); border-top: 2px solid var(--pine-mid); }
+  .rcard.accent { border-top-color: var(--amber); }
+  .rcard-label { font-size: 11px; letter-spacing: 2px; color: var(--ink-light); font-weight: 500; margin-bottom: 10px; }
+  .rcard-sublabel { font-size: 11px; color: var(--ink-light); font-style: italic; margin-bottom: 8px; }
+  .rcard-val { font-family: 'Noto Serif TC', serif; font-size: clamp(20px,4vw,30px); font-weight: 700; color: var(--pine); word-break: break-all; }
+  .rcard.accent .rcard-val { color: var(--amber); }
+  .rcard-unit { font-size: 11px; color: var(--ink-light); margin-top: 4px; }
+
+  /* breakdown */
+  .breakdown { background: white; border: 1px solid var(--line); padding: 20px 24px; border-radius: var(--radius); margin-bottom: 20px; }
+  .breakdown-title { font-family: 'Noto Serif TC', serif; font-size: 13px; font-weight: 700; letter-spacing: 2px; color: var(--ink-mid); margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--line); }
+  .brow { display: flex; justify-content: space-between; align-items: baseline; padding: 9px 0; font-size: 13px; border-bottom: 1px dashed var(--line); gap: 12px; }
+  .brow:last-child { border-bottom: none; }
+  .brow .bl { color: var(--ink-mid); flex-shrink: 0; }
+  .brow .bv { font-weight: 500; color: var(--ink); font-family: 'Noto Serif TC', serif; text-align: right; }
+  .brow.key .bv { color: var(--pine); font-size: 16px; }
+  .brow.key2 .bv { color: var(--amber); font-size: 16px; }
+  .brow.final .bl { font-weight: 700; font-size: 14px; }
+  .brow.final .bv { color: var(--pine); font-size: 20px; }
+  .sec-lbl { font-size: 11px; letter-spacing: 2px; color: var(--pine-mid); font-weight: 700; text-transform: uppercase; padding: 10px 0 4px; border-top: 1px solid var(--line); margin-top: 4px; }
+
+  /* formula display */
+  .formula-card { background: var(--pine-mist); border: 1px solid var(--line); border-left: 3px solid var(--pine-mid); padding: 16px 20px; border-radius: 0 var(--radius) var(--radius) 0; margin-bottom: 20px; }
+  .formula-card .f-title { font-size: 11px; letter-spacing: 2px; color: var(--pine-mid); font-weight: 700; margin-bottom: 10px; }
+  .formula-card .f-eq { font-family: 'Noto Serif TC', serif; font-size: 14px; color: var(--ink); line-height: 2.2; }
+  .formula-card .f-eq .fv { color: var(--pine); font-weight: 700; }
+  .formula-card .f-eq .fa { color: var(--amber); font-weight: 700; }
+
+  /* info */
+  .info-box { background: var(--paper-2); border-left: 3px solid var(--pine-mid); padding: 12px 16px; font-size: 12px; color: var(--ink-mid); line-height: 1.9; border-radius: 0 var(--radius) var(--radius) 0; }
+  .info-box strong { color: var(--pine-mid); font-weight: 500; }
+  .info-box ul { padding-left: 16px; }
+  .info-box li { margin-bottom: 3px; }
+
+  /* FOOTER */
+  .footer { text-align: center; margin-top: 60px; padding-top: 20px; border-top: 1px solid var(--line); }
+  .footer p { font-size: 11px; color: var(--ink-light); letter-spacing: 1px; margin-top: 4px; }
+
+  /* 宜慶地政 公司主標 */
+  .company-title {
+    font-family: 'Noto Serif TC', serif;
+    font-size: clamp(36px, 6vw, 56px);
+    font-weight: 700;
+    color: var(--ink);
+    line-height: 1.2;
+    letter-spacing: 8px;
+    margin-bottom: 18px;
+    text-indent: 8px;
+  }
+  .page-subtitle {
+    font-family: 'Noto Serif TC', serif;
+    font-size: clamp(18px, 2.6vw, 22px);
+    font-weight: 500;
+    color: var(--ink-light);
+    line-height: 1.4;
+    letter-spacing: 3px;
+    margin-top: 4px;
+  }
+
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="ornament-row">
+      <div class="orn-line"></div><div class="orn-dia"></div><div class="orn-line r"></div>
+    </div>
+    <span class="header-badge">不動產信託工具</span>
+    <h1 class="company-title">宜慶地政</h1>
+    <h2 class="page-subtitle">信託折算現值</h2>
+    <p class="header-sub">輸入公定現值 Fv、年利率 r 與期間 n，計算原本受益價值 Pv 與孳息價值</p>
+    <div class="formula-banner">
+      <span>Pv</span> ＝ Fv ÷ （1 ＋ r）ⁿ
+      ｜
+      孳息 ＝ Fv − Pv
+    </div>
+  </div>
+
+  <!-- INPUT CARD -->
+  <div class="card">
+    <div class="card-title">一、輸入資料</div>
+
+    <div class="field">
+      <label><span class="var-tag">Fv</span>公定現值<span class="label-hint">信託財產之公告現值或評定現值（元）</span></label>
+      <div class="input-wrap">
+        <input type="number" id="fv" placeholder="例：10000000" min="0" oninput="liveCalc()">
+        <span class="input-unit">元</span>
+      </div>
+    </div>
+
+    <div class="field">
+      <label><span class="var-tag">r</span>年利率<span class="label-hint">財政部公告之複利年金現值利率（%）</span></label>
+      <div class="input-wrap">
+        <input type="number" id="rate" placeholder="例：3.00" min="0" max="100" step="0.01" oninput="liveCalc()">
+        <span class="input-unit">%</span>
+      </div>
+    </div>
+
+    <div class="field">
+      <label><span class="var-tag">n</span>期間<span class="label-hint">信託存續年數（年）</span></label>
+      <div class="input-wrap">
+        <input type="number" id="years" placeholder="例：20" min="0" step="1" oninput="liveCalc()">
+        <span class="input-unit">年</span>
+      </div>
+    </div>
+
+    <!-- Live preview -->
+    <div style="border-top:1px dashed var(--line); padding-top:18px; margin-top:4px;">
+      <div class="field">
+        <label>折現係數（即時）<span class="label-hint">1 ÷ (1 + r)ⁿ</span></label>
+        <div class="computed"><span id="live-coeff-txt">請輸入利率與期間</span><span class="val" id="live-coeff">—</span></div>
+      </div>
+      <div class="field">
+        <label>原本受益價值 Pv（即時）</label>
+        <div class="computed"><span>Fv × 折現係數</span><span class="val" id="live-pv">— 元</span></div>
+      </div>
+      <div class="field">
+        <label>孳息價值（即時）</label>
+        <div class="computed"><span>Fv − Pv</span><span class="val" id="live-interest">— 元</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BUTTONS -->
+  <div class="btn-row">
+    <button class="btn btn-primary" onclick="calculate()">開始計算</button>
+    <button class="btn btn-secondary" onclick="resetForm()">清除重填</button>
+  </div>
+  <div class="error-banner" id="error-banner"></div>
+
+  <!-- RESULT -->
+  <div class="result-area" id="result-area">
+
+    <div class="result-cards">
+      <div class="rcard">
+        <div class="rcard-label">原本受益價值</div>
+        <div class="rcard-sublabel">Pv = Fv ÷ (1+r)ⁿ</div>
+        <div class="rcard-val" id="res-pv">—</div>
+        <div class="rcard-unit">元</div>
+      </div>
+      <div class="rcard accent">
+        <div class="rcard-label">孳息價值</div>
+        <div class="rcard-sublabel">Fv − Pv</div>
+        <div class="rcard-val" id="res-interest">—</div>
+        <div class="rcard-unit">元</div>
+      </div>
+    </div>
+
+    <!-- Formula detail -->
+    <div class="formula-card">
+      <div class="f-title">計算公式展開</div>
+      <div class="f-eq" id="formula-detail">—</div>
+    </div>
+
+    <!-- Breakdown -->
+    <div class="breakdown">
+      <div class="breakdown-title">計算明細</div>
+      <div id="breakdown-rows"></div>
+    </div>
+
+    <div class="info-box">
+      <strong>說明：</strong>
+      <ul>
+        <li><strong>Pv（原本受益價值）</strong>：信託期間結束後，受益人可取得本金之現值。</li>
+        <li><strong>孳息價值</strong>：信託期間受益人可獲得孳息之現值，等於 Fv − Pv。</li>
+        <li>年利率 r 應採財政部每年公告之複利年金現值計算利率。</li>
+        <li>本試算採複利折現法（Discount Factor = 1 ÷ (1+r)ⁿ）。</li>
+        <li>計算結果僅供參考，實際課稅基礎請洽稅捐機關。</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <div class="ornament-row" style="margin-bottom:12px;">
+      <div class="orn-line" style="max-width:60px;"></div>
+      <div class="orn-dia"></div>
+      <div class="orn-line r" style="max-width:60px;"></div>
+    </div>
+    <p>本試算結果僅供參考，實際課稅金額請依主管機關核定為準</p>
+    <p>信託折算現值 · Pv = Fv ÷ (1 + r)ⁿ</p>
+  </div>
+
+</div>
+
+<script>
+function fmt(n) {
+  if (isNaN(n) || !isFinite(n)) return '—';
+  return Math.round(n).toLocaleString('zh-TW');
+}
+function fmtDec(n, d=6) { return isNaN(n) ? '—' : n.toFixed(d); }
+function getVal(id) { const v = parseFloat(document.getElementById(id).value); return isNaN(v) ? null : v; }
+
+function compute(fv, r, n) {
+  if (fv === null || r === null || n === null) return null;
+  if (r < 0 || n < 0 || fv <= 0) return null;
+  const rDecimal = r / 100;
+  const discount = 1 / Math.pow(1 + rDecimal, n);
+  const pv = fv * discount;
+  const interest = fv - pv;
+  return { fv, r, rDecimal, n, discount, pv, interest };
+}
+
+function liveCalc() {
+  const fv = getVal('fv');
+  const r  = getVal('rate');
+  const n  = getVal('years');
+  const res = compute(fv, r, n);
+
+  if (res) {
+    document.getElementById('live-coeff-txt').textContent = `1 ÷ (1 + ${r}%)^${n}`;
+    document.getElementById('live-coeff').textContent     = fmtDec(res.discount, 8);
+    document.getElementById('live-pv').textContent        = fmt(res.pv) + ' 元';
+    document.getElementById('live-interest').textContent  = fmt(res.interest) + ' 元';
+  } else {
+    document.getElementById('live-coeff-txt').textContent = '請輸入利率與期間';
+    document.getElementById('live-coeff').textContent     = '—';
+    document.getElementById('live-pv').textContent        = '— 元';
+    document.getElementById('live-interest').textContent  = '— 元';
+  }
+}
+
+function calculate() {
+  const banner = document.getElementById('error-banner');
+  banner.classList.remove('show');
+
+  const fv = getVal('fv');
+  const r  = getVal('rate');
+  const n  = getVal('years');
+
+  if (fv === null || fv <= 0) { banner.textContent = '請輸入公定現值 Fv（須大於0）'; banner.classList.add('show'); return; }
+  if (r === null || r <= 0)   { banner.textContent = '請輸入年利率 r（須大於0）'; banner.classList.add('show'); return; }
+  if (n === null || n < 0)    { banner.textContent = '請輸入期間 n（年數）'; banner.classList.add('show'); return; }
+
+  const res = compute(fv, r, n);
+
+  // Result cards
+  document.getElementById('res-pv').textContent       = fmt(res.pv);
+  document.getElementById('res-interest').textContent = fmt(res.interest);
+
+  // Formula detail
+  document.getElementById('formula-detail').innerHTML =
+    `Pv ＝ <span class="fv">${fmt(res.fv)}</span> ÷ (1 + <span class="fv">${r}%</span>)^<span class="fv">${n}</span><br>` +
+    `　　＝ ${fmt(res.fv)} ÷ <span class="fv">${(Math.pow(1 + res.rDecimal, n)).toFixed(6)}</span><br>` +
+    `　　＝ <span class="fv">${fmt(res.pv)}</span> 元<br><br>` +
+    `孳息 ＝ Fv − Pv ＝ <span class="fv">${fmt(res.fv)}</span> − <span class="fv">${fmt(res.pv)}</span> ＝ <span class="fa">${fmt(res.interest)}</span> 元`;
+
+  // Breakdown
+  const rows = document.getElementById('breakdown-rows');
+  const brow = (l, v, cls='') =>
+    `<div class="brow ${cls}"><span class="bl">${l}</span><span class="bv">${v}</span></div>`;
+  const sec = t => `<div class="sec-lbl">${t}</div>`;
+
+  let html = '';
+  html += sec('輸入參數');
+  html += brow('公定現值 Fv', fmt(res.fv) + ' 元');
+  html += brow('年利率 r', res.r + '%');
+  html += brow('期間 n', res.n + ' 年');
+
+  html += sec('中間係數');
+  html += brow('(1 + r)ⁿ　複利終值因子', (Math.pow(1 + res.rDecimal, res.n)).toFixed(8));
+  html += brow('折現係數　1 ÷ (1+r)ⁿ', fmtDec(res.discount, 8), 'key');
+
+  html += sec('計算結果');
+  html += brow('原本受益價值 Pv　= Fv × 折現係數', fmt(res.pv) + ' 元', 'final');
+  html += brow('孳息價值　= Fv − Pv', fmt(res.interest) + ' 元', 'key2');
+
+  rows.innerHTML = html;
+
+  document.getElementById('result-area').classList.add('show');
+  document.getElementById('result-area').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function resetForm() {
+  ['fv','rate','years'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('live-coeff-txt').textContent = '請輸入利率與期間';
+  document.getElementById('live-coeff').textContent     = '—';
+  document.getElementById('live-pv').textContent        = '— 元';
+  document.getElementById('live-interest').textContent  = '— 元';
+  document.getElementById('result-area').classList.remove('show');
+  document.getElementById('error-banner').classList.remove('show');
+}
+</script>
+</body>
+</html>
