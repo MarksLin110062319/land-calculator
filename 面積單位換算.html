@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>宜慶地政｜面積單位換算</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;500;700&family=Noto+Sans+TC:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --pine:       #1B4332; --pine-mid:   #2D6A4F; --pine-light: #40916C;
+    --pine-pale:  #D8F3DC; --pine-mist:  #F0FAF2;
+    --ink:        #0D1F18; --ink-mid:    #2D4A3A; --ink-light:  #5A7A68;
+    --paper:      #F6FBF7; --paper-2:   #EBF5EE; --paper-3:   #D4E8D8;
+    --red:        #C0392B; --amber:      #B7791F; --blue:       #1A4A7A;
+    --line:       rgba(27,67,50,0.18); --radius: 4px;
+  }
+  body { font-family:'Noto Sans TC',sans-serif; background:var(--paper); color:var(--ink); min-height:100vh; position:relative; overflow-x:hidden; }
+  body::before { content:''; position:fixed; inset:0; background:repeating-linear-gradient(0deg,transparent,transparent 39px,var(--line) 39px,var(--line) 40px),repeating-linear-gradient(90deg,transparent,transparent 39px,var(--line) 39px,var(--line) 40px); pointer-events:none; z-index:0; }
+  .page { position:relative; z-index:1; max-width:760px; margin:0 auto; padding:48px 20px 80px; }
+
+  /* HEADER */
+  .header { text-align:center; margin-bottom:48px; }
+  .ornament-row { display:flex; align-items:center; gap:16px; justify-content:center; margin-bottom:16px; }
+  .orn-line { flex:1; max-width:110px; height:1px; background:linear-gradient(90deg,transparent,var(--pine-mid)); }
+  .orn-line.r { background:linear-gradient(90deg,var(--pine-mid),transparent); }
+  .orn-dia { width:9px; height:9px; background:var(--pine-mid); transform:rotate(45deg); }
+  .header-badge { font-family:'Noto Serif TC',serif; font-size:11px; font-weight:500; letter-spacing:4px; color:var(--pine-mid); margin-bottom:10px; display:block; }
+  h1 { font-family:'Noto Serif TC',serif; font-size:clamp(26px,5vw,40px); font-weight:700; color:var(--ink); letter-spacing:2px; line-height:1.2; }
+  .header-sub { margin-top:12px; font-size:13px; color:var(--ink-light); font-weight:300; line-height:1.8; }
+
+  /* CARD */
+  .card { background:rgba(255,255,255,0.78); border:1px solid var(--line); border-top:2px solid var(--pine-mid); padding:28px 24px; margin-bottom:20px; }
+  .card-title { font-family:'Noto Serif TC',serif; font-size:12px; font-weight:700; letter-spacing:3px; color:var(--pine-mid); text-transform:uppercase; margin-bottom:22px; display:flex; align-items:center; gap:10px; }
+  .card-title::after { content:''; flex:1; height:1px; background:var(--line); }
+
+  /* UNIT ROWS */
+  .unit-row {
+    display:flex; align-items:center; gap:12px;
+    padding:12px 0; border-bottom:1px dashed var(--line);
+    transition:background .1s;
+  }
+  .unit-row:last-child { border-bottom:none; }
+  .unit-row:focus-within { background:var(--pine-mist); margin:0 -12px; padding:12px; border-radius:var(--radius); border-bottom-color:transparent; }
+
+  .unit-icon {
+    width:36px; height:36px; border-radius:50%;
+    background:var(--paper-2); border:1px solid var(--line);
+    display:flex; align-items:center; justify-content:center;
+    font-size:13px; font-weight:700; color:var(--pine-mid);
+    flex-shrink:0; font-family:'Noto Serif TC',serif;
+    transition:all .2s;
+  }
+  .unit-row:focus-within .unit-icon { background:var(--pine-mid); color:white; border-color:var(--pine-mid); }
+
+  .unit-info { flex:1; min-width:0; }
+  .unit-name { font-size:13px; font-weight:500; color:var(--ink); }
+  .unit-symbol { font-size:11px; color:var(--ink-light); margin-top:1px; }
+
+  .unit-input-wrap { position:relative; width:220px; flex-shrink:0; }
+  @media(max-width:500px) { .unit-input-wrap { width:140px; } }
+  .unit-input-wrap input {
+    width:100%; height:44px;
+    border:1px solid var(--paper-3); border-bottom:2px solid var(--paper-3);
+    background:white; padding:0 12px;
+    font-family:'Noto Serif TC',serif; font-size:15px; color:var(--ink);
+    border-radius:var(--radius); outline:none; transition:border-color .2s;
+    text-align:right; -webkit-appearance:none;
+  }
+  .unit-input-wrap input:focus { border-color:var(--pine-mid); border-bottom-color:var(--pine-mid); }
+  input::placeholder { color:var(--ink-light); opacity:.4; font-size:12px; font-family:'Noto Sans TC',sans-serif; text-align:right; }
+  input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance:none; }
+
+  .copy-icon {
+    width:32px; height:32px; border-radius:var(--radius);
+    background:var(--paper-2); border:1px solid var(--line);
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer; flex-shrink:0; font-size:13px;
+    transition:all .15s; color:var(--ink-light);
+  }
+  .copy-icon:hover { background:var(--pine-pale); color:var(--pine-mid); border-color:var(--pine-mid); }
+  .copy-icon.copied { background:var(--pine-mid); color:white; border-color:var(--pine-mid); }
+
+  /* CLEAR BUTTON */
+  .btn-row { display:flex; gap:12px; justify-content:center; margin-top:8px; }
+  .btn { display:inline-flex; align-items:center; height:46px; padding:0 36px; border:none; cursor:pointer; font-family:'Noto Serif TC',serif; font-size:14px; font-weight:700; letter-spacing:2px; border-radius:var(--radius); transition:all .2s; }
+  .btn-secondary { background:transparent; color:var(--ink-mid); border:1px solid var(--paper-3); }
+  .btn-secondary:hover { border-color:var(--pine-mid); color:var(--pine-mid); }
+
+  /* REFERENCE TABLE */
+  .ref-section { margin-top:4px; }
+  .ref-table { width:100%; border-collapse:collapse; background:white; border:1px solid var(--line); font-size:12px; }
+  .ref-table thead th { background:var(--pine-mid); color:white; padding:9px 14px; text-align:left; font-size:11px; font-weight:500; letter-spacing:1px; }
+  .ref-table thead th:last-child { text-align:right; }
+  .ref-table tbody td { padding:9px 14px; border-bottom:1px dashed var(--line); color:var(--ink-mid); }
+  .ref-table tbody tr:last-child td { border-bottom:none; }
+  .ref-table tbody td:last-child { text-align:right; font-family:'Noto Serif TC',serif; font-weight:500; color:var(--pine); }
+  .ref-table tbody tr:hover { background:var(--pine-mist); }
+
+  /* FOOTER */
+  .footer { text-align:center; margin-top:60px; padding-top:20px; border-top:1px solid var(--line); }
+  .footer p { font-size:11px; color:var(--ink-light); letter-spacing:1px; margin-top:4px; }
+
+  /* 宜慶地政 公司主標 */
+  .company-title {
+    font-family: 'Noto Serif TC', serif;
+    font-size: clamp(36px, 6vw, 56px);
+    font-weight: 700;
+    color: var(--ink);
+    line-height: 1.2;
+    letter-spacing: 8px;
+    margin-bottom: 18px;
+    text-indent: 8px;
+  }
+  .page-subtitle {
+    font-family: 'Noto Serif TC', serif;
+    font-size: clamp(18px, 2.6vw, 22px);
+    font-weight: 500;
+    color: var(--ink-light);
+    line-height: 1.4;
+    letter-spacing: 3px;
+    margin-top: 4px;
+  }
+
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <div class="header">
+    <div class="ornament-row">
+      <div class="orn-line"></div><div class="orn-dia"></div><div class="orn-line r"></div>
+    </div>
+    <span class="header-badge">不動產計算工具</span>
+    <h1 class="company-title">宜慶地政</h1>
+    <h2 class="page-subtitle">面積單位換算</h2>
+    <p class="header-sub">輸入任一單位數值，其他單位即時自動換算，不需按計算鈕</p>
+  </div>
+
+  <!-- CONVERTER CARD -->
+  <div class="card">
+    <div class="card-title">換算輸入</div>
+
+    <div id="unit-list"></div>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn btn-secondary" onclick="clearAll()">清除所有欄位</button>
+  </div>
+
+  <!-- REFERENCE TABLE -->
+  <div class="card" style="margin-top:20px;">
+    <div class="card-title">換算基準參考表（相對 1 平方公尺）</div>
+    <div class="ref-section">
+      <table class="ref-table">
+        <thead>
+          <tr><th>單位</th><th>符號</th><th>說明</th><th>1 ㎡ 等於</th></tr>
+        </thead>
+        <tbody id="ref-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="footer">
+    <div class="ornament-row" style="margin-bottom:12px;">
+      <div class="orn-line" style="max-width:60px;"></div>
+      <div class="orn-dia"></div>
+      <div class="orn-line r" style="max-width:60px;"></div>
+    </div>
+    <p>面積單位換算 · 現代地政聯盟</p>
+    <p>換算結果顯示至小數點後 8 位，僅供參考</p>
+  </div>
+
+</div>
+
+<script>
+// ── UNIT DEFINITIONS ──
+// All rates expressed as: 1 ㎡ = X [unit]
+const UNITS = [
+  { id:'sqm',   name:'平方公尺', symbol:'㎡',        icon:'㎡',  rate:1,               desc:'國際標準面積單位' },
+  { id:'ping',  name:'坪',      symbol:'坪',         icon:'坪',  rate:1/3.305785,      desc:'台灣常用，1坪 = 3.30578㎡' },
+  { id:'are',   name:'公畝',    symbol:'a',          icon:'a',   rate:0.01,            desc:'1公畝 = 100㎡' },
+  { id:'hect',  name:'公頃',    symbol:'ha',         icon:'ha',  rate:0.0001,          desc:'1公頃 = 10,000㎡' },
+  { id:'sqkm',  name:'平方公里',symbol:'km²',        icon:'km²', rate:0.000001,        desc:'1km² = 1,000,000㎡' },
+  { id:'mu',    name:'市畝',    symbol:'畝',         icon:'畝',  rate:1/666.6667,      desc:'中國市制，1市畝 ≈ 666.67㎡' },
+  { id:'jia',   name:'臺灣甲',  symbol:'甲',         icon:'甲',  rate:1/9699.17,       desc:'台灣舊制，1甲 ≈ 9,699.17㎡' },
+  { id:'acre',  name:'英畝',    symbol:'ac',         icon:'ac',  rate:1/4046.8564224,  desc:'英制，1英畝 ≈ 4,046.86㎡' },
+  { id:'usacre',name:'美畝',    symbol:'ac(US)',      icon:'ac',  rate:1/4046.8726099,  desc:'美制測量，1美畝 ≈ 4,046.87㎡' },
+];
+
+// track which input was last edited
+let lastEdited = null;
+
+// ── BUILD UI ──
+function buildUI() {
+  const list = document.getElementById('unit-list');
+  const refBody = document.getElementById('ref-tbody');
+
+  UNITS.forEach((u, i) => {
+    // converter row
+    const row = document.createElement('div');
+    row.className = 'unit-row';
+    row.innerHTML = `
+      <div class="unit-icon">${u.icon}</div>
+      <div class="unit-info">
+        <div class="unit-name">${u.name}</div>
+        <div class="unit-symbol">${u.symbol}</div>
+      </div>
+      <div class="unit-input-wrap">
+        <input type="number" id="inp-${u.id}" placeholder="0" step="any"
+          oninput="convert('${u.id}')" onfocus="lastEdited='${u.id}'">
+      </div>
+      <div class="copy-icon" id="copy-${u.id}" onclick="copyVal('${u.id}')" title="複製">⎘</div>
+    `;
+    list.appendChild(row);
+
+    // reference row
+    const tr = document.createElement('tr');
+    const rateDisplay = u.rate === 1 ? '1' : fmtRef(1 / u.rate);
+    tr.innerHTML = `<td>${u.name}</td><td>${u.symbol}</td><td style="font-size:11px;color:var(--ink-light)">${u.desc}</td><td>${rateDisplay}</td>`;
+    refBody.appendChild(tr);
+  });
+}
+
+function fmtRef(n) {
+  if (n >= 1000) return n.toLocaleString('zh-TW', { maximumFractionDigits: 4 });
+  if (n >= 1)    return n.toFixed(6).replace(/\.?0+$/, '');
+  return n.toFixed(8).replace(/\.?0+$/, '');
+}
+
+// ── CONVERT ──
+function convert(sourceId) {
+  const sourceUnit = UNITS.find(u => u.id === sourceId);
+  const inputEl    = document.getElementById('inp-' + sourceId);
+  const val        = parseFloat(inputEl.value);
+
+  if (isNaN(val) || inputEl.value === '') {
+    // clear all others
+    UNITS.forEach(u => {
+      if (u.id !== sourceId) document.getElementById('inp-' + u.id).value = '';
+    });
+    return;
+  }
+
+  // Convert input to ㎡ first
+  const sqm = val / sourceUnit.rate;
+
+  UNITS.forEach(u => {
+    if (u.id === sourceId) return;
+    const converted = sqm * u.rate;
+    const el = document.getElementById('inp-' + u.id);
+    if (converted === 0) { el.value = '0'; return; }
+    // 以4位有效數字顯示，去除尾零
+    el.value = parseFloat(converted.toPrecision(4));
+  });
+}
+
+// ── COPY ──
+function copyVal(id) {
+  const val = document.getElementById('inp-' + id).value;
+  if (!val) return;
+  navigator.clipboard.writeText(val).then(() => {
+    const btn = document.getElementById('copy-' + id);
+    btn.textContent = '✓';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = '⎘'; btn.classList.remove('copied'); }, 1500);
+  }).catch(() => {
+    const el = document.getElementById('inp-' + id);
+    el.select(); document.execCommand('copy');
+  });
+}
+
+// ── CLEAR ──
+function clearAll() {
+  UNITS.forEach(u => { document.getElementById('inp-' + u.id).value = ''; });
+}
+
+// ── INIT ──
+buildUI();
+</script>
+</body>
+</html>
