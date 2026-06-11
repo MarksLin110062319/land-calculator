@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>宜慶地政｜贈與稅試算</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;500;700&family=Noto+Sans+TC:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --pine:        #1B4332;
+    --pine-mid:    #2D6A4F;
+    --pine-light:  #40916C;
+    --pine-pale:   #D8F3DC;
+    --pine-mist:   #F0FAF2;
+
+    --ink:         #0D1F18;
+    --ink-mid:     #2D4A3A;
+    --ink-light:   #5A7A68;
+    --paper:       #F6FBF7;
+    --paper-2:     #EBF5EE;
+    --paper-3:     #D4E8D8;
+    --red: #C0392B;
+    --green: #1A6B43;
+    --blue: #1A4A7A;
+    --line:        rgba(27,67,50,0.18);
+    --radius: 4px;
+  }
+
+  body {
+    font-family: 'Noto Sans TC', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    min-height: 100vh;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background:
+      repeating-linear-gradient(0deg, transparent, transparent 39px, var(--line) 39px, var(--line) 40px),
+      repeating-linear-gradient(90deg, transparent, transparent 39px, var(--line) 39px, var(--line) 40px);
+    pointer-events: none; z-index: 0;
+  }
+
+  .page {
+    position: relative; z-index: 1;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 48px 20px 80px;
+  }
+
+  /* ── HEADER ── */
+  .header { text-align: center; margin-bottom: 48px; }
+  .ornament-row { display: flex; align-items: center; gap: 16px; justify-content: center; margin-bottom: 16px; }
+  .orn-line { flex: 1; max-width: 110px; height: 1px; background: linear-gradient(90deg, transparent, var(--pine-mid)); }
+  .orn-line.r { background: linear-gradient(90deg, var(--pine-mid), transparent); }
+  .orn-dia { width: 9px; height: 9px; background: var(--pine-mid); transform: rotate(45deg); }
+  .header-badge { font-family: 'Noto Serif TC', serif; font-size: 11px; font-weight: 500; letter-spacing: 4px; color: var(--pine-mid); margin-bottom: 10px; display: block; }
+  h1 { font-family: 'Noto Serif TC', serif; font-size: clamp(26px, 5vw, 40px); font-weight: 700; color: var(--ink); letter-spacing: 2px; line-height: 1.2; }
+  .header-sub { margin-top: 12px; font-size: 13px; color: var(--ink-light); font-weight: 300; line-height: 1.8; }
+
+  .header-pills {
+    display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 16px;
+  }
+  .pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 5px 14px; border: 1px solid var(--line);
+    border-radius: 20px; font-size: 12px; color: var(--ink-mid);
+    background: rgba(255,255,255,0.7);
+  }
+  .pill strong { color: var(--pine-mid); font-weight: 500; }
+
+  /* ── CARD ── */
+  .card {
+    background: rgba(255,255,255,0.72);
+    border: 1px solid var(--line);
+    border-top: 2px solid var(--pine-mid);
+    padding: 28px 24px;
+    margin-bottom: 20px;
+  }
+  .card-title {
+    font-family: 'Noto Serif TC', serif;
+    font-size: 12px; font-weight: 700;
+    letter-spacing: 3px; color: var(--pine-mid);
+    text-transform: uppercase; margin-bottom: 22px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .card-title::after { content: ''; flex: 1; height: 1px; background: var(--line); }
+
+  /* ── FIELD ── */
+  .field { margin-bottom: 18px; }
+  .field:last-child { margin-bottom: 0; }
+  label {
+    display: block; font-size: 12px; font-weight: 500;
+    color: var(--ink-mid); letter-spacing: 1px; margin-bottom: 7px;
+  }
+  .label-hint { font-size: 11px; color: var(--ink-light); font-weight: 300; margin-left: 6px; letter-spacing: 0; }
+
+  .input-wrap { position: relative; }
+  .input-wrap input {
+    width: 100%; height: 44px;
+    border: 1px solid var(--paper-3);
+    border-bottom: 2px solid var(--paper-3);
+    background: white;
+    padding: 0 40px 0 12px;
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: 14px; color: var(--ink);
+    border-radius: var(--radius); outline: none;
+    transition: border-color .2s;
+    -webkit-appearance: none;
+  }
+  .input-wrap input:focus { border-color: var(--pine-mid); border-bottom-color: var(--pine-mid); }
+  .input-unit {
+    position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+    font-size: 11px; color: var(--ink-light); font-weight: 500;
+    pointer-events: none;
+  }
+  input::placeholder { color: var(--ink-light); opacity: 0.5; font-size: 12px; }
+  input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; }
+
+  /* ── GRID ── */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 580px) { .grid-2 { grid-template-columns: 1fr; } }
+
+  /* ── COMPUTED ── */
+  .computed {
+    display: flex; align-items: center; justify-content: space-between;
+    height: 44px; border: 1px dashed var(--paper-3);
+    background: var(--paper-2); padding: 0 12px;
+    border-radius: var(--radius); font-size: 13px; color: var(--ink-mid);
+  }
+  .computed .val { font-weight: 500; color: var(--ink); font-family: 'Noto Serif TC', serif; font-size: 15px; }
+
+  /* ── INFO BOX ── */
+  .info-box {
+    background: var(--paper-2); border-left: 3px solid var(--pine-mid);
+    padding: 12px 16px; font-size: 12px; color: var(--ink-mid);
+    line-height: 1.9; border-radius: 0 var(--radius) var(--radius) 0;
+    margin-top: 8px;
+  }
+  .info-box strong { color: var(--pine-mid); font-weight: 500; }
+
+  /* ── BUTTON ── */
+  .btn-row { display: flex; gap: 12px; justify-content: center; margin-top: 8px; flex-wrap: wrap; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    height: 50px; padding: 0 40px; border: none; cursor: pointer;
+    font-family: 'Noto Serif TC', serif; font-size: 15px; font-weight: 700;
+    letter-spacing: 2px; border-radius: var(--radius); transition: all .2s;
+  }
+  .btn-primary { background: var(--pine-mid); color: white; }
+  .btn-primary:hover { background: var(--pine-light); }
+  .btn-primary:active { transform: scale(0.98); }
+  .btn-secondary { background: transparent; color: var(--ink-mid); border: 1px solid var(--paper-3); }
+  .btn-secondary:hover { border-color: var(--pine-mid); color: var(--pine-mid); }
+
+  /* ── ERROR ── */
+  .error-banner {
+    display: none; background: #FFF0EE; border: 1px solid #F5C6C0;
+    border-left: 3px solid var(--red); color: var(--red);
+    padding: 10px 14px; font-size: 13px; border-radius: var(--radius); margin-top: 12px;
+  }
+  .error-banner.show { display: block; }
+
+  /* ── RESULT ── */
+  .result-area { display: none; margin-top: 20px; animation: fadeUp .4s ease; }
+  .result-area.show { display: block; }
+  @keyframes fadeUp { from { opacity:0; transform:translateY(14px); } to { opacity:1; transform:translateY(0); } }
+
+  /* hero row */
+  .hero-row {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 20px;
+  }
+  @media (max-width:560px) { .hero-row { grid-template-columns: 1fr; } }
+
+  .hero-card {
+    background: white; border: 1px solid var(--line);
+    border-top: 2px solid var(--pine-mid); padding: 22px 20px;
+    border-radius: var(--radius);
+  }
+  .hero-card.accent { border-top-color: var(--red); }
+  .hero-label { font-size: 11px; letter-spacing: 2px; color: var(--ink-light); font-weight: 500; margin-bottom: 10px; }
+  .hero-val { font-family: 'Noto Serif TC', serif; font-size: clamp(20px,4vw,30px); font-weight: 700; color: var(--ink); word-break: break-all; }
+  .hero-card.accent .hero-val { color: var(--red); }
+  .hero-unit { font-size: 12px; color: var(--ink-light); margin-top: 4px; }
+
+  /* tier table */
+  .tier-section { margin-bottom: 20px; }
+  .section-label {
+    font-family: 'Noto Serif TC', serif; font-size: 12px; font-weight: 700;
+    letter-spacing: 3px; color: var(--pine-mid); margin-bottom: 14px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .section-label::after { content: ''; flex: 1; height: 1px; background: var(--line); }
+
+  .tier-table { width: 100%; border-collapse: collapse; background: white; border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
+  .tier-table thead th {
+    background: var(--paper-2); color: var(--ink-mid); font-weight: 500;
+    padding: 10px 14px; text-align: right; font-size: 11px;
+    letter-spacing: 1px; border-bottom: 1px solid var(--paper-3); white-space: nowrap;
+  }
+  .tier-table thead th:first-child { text-align: left; }
+  .tier-table tbody td { padding: 12px 14px; text-align: right; font-size: 13px; border-bottom: 1px dashed var(--line); }
+  .tier-table tbody tr:last-child td { border-bottom: none; }
+  .tier-table tbody td:first-child { text-align: left; font-weight: 500; }
+  .tier-table tbody td.rate { font-family: 'Noto Serif TC', serif; font-weight: 700; }
+  .tier-table tbody td.amt  { font-family: 'Noto Serif TC', serif; }
+  .rate-10 { color: var(--green); }
+  .rate-15 { color: var(--pine-mid); }
+  .rate-20 { color: var(--red); }
+
+  /* progress bar in table */
+  .bar-cell { padding: 8px 14px !important; }
+  .bar-track { width: 100%; height: 5px; background: var(--paper-3); border-radius: 3px; }
+  .bar-fill  { height: 5px; border-radius: 3px; transition: width .6s ease; }
+
+  /* breakdown */
+  .breakdown { background: white; border: 1px solid var(--line); padding: 20px 24px; border-radius: var(--radius); margin-bottom: 20px; }
+  .breakdown-title {
+    font-family: 'Noto Serif TC', serif; font-size: 13px; font-weight: 700;
+    letter-spacing: 2px; color: var(--ink-mid); margin-bottom: 16px;
+    padding-bottom: 12px; border-bottom: 1px solid var(--line);
+  }
+  .brow { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; font-size: 13px; border-bottom: 1px dashed var(--line); }
+  .brow:last-child { border-bottom: none; }
+  .brow .bl { color: var(--ink-mid); }
+  .brow .bl.sub { padding-left: 16px; color: var(--ink-light); font-size: 12px; }
+  .brow .bv { font-weight: 500; color: var(--ink); font-family: 'Noto Serif TC', serif; }
+  .brow.deduct .bv { color: var(--blue); }
+  .brow.hilight .bl { font-weight: 700; color: var(--ink); }
+  .brow.hilight .bv { font-size: 16px; color: var(--pine-mid); }
+  .brow.final .bl { font-weight: 700; color: var(--ink); font-size: 14px; }
+  .brow.final .bv { font-size: 20px; color: var(--red); }
+  .sec-lbl { font-size: 11px; letter-spacing: 2px; color: var(--pine-mid); font-weight: 700; text-transform: uppercase; padding: 10px 0 4px; border-top: 1px solid var(--line); margin-top: 4px; }
+
+  /* ── FOOTER ── */
+  .footer { text-align: center; margin-top: 60px; padding-top: 20px; border-top: 1px solid var(--line); }
+  .footer p { font-size: 11px; color: var(--ink-light); letter-spacing: 1px; margin-top: 4px; }
+
+  /* 宜慶地政 公司主標 */
+  .company-title {
+    font-family: 'Noto Serif TC', serif;
+    font-size: clamp(36px, 6vw, 56px);
+    font-weight: 700;
+    color: var(--ink);
+    line-height: 1.2;
+    letter-spacing: 8px;
+    margin-bottom: 18px;
+    text-indent: 8px;
+  }
+  .page-subtitle {
+    font-family: 'Noto Serif TC', serif;
+    font-size: clamp(18px, 2.6vw, 22px);
+    font-weight: 500;
+    color: var(--ink-light);
+    line-height: 1.4;
+    letter-spacing: 3px;
+    margin-top: 4px;
+  }
+
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="ornament-row">
+      <div class="orn-line"></div><div class="orn-dia"></div><div class="orn-line r"></div>
+    </div>
+    <span class="header-badge">不動產稅務工具</span>
+    <h1 class="company-title">宜慶地政</h1>
+    <h2 class="page-subtitle">贈與稅試算</h2>
+    <p class="header-sub">輸入年度贈與金額後，系統會依累進稅率自動計算本次應納贈與稅額</p>
+    <div class="header-pills">
+      <span class="pill">年度免稅額 <strong>244 萬元</strong></span>
+      <span class="pill">稅率級距 <strong>10% / 15% / 20%</strong></span>
+    </div>
+  </div>
+
+  <!-- INPUT CARD -->
+  <div class="card">
+    <div class="card-title">一、輸入贈與資料</div>
+
+    <div class="grid-2">
+      <div class="field">
+        <label>本次贈與總額<span class="label-hint">本次移轉金額</span></label>
+        <div class="input-wrap">
+          <input type="number" id="thisGift" placeholder="例：5000000" min="0" oninput="liveCalc()">
+          <span class="input-unit">元</span>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>本年度先前贈與總額<span class="label-hint">同年度前次累計</span></label>
+        <div class="input-wrap">
+          <input type="number" id="prevGift" placeholder="0" min="0" value="0" oninput="liveCalc()">
+          <span class="input-unit">元</span>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>不計入贈與總額<span class="label-hint">依法可排除之免稅項目</span></label>
+        <div class="input-wrap">
+          <input type="number" id="excluded" placeholder="0" min="0" value="0" oninput="liveCalc()">
+          <span class="input-unit">元</span>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>扣除額</label>
+        <div class="input-wrap">
+          <input type="number" id="deductions" placeholder="0" min="0" value="0" oninput="liveCalc()">
+          <span class="input-unit">元</span>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>免稅額（年度）<span class="label-hint">預設 2,440,000 元</span></label>
+        <div class="input-wrap">
+          <input type="number" id="exemption" placeholder="2440000" min="0" value="2440000" oninput="liveCalc()">
+          <span class="input-unit">元</span>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>本年度以前各次應納稅額及可扣抵稅額</label>
+        <div class="input-wrap">
+          <input type="number" id="prevTax" placeholder="0" min="0" value="0" oninput="liveCalc()">
+          <span class="input-unit">元</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- live preview -->
+    <div style="margin-top:20px; padding-top:20px; border-top:1px dashed var(--line);">
+      <div class="field">
+        <label>本年度贈與總額（即時預覽）</label>
+        <div class="computed"><span>本次 + 先前 − 不計入</span><span class="val" id="live-total">—</span></div>
+      </div>
+      <div class="field">
+        <label>本年度課稅贈與淨額（即時預覽）</label>
+        <div class="computed"><span>贈與總額 − 扣除額 − 免稅額</span><span class="val" id="live-net">—</span></div>
+      </div>
+    </div>
+
+    <div class="info-box">
+      <strong>免稅額：</strong>每位贈與人每年 244 萬元（114年適用）<br>
+      <strong>課稅級距：</strong>2,811萬以下 10%　／　超過2,811萬至5,621萬 15%　／　超過5,621萬 20%<br>
+      <strong>注意：</strong>離開欄位後金額將自動加上千分位格式顯示
+    </div>
+  </div>
+
+  <!-- BUTTONS -->
+  <div class="btn-row">
+    <button class="btn btn-primary" onclick="calculate()">開始計算</button>
+    <button class="btn btn-secondary" onclick="resetForm()">清除重填</button>
+  </div>
+  <div class="error-banner" id="error-banner"></div>
+
+  <!-- RESULT -->
+  <div class="result-area" id="result-area">
+
+    <!-- hero -->
+    <div class="hero-row">
+      <div class="hero-card">
+        <div class="hero-label">本年度贈與總額</div>
+        <div class="hero-val" id="res-total">—</div>
+        <div class="hero-unit">元</div>
+      </div>
+      <div class="hero-card">
+        <div class="hero-label">本年度課稅贈與淨額</div>
+        <div class="hero-val" id="res-net">—</div>
+        <div class="hero-unit">元</div>
+      </div>
+    </div>
+
+    <!-- breakdown calc -->
+    <div class="breakdown">
+      <div class="breakdown-title">計算明細</div>
+      <div id="breakdown-rows"></div>
+    </div>
+
+    <!-- tier table -->
+    <div class="tier-section">
+      <div class="section-label">稅率級距分配</div>
+      <table class="tier-table">
+        <thead>
+          <tr>
+            <th>級距範圍</th>
+            <th>課稅金額（元）</th>
+            <th>稅率</th>
+            <th>稅額（元）</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>2,811 萬以下</td>
+            <td class="amt" id="tier-base-10">0</td>
+            <td class="rate rate-10">10%</td>
+            <td class="amt rate-10" id="tier-tax-10">0</td>
+          </tr>
+          <tr>
+            <td class="bar-cell" colspan="4">
+              <div class="bar-track"><div class="bar-fill" id="bar-10" style="width:0%;background:var(--green);"></div></div>
+            </td>
+          </tr>
+          <tr>
+            <td>2,811 萬 ～ 5,621 萬</td>
+            <td class="amt" id="tier-base-15">0</td>
+            <td class="rate rate-15">15%</td>
+            <td class="amt rate-15" id="tier-tax-15">0</td>
+          </tr>
+          <tr>
+            <td class="bar-cell" colspan="4">
+              <div class="bar-track"><div class="bar-fill" id="bar-15" style="width:0%;background:var(--pine-mid);"></div></div>
+            </td>
+          </tr>
+          <tr>
+            <td>5,621 萬以上</td>
+            <td class="amt" id="tier-base-20">0</td>
+            <td class="rate rate-20">20%</td>
+            <td class="amt rate-20" id="tier-tax-20">0</td>
+          </tr>
+          <tr>
+            <td class="bar-cell" colspan="4">
+              <div class="bar-track"><div class="bar-fill" id="bar-20" style="width:0%;background:var(--red);"></div></div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- final tax -->
+    <div class="hero-card accent" style="margin-bottom:16px;">
+      <div class="hero-label">本次應納贈與稅額</div>
+      <div class="hero-val" id="res-final">—</div>
+      <div class="hero-unit">元</div>
+    </div>
+
+    <div class="info-box">
+      試算結果僅供參考，<strong>實際稅額以主管機關核定為準</strong>。
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <div class="ornament-row" style="margin-bottom:12px;">
+      <div class="orn-line" style="max-width:60px;"></div>
+      <div class="orn-dia"></div>
+      <div class="orn-line r" style="max-width:60px;"></div>
+    </div>
+    <p>本試算結果僅供參考，實際稅額請依主管機關核定為準</p>
+    <p>贈與稅試算 · 依遺產及贈與稅法計算</p>
+  </div>
+
+</div>
+
+<script>
+// 課稅級距
+const TIER1 = 28110000;  // 2,811 萬
+const TIER2 = 56210000;  // 5,621 萬
+
+function fmt(n) {
+  if (isNaN(n) || n === null) return '—';
+  return Math.floor(n).toLocaleString('zh-TW');
+}
+function fmtRaw(n) { return isNaN(n) ? '0' : Math.floor(n).toLocaleString('zh-TW'); }
+
+function getVal(id, def=0) {
+  const v = parseFloat(document.getElementById(id).value);
+  return isNaN(v) ? def : v;
+}
+
+// ── LIVE CALC (preview only) ──
+function liveCalc() {
+  const thisGift   = getVal('thisGift', 0);
+  const prevGift   = getVal('prevGift', 0);
+  const excluded   = getVal('excluded', 0);
+  const deductions = getVal('deductions', 0);
+  const exemption  = getVal('exemption', 2440000);
+
+  const total = Math.max(0, thisGift + prevGift);
+  const net   = Math.max(0, total - excluded - deductions - exemption);
+
+  document.getElementById('live-total').textContent = thisGift ? fmt(total) : '—';
+  document.getElementById('live-net').textContent   = thisGift ? fmt(net)   : '—';
+}
+
+// ── TIER COMPUTE ──
+function computeTiers(net) {
+  let b10=0, b15=0, b20=0, t10=0, t15=0, t20=0;
+  if (net <= 0) return { b10,b15,b20,t10,t15,t20, gross:0 };
+
+  if (net <= TIER1) {
+    b10 = net; t10 = b10 * 0.10;
+  } else if (net <= TIER2) {
+    b10 = TIER1;       t10 = b10 * 0.10;
+    b15 = net - TIER1; t15 = b15 * 0.15;
+  } else {
+    b10 = TIER1;           t10 = b10 * 0.10;
+    b15 = TIER2 - TIER1;   t15 = b15 * 0.15;
+    b20 = net - TIER2;     t20 = b20 * 0.20;
+  }
+  const gross = t10 + t15 + t20;
+  return { b10,b15,b20,t10,t15,t20,gross };
+}
+
+// ── PROGRESSIVE DIFFERENCE (累進差額) ──
+function progDiff(net) {
+  if (net <= TIER1) return 0;
+  if (net <= TIER2) return TIER1 * 0.05; // (15%-10%) × TIER1
+  return TIER1 * 0.05 + (TIER2 - TIER1) * 0.05;
+}
+
+// ── MAIN CALCULATE ──
+function calculate() {
+  const banner = document.getElementById('error-banner');
+  banner.classList.remove('show');
+
+  const thisGift   = getVal('thisGift', 0);
+  const prevGift   = getVal('prevGift', 0);
+  const excluded   = getVal('excluded', 0);
+  const deductions = getVal('deductions', 0);
+  const exemption  = getVal('exemption', 2440000);
+  const prevTax    = getVal('prevTax', 0);
+
+  if (!thisGift || thisGift <= 0) {
+    banner.textContent = '請輸入本次贈與總額';
+    banner.classList.add('show');
+    return;
+  }
+
+  // 本年度贈與總額（不計入項目不扣在此）
+  const yearTotal = Math.max(0, thisGift + prevGift);
+  // 本年度課稅贈與淨額（此處才扣除不計入、扣除額、免稅額）
+  const yearNet   = Math.max(0, yearTotal - excluded - deductions - exemption);
+
+  // 計算「本年度」整體稅額
+  const yearTiers = computeTiers(yearNet);
+  const { b10,b15,b20,t10,t15,t20 } = yearTiers;
+  const yearGross = yearTiers.gross;   // 分段加總稅額（即為應納稅額）
+
+  // 最高適用稅率與全額稅額（供明細展示用）
+  let topRate = 10;
+  if (yearNet > TIER2) topRate = 20;
+  else if (yearNet > TIER1) topRate = 15;
+  const taxByTopRate = yearNet * topRate / 100;  // 課稅淨額 × 最高稅率
+  const yearDiff = taxByTopRate - yearGross;      // 累進差額 = 全額稅 − 分段稅
+
+  const yearTaxBeforeCredit = yearGross;  // 應納稅額 = 分段加總
+
+  // 本次應納 = 本年度稅額 − 以前各次稅額
+  const finalTax = Math.max(0, yearTaxBeforeCredit - prevTax);
+
+  // Display heroes
+  document.getElementById('res-total').textContent = fmt(yearTotal);
+  document.getElementById('res-net').textContent   = fmt(yearNet);
+  document.getElementById('res-final').textContent = fmt(finalTax);
+
+  // Tier table
+  document.getElementById('tier-base-10').textContent = fmtRaw(b10);
+  document.getElementById('tier-base-15').textContent = fmtRaw(b15);
+  document.getElementById('tier-base-20').textContent = fmtRaw(b20);
+  document.getElementById('tier-tax-10').textContent  = fmtRaw(t10);
+  document.getElementById('tier-tax-15').textContent  = fmtRaw(t15);
+  document.getElementById('tier-tax-20').textContent  = fmtRaw(t20);
+
+  // Bars
+  const maxTax = Math.max(t10, t15, t20, 1);
+  setTimeout(() => {
+    document.getElementById('bar-10').style.width = (t10/maxTax*100).toFixed(1)+'%';
+    document.getElementById('bar-15').style.width = (t15/maxTax*100).toFixed(1)+'%';
+    document.getElementById('bar-20').style.width = (t20/maxTax*100).toFixed(1)+'%';
+  }, 100);
+
+  // Breakdown
+  const rows = document.getElementById('breakdown-rows');
+  const brow = (l,v,cls='') => `<div class="brow ${cls}"><span class="bl">${l}</span><span class="bv">${v}</span></div>`;
+  const browS = (l,v,cls='') => `<div class="brow ${cls}"><span class="bl sub">${l}</span><span class="bv">${v}</span></div>`;
+  const sec = t => `<div class="sec-lbl">${t}</div>`;
+
+  let html = '';
+
+  // 一、本年度贈與總額計算
+  html += sec('本年度贈與總額計算');
+  html += brow('本次贈與總額', fmt(thisGift) + ' 元');
+  html += browS('加：本年度先前贈與總額', '+ ' + fmt(prevGift) + ' 元');
+  html += brow('本年度贈與總額', fmt(yearTotal) + ' 元', 'hilight');
+
+  // 二、課稅贈與淨額計算（不計入在此扣除）
+  html += sec('課稅贈與淨額計算');
+  html += browS('減：不計入贈與總額', '− ' + fmt(excluded) + ' 元', 'deduct');
+  html += browS('減：扣除額', '− ' + fmt(deductions) + ' 元', 'deduct');
+  html += browS('減：免稅額（年度）', '− ' + fmt(exemption) + ' 元', 'deduct');
+  html += brow('本年度課稅贈與淨額', fmt(yearNet) + ' 元', 'hilight');
+
+  // 三、稅額計算（全額×最高稅率 − 累進差額）
+  html += sec('稅額計算');
+  html += brow(`稅額（${fmt(yearNet)} × ${topRate}%）`, fmt(taxByTopRate) + ' 元');
+  html += browS('累進差額', '− ' + fmt(yearDiff) + ' 元', 'deduct');
+  html += brow('本年度應納稅額', fmt(yearTaxBeforeCredit) + ' 元', 'hilight');
+
+  // 四、本次應納稅額
+  html += sec('本次應納稅額');
+  html += browS('減：以前各次應納稅額及可扣抵稅額', '− ' + fmt(prevTax) + ' 元', 'deduct');
+  html += brow('本次應納贈與稅額', fmt(finalTax) + ' 元', 'final');
+
+  rows.innerHTML = html;
+
+  document.getElementById('result-area').classList.add('show');
+  document.getElementById('result-area').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+// ── RESET ──
+function resetForm() {
+  document.getElementById('thisGift').value   = '';
+  document.getElementById('prevGift').value   = '0';
+  document.getElementById('excluded').value   = '0';
+  document.getElementById('deductions').value = '0';
+  document.getElementById('exemption').value  = '2440000';
+  document.getElementById('prevTax').value    = '0';
+  document.getElementById('live-total').textContent = '—';
+  document.getElementById('live-net').textContent   = '—';
+  document.getElementById('result-area').classList.remove('show');
+  document.getElementById('error-banner').classList.remove('show');
+  ['bar-10','bar-15','bar-20'].forEach(id => {
+    document.getElementById(id).style.width = '0%';
+  });
+}
+
+// ── BLUR: format with commas (display only) ──
+document.querySelectorAll('input[type="number"]').forEach(input => {
+  input.addEventListener('blur', function() {
+    if (this.value) {
+      const n = parseFloat(this.value);
+      if (!isNaN(n)) this.dataset.raw = n;
+    }
+  });
+});
+</script>
+</body>
+</html>
