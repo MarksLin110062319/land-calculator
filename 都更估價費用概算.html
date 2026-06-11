@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>宜慶地政｜都更估價費用概算</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;500;700&family=Noto+Sans+TC:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --pine:       #1B4332; --pine-mid:   #2D6A4F; --pine-light: #40916C;
+    --pine-pale:  #D8F3DC; --pine-mist:  #F0FAF2;
+    --ink:        #0D1F18; --ink-mid:    #2D4A3A; --ink-light:  #5A7A68;
+    --paper:      #F6FBF7; --paper-2:   #EBF5EE; --paper-3:   #D4E8D8;
+    --red:        #C0392B; --amber:      #B7791F; --blue:       #1A4A7A;
+    --line:       rgba(27,67,50,0.18); --radius: 4px;
+  }
+  body { font-family:'Noto Sans TC',sans-serif; background:var(--paper); color:var(--ink); min-height:100vh; position:relative; overflow-x:hidden; }
+  body::before { content:''; position:fixed; inset:0; background:repeating-linear-gradient(0deg,transparent,transparent 39px,var(--line) 39px,var(--line) 40px),repeating-linear-gradient(90deg,transparent,transparent 39px,var(--line) 39px,var(--line) 40px); pointer-events:none; z-index:0; }
+  .page { position:relative; z-index:1; max-width:760px; margin:0 auto; padding:48px 20px 80px; }
+
+  /* HEADER */
+  .header { text-align:center; margin-bottom:48px; }
+  .ornament-row { display:flex; align-items:center; gap:16px; justify-content:center; margin-bottom:16px; }
+  .orn-line { flex:1; max-width:110px; height:1px; background:linear-gradient(90deg,transparent,var(--pine-mid)); }
+  .orn-line.r { background:linear-gradient(90deg,var(--pine-mid),transparent); }
+  .orn-dia { width:9px; height:9px; background:var(--pine-mid); transform:rotate(45deg); }
+  .header-badge { font-family:'Noto Serif TC',serif; font-size:11px; font-weight:500; letter-spacing:4px; color:var(--pine-mid); margin-bottom:10px; display:block; }
+  h1 { font-family:'Noto Serif TC',serif; font-size:clamp(24px,5vw,38px); font-weight:700; color:var(--ink); letter-spacing:2px; line-height:1.2; }
+  .header-sub { margin-top:12px; font-size:13px; color:var(--ink-light); font-weight:300; line-height:1.8; }
+
+  /* CARD */
+  .card { background:rgba(255,255,255,0.78); border:1px solid var(--line); border-top:2px solid var(--pine-mid); padding:28px 24px; margin-bottom:20px; }
+  .card-title { font-family:'Noto Serif TC',serif; font-size:12px; font-weight:700; letter-spacing:3px; color:var(--pine-mid); text-transform:uppercase; margin-bottom:22px; display:flex; align-items:center; gap:10px; }
+  .card-title::after { content:''; flex:1; height:1px; background:var(--line); }
+
+  /* GRID */
+  .g2 { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+  .g3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px; }
+  @media(max-width:560px) { .g3 { grid-template-columns:1fr; } .g2 { grid-template-columns:1fr; } }
+
+  /* FIELD */
+  .field { margin-bottom:18px; }
+  .field:last-child { margin-bottom:0; }
+  label { display:block; font-size:12px; font-weight:500; color:var(--ink-mid); letter-spacing:1px; margin-bottom:7px; }
+  .label-hint { font-size:11px; color:var(--ink-light); font-weight:300; margin-left:6px; letter-spacing:0; }
+
+  .input-wrap { position:relative; }
+  .input-wrap input {
+    width:100%; height:48px; border:1px solid var(--paper-3); border-bottom:2px solid var(--paper-3);
+    background:white; padding:0 52px 0 14px; font-family:'Noto Sans TC',sans-serif;
+    font-size:15px; color:var(--ink); border-radius:var(--radius); outline:none;
+    transition:border-color .2s; -webkit-appearance:none;
+  }
+  .input-wrap input:focus { border-color:var(--pine-mid); border-bottom-color:var(--pine-mid); }
+  .input-unit { position:absolute; right:12px; top:50%; transform:translateY(-50%); font-size:11px; color:var(--ink-light); font-weight:500; pointer-events:none; white-space:nowrap; }
+  input::placeholder { color:var(--ink-light); opacity:.5; font-size:12px; }
+  input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance:none; }
+
+  /* RATE BADGE */
+  .rate-badge {
+    display:inline-flex; align-items:center; gap:8px; flex-wrap:wrap;
+    background:var(--pine-mist); border:1px solid var(--line);
+    padding:10px 16px; border-radius:var(--radius); margin-top:12px;
+    font-size:12px; color:var(--ink-mid); line-height:1.8;
+  }
+  .rate-badge strong { color:var(--pine-mid); font-weight:600; }
+  .rate-badge .sep { color:var(--paper-3); }
+
+  /* COMPUTED */
+  .cfield { background:var(--paper-2); border:1px dashed var(--paper-3); border-radius:var(--radius); padding:10px 14px; display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
+  .cfield:last-child { margin-bottom:0; }
+  .cfield-lbl { font-size:12px; color:var(--ink-mid); font-weight:500; }
+  .cfield-val { font-family:'Noto Serif TC',serif; font-size:16px; font-weight:700; color:var(--pine); }
+  .cfield-unit { font-size:10px; color:var(--ink-light); margin-left:3px; }
+
+  /* BUTTON */
+  .btn-row { display:flex; gap:12px; justify-content:center; margin-top:8px; flex-wrap:wrap; }
+  .btn { display:inline-flex; align-items:center; height:50px; padding:0 40px; border:none; cursor:pointer; font-family:'Noto Serif TC',serif; font-size:15px; font-weight:700; letter-spacing:2px; border-radius:var(--radius); transition:all .2s; }
+  .btn-primary { background:var(--pine-mid); color:white; }
+  .btn-primary:hover { background:var(--pine-light); }
+  .btn-primary:active { transform:scale(0.98); }
+  .btn-secondary { background:transparent; color:var(--ink-mid); border:1px solid var(--paper-3); }
+  .btn-secondary:hover { border-color:var(--pine-mid); color:var(--pine-mid); }
+  .btn-dl { background:var(--pine-mist); color:var(--pine-mid); border:1px solid var(--line); font-size:13px; letter-spacing:1px; height:44px; padding:0 24px; }
+  .btn-dl:hover { background:var(--pine-pale); }
+
+  /* ERROR */
+  .error-banner { display:none; background:#FFF0EE; border:1px solid #F5C6C0; border-left:3px solid var(--red); color:var(--red); padding:10px 14px; font-size:13px; border-radius:var(--radius); margin-top:12px; }
+  .error-banner.show { display:block; }
+
+  /* RESULT */
+  .result-area { display:none; margin-top:20px; animation:fadeUp .4s ease; }
+  .result-area.show { display:block; }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)} }
+
+  /* Hero */
+  .result-hero { background:white; border:1px solid var(--line); border-top:3px solid var(--pine-mid); padding:40px 28px; text-align:center; margin-bottom:20px; border-radius:var(--radius); }
+  .result-hero-label { font-size:13px; letter-spacing:3px; color:var(--ink-light); font-weight:500; margin-bottom:10px; }
+  .result-hero-val { font-family:'Noto Serif TC',serif; font-size:clamp(36px,8vw,60px); font-weight:700; color:var(--pine); word-break:break-all; }
+  .result-hero-unit { font-size:15px; color:var(--ink-light); margin-top:6px; }
+
+  /* result cards */
+  .res-cards { display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px; margin-bottom:20px; }
+  @media(max-width:500px) { .res-cards { grid-template-columns:1fr; } }
+  .rcard { background:white; border:1px solid var(--line); padding:18px 16px; text-align:center; border-radius:var(--radius); border-top:2px solid var(--pine-mid); }
+  .rcard.amber { border-top-color:var(--amber); }
+  .rcard.blue  { border-top-color:var(--blue); }
+  .rcard-label { font-size:11px; letter-spacing:1.5px; color:var(--ink-light); font-weight:500; margin-bottom:8px; min-height:30px; display:flex; align-items:center; justify-content:center; line-height:1.5; }
+  .rcard-val { font-family:'Noto Serif TC',serif; font-size:clamp(16px,3vw,22px); font-weight:700; color:var(--pine); }
+  .rcard.amber .rcard-val { color:var(--amber); }
+  .rcard.blue  .rcard-val { color:var(--blue); }
+  .rcard-unit { font-size:11px; color:var(--ink-light); margin-top:3px; }
+
+  /* breakdown */
+  .breakdown { background:white; border:1px solid var(--line); padding:20px 24px; border-radius:var(--radius); margin-bottom:20px; }
+  .breakdown-title { font-family:'Noto Serif TC',serif; font-size:13px; font-weight:700; letter-spacing:2px; color:var(--ink-mid); margin-bottom:16px; padding-bottom:12px; border-bottom:1px solid var(--line); }
+  .brow { display:flex; justify-content:space-between; align-items:baseline; padding:9px 0; font-size:13px; border-bottom:1px dashed var(--line); gap:12px; }
+  .brow:last-child { border-bottom:none; }
+  .brow .bl { color:var(--ink-mid); flex-shrink:0; }
+  .brow .bv { font-weight:500; color:var(--ink); font-family:'Noto Serif TC',serif; text-align:right; }
+  .brow.key .bv { color:var(--pine); font-size:16px; }
+  .brow.final .bl { font-weight:700; font-size:14px; }
+  .brow.final .bv { color:var(--pine); font-size:20px; }
+  .sec-lbl { font-size:11px; letter-spacing:2px; color:var(--pine-mid); font-weight:700; text-transform:uppercase; padding:10px 0 4px; border-top:1px solid var(--line); margin-top:4px; }
+
+  /* download preview */
+  .dl-section { background:white; border:1px solid var(--line); padding:20px 24px; border-radius:var(--radius); margin-bottom:20px; }
+  .dl-section-title { font-size:12px; font-weight:500; color:var(--ink-mid); letter-spacing:1px; margin-bottom:14px; }
+  #result-canvas { display:block; width:100%; border:1px solid var(--paper-3); border-radius:var(--radius); }
+
+  /* info */
+  .info-box { background:var(--paper-2); border-left:3px solid var(--pine-mid); padding:12px 16px; font-size:12px; color:var(--ink-mid); line-height:1.9; border-radius:0 var(--radius) var(--radius) 0; }
+  .info-box strong { color:var(--pine-mid); font-weight:500; }
+  .info-box ul { padding-left:16px; }
+  .info-box li { margin-bottom:3px; }
+
+  /* FOOTER */
+  .footer { text-align:center; margin-top:60px; padding-top:20px; border-top:1px solid var(--line); }
+  .footer p { font-size:11px; color:var(--ink-light); letter-spacing:1px; margin-top:4px; }
+
+  /* live dot */
+  .live-dot { display:inline-block; width:6px; height:6px; background:var(--pine-light); border-radius:50%; margin-right:4px; animation:pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+  /* 宜慶地政 公司主標 */
+  .company-title {
+    font-family: 'Noto Serif TC', serif;
+    font-size: clamp(36px, 6vw, 56px);
+    font-weight: 700;
+    color: var(--ink);
+    line-height: 1.2;
+    letter-spacing: 8px;
+    margin-bottom: 18px;
+    text-indent: 8px;
+  }
+  .page-subtitle {
+    font-family: 'Noto Serif TC', serif;
+    font-size: clamp(18px, 2.6vw, 22px);
+    font-weight: 500;
+    color: var(--ink-light);
+    line-height: 1.4;
+    letter-spacing: 3px;
+    margin-top: 4px;
+  }
+
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <div class="header">
+    <div class="ornament-row">
+      <div class="orn-line"></div><div class="orn-dia"></div><div class="orn-line r"></div>
+    </div>
+    <span class="header-badge">都市更新工具</span>
+    <h1 class="company-title">宜慶地政</h1>
+    <h2 class="page-subtitle">都更估價費用概算</h2>
+    <p class="header-sub">依筆數與基本費用估算都更估價費用（萬元），並可將試算結果轉為圖檔下載</p>
+  </div>
+
+  <!-- INPUT CARD -->
+  <div class="card">
+    <div class="card-title">一、輸入資料</div>
+
+    <div class="g3">
+      <div class="field">
+        <label>更新前建物筆數</label>
+        <div class="input-wrap">
+          <input type="number" id="preBldg" placeholder="例：50" min="0" step="1" oninput="liveCalc()">
+          <span class="input-unit">筆</span>
+        </div>
+      </div>
+      <div class="field">
+        <label>更新前土地筆數</label>
+        <div class="input-wrap">
+          <input type="number" id="preLand" placeholder="例：30" min="0" step="1" oninput="liveCalc()">
+          <span class="input-unit">筆</span>
+        </div>
+      </div>
+      <div class="field">
+        <label>更新後主建物筆數</label>
+        <div class="input-wrap">
+          <input type="number" id="postBldg" placeholder="例：80" min="0" step="1" oninput="liveCalc()">
+          <span class="input-unit">筆</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="g2" style="margin-top:4px;">
+      <div class="field">
+        <label>基本費用<span class="label-hint">固定基本費</span></label>
+        <div class="input-wrap">
+          <input type="number" id="baseFee" placeholder="例：30" min="0" step="0.01" oninput="liveCalc()">
+          <span class="input-unit">萬元</span>
+        </div>
+      </div>
+      <div class="field">
+        <label>成數<span class="label-hint">乘上估價費小計</span></label>
+        <div class="input-wrap">
+          <input type="number" id="multiplier" placeholder="例：100" min="0" step="0.01" oninput="liveCalc()">
+          <span class="input-unit">%</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Rate info -->
+    <div class="rate-badge">
+      <strong>單價規則：</strong>
+      <span>總筆數 ≤ 100 筆 → <strong>0.50 萬元／筆</strong></span>
+      <span class="sep">｜</span>
+      <span>總筆數 ≥ 101 筆 → <strong>0.45 萬元／筆</strong></span>
+    </div>
+
+    <!-- Live computed -->
+    <div style="margin-top:20px; padding-top:16px; border-top:1px dashed var(--line);">
+      <div style="font-size:11px; color:var(--ink-light); letter-spacing:1px; margin-bottom:10px;"><span class="live-dot"></span>即時試算</div>
+      <div class="cfield">
+        <span class="cfield-lbl">總筆數（更新前建物 ＋ 土地 ＋ 更新後主建物）</span>
+        <span><span class="cfield-val" id="cv-total">—</span><span class="cfield-unit">筆</span></span>
+      </div>
+      <div class="cfield">
+        <span class="cfield-lbl">單價（依總筆數決定）</span>
+        <span><span class="cfield-val" id="cv-unit">—</span><span class="cfield-unit">萬元／筆</span></span>
+      </div>
+      <div class="cfield">
+        <span class="cfield-lbl">估價費小計（總筆數 × 單價）</span>
+        <span><span class="cfield-val" id="cv-subtotal">—</span><span class="cfield-unit">萬元</span></span>
+      </div>
+      <div class="cfield" style="background:var(--pine-pale); border-color:var(--pine-mid);">
+        <span class="cfield-lbl" style="color:var(--pine); font-weight:700;">都更估價費用（小計 × 成數 ＋ 基本費用）</span>
+        <span><span class="cfield-val" id="cv-total-fee" style="font-size:20px;">—</span><span class="cfield-unit">萬元</span></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- BUTTONS -->
+  <div class="btn-row">
+    <button class="btn btn-primary" onclick="calculate()">立即試算</button>
+    <button class="btn btn-secondary" onclick="resetForm()">清除重填</button>
+  </div>
+  <div class="error-banner" id="error-banner"></div>
+
+  <!-- RESULT -->
+  <div class="result-area" id="result-area">
+
+    <!-- Hero -->
+    <div class="result-hero">
+      <div class="result-hero-label">都更估價費用</div>
+      <div class="result-hero-val" id="res-fee">—</div>
+      <div class="result-hero-unit">萬元</div>
+    </div>
+
+    <!-- Cards -->
+    <div class="res-cards">
+      <div class="rcard">
+        <div class="rcard-label">總筆數</div>
+        <div class="rcard-val" id="res-total">—</div>
+        <div class="rcard-unit">筆</div>
+      </div>
+      <div class="rcard amber">
+        <div class="rcard-label">適用單價</div>
+        <div class="rcard-val" id="res-unit">—</div>
+        <div class="rcard-unit">萬元／筆</div>
+      </div>
+      <div class="rcard blue">
+        <div class="rcard-label">估價費小計</div>
+        <div class="rcard-val" id="res-subtotal">—</div>
+        <div class="rcard-unit">萬元</div>
+      </div>
+    </div>
+
+    <!-- Breakdown -->
+    <div class="breakdown">
+      <div class="breakdown-title">計算明細</div>
+      <div id="breakdown-rows"></div>
+    </div>
+
+    <!-- Download section -->
+    <div class="dl-section">
+      <div class="dl-section-title">試算結果圖檔預覽</div>
+      <canvas id="result-canvas" width="680" height="360"></canvas>
+      <div style="margin-top:12px; display:flex; justify-content:flex-end;">
+        <button class="btn btn-dl" onclick="downloadImage()">⬇ 下載圖檔</button>
+      </div>
+    </div>
+
+    <div class="info-box">
+      <strong>估價費用計算說明：</strong>
+      <ul>
+        <li><strong>總筆數</strong> ＝ 更新前建物筆數 ＋ 更新前土地筆數 ＋ 更新後主建物筆數</li>
+        <li><strong>單價</strong>：總筆數 ≤ 100 筆時每筆 0.50 萬元；≥ 101 筆時每筆 0.45 萬元</li>
+        <li><strong>估價費小計</strong> ＝ 總筆數 × 單價</li>
+        <li><strong>都更估價費用</strong> ＝ 估價費小計 × 成數（%）＋ 基本費用</li>
+        <li>本試算結果固定顯示至小數點後 2 位，僅供概算參考。</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="footer">
+    <div class="ornament-row" style="margin-bottom:12px;">
+      <div class="orn-line" style="max-width:60px;"></div>
+      <div class="orn-dia"></div>
+      <div class="orn-line r" style="max-width:60px;"></div>
+    </div>
+    <p>本試算結果僅供參考，實際費用以委託合約為準</p>
+  </div>
+
+</div>
+
+<script>
+function gv(id) { const v = parseFloat(document.getElementById(id).value); return isNaN(v) ? null : v; }
+function fmtN(n, dec=2) { return (n === null || isNaN(n) || !isFinite(n)) ? '—' : n.toFixed(dec); }
+function sv(id, val, dec=2) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = fmtN(val, dec);
+}
+
+function calcAll() {
+  const preBldg  = gv('preBldg')  ?? 0;
+  const preLand  = gv('preLand')  ?? 0;
+  const postBldg = gv('postBldg') ?? 0;
+  const baseFee  = gv('baseFee')  ?? 0;
+  const mult     = gv('multiplier') ?? 100;
+
+  const total    = preBldg + preLand + postBldg;
+  const unitPrice = total <= 100 ? 0.50 : 0.45;
+  const subtotal  = total * unitPrice;
+  const totalFee  = subtotal * mult / 100 + baseFee;
+
+  return { preBldg, preLand, postBldg, baseFee, mult, total, unitPrice, subtotal, totalFee };
+}
+
+function liveCalc() {
+  const r = calcAll();
+  sv('cv-total',     r.total,     0);
+  sv('cv-unit',      r.unitPrice, 2);
+  sv('cv-subtotal',  r.subtotal,  2);
+  sv('cv-total-fee', r.totalFee,  2);
+}
+
+let lastResult = null;
+
+function calculate() {
+  const banner = document.getElementById('error-banner');
+  banner.classList.remove('show');
+
+  if (gv('preBldg') === null && gv('preLand') === null && gv('postBldg') === null) {
+    banner.textContent = '請至少輸入一項筆數';
+    banner.classList.add('show'); return;
+  }
+  if (gv('baseFee') === null) { banner.textContent = '請輸入基本費用'; banner.classList.add('show'); return; }
+  if (gv('multiplier') === null) { banner.textContent = '請輸入成數'; banner.classList.add('show'); return; }
+
+  const r = calcAll();
+  lastResult = r;
+
+  // Hero
+  document.getElementById('res-fee').textContent      = fmtN(r.totalFee, 2);
+  document.getElementById('res-total').textContent    = fmtN(r.total, 0);
+  document.getElementById('res-unit').textContent     = fmtN(r.unitPrice, 2);
+  document.getElementById('res-subtotal').textContent = fmtN(r.subtotal, 2);
+
+  // Breakdown
+  const rows = document.getElementById('breakdown-rows');
+  const brow = (l, v, cls='') =>
+    `<div class="brow ${cls}"><span class="bl">${l}</span><span class="bv">${v}</span></div>`;
+  const sec = t => `<div class="sec-lbl">${t}</div>`;
+
+  let html = '';
+  html += sec('筆數明細');
+  html += brow('更新前建物筆數',   fmtN(r.preBldg, 0)  + ' 筆');
+  html += brow('更新前土地筆數',   fmtN(r.preLand, 0)  + ' 筆');
+  html += brow('更新後主建物筆數', fmtN(r.postBldg, 0) + ' 筆');
+  html += brow('總筆數',           fmtN(r.total, 0)    + ' 筆', 'key');
+
+  html += sec('單價與費用計算');
+  html += brow('適用單價規則',     r.total <= 100 ? '≤ 100 筆，單價 0.50 萬元／筆' : '≥ 101 筆，單價 0.45 萬元／筆');
+  html += brow('估價費小計（總筆數 × 單價）', fmtN(r.subtotal, 2) + ' 萬元', 'key');
+  html += brow('成數',             fmtN(r.mult, 2) + ' %');
+  html += brow('基本費用',         fmtN(r.baseFee, 2) + ' 萬元');
+  html += brow('都更估價費用（小計 × 成數 ＋ 基本費用）', fmtN(r.totalFee, 2) + ' 萬元', 'final');
+
+  rows.innerHTML = html;
+
+  // Draw canvas
+  drawCanvas(r);
+
+  document.getElementById('result-area').classList.add('show');
+  document.getElementById('result-area').scrollIntoView({ behavior:'smooth', block:'nearest' });
+}
+
+// ── CANVAS DRAW ──
+function drawCanvas(r) {
+  const canvas = document.getElementById('result-canvas');
+  const ctx = canvas.getContext('2d');
+  const W = 680, H = 360;
+  canvas.width = W; canvas.height = H;
+
+  // Background
+  ctx.fillStyle = '#F6FBF7';
+  ctx.fillRect(0, 0, W, H);
+
+  // Top bar
+  ctx.fillStyle = '#2D6A4F';
+  ctx.fillRect(0, 0, W, 52);
+
+  ctx.fillStyle = '#ffffff';
+  ctx.font = 'bold 18px "Noto Serif TC", serif';
+  ctx.textAlign = 'left';
+  ctx.fillText('都更估價費用概算', 28, 34);
+
+  ctx.font = '12px "Noto Sans TC", sans-serif';
+  ctx.textAlign = 'right';
+  ctx.fillStyle = '#D8F3DC';
+  ctx.fillText('宜慶地政', W - 24, 34);
+
+  // Main result box
+  ctx.fillStyle = '#ffffff';
+  roundRect(ctx, 24, 70, W - 48, 100, 4);
+  ctx.fillStyle = '#2D6A4F';
+  ctx.fillRect(24, 70, 4, 100);
+
+  ctx.fillStyle = '#5A7A68';
+  ctx.font = '12px "Noto Sans TC", sans-serif';
+  ctx.textAlign = 'left';
+  ctx.fillText('都更估價費用', 40, 100);
+
+  ctx.fillStyle = '#1B4332';
+  ctx.font = 'bold 42px "Noto Serif TC", serif';
+  ctx.fillText(fmtN(r.totalFee, 2), 40, 148);
+
+  ctx.fillStyle = '#5A7A68';
+  ctx.font = '13px "Noto Sans TC", sans-serif';
+  ctx.fillText('萬元', 40 + ctx.measureText(fmtN(r.totalFee, 2)).width + 6, 148);
+
+  // Three stats
+  const stats = [
+    { label:'總筆數', val: fmtN(r.total, 0), unit:'筆' },
+    { label:'適用單價', val: fmtN(r.unitPrice, 2), unit:'萬元/筆' },
+    { label:'估價費小計', val: fmtN(r.subtotal, 2), unit:'萬元' },
+  ];
+  const colW = (W - 48) / 3;
+  stats.forEach((s, i) => {
+    const x = 24 + i * colW;
+    ctx.fillStyle = i % 2 === 0 ? '#F0FAF2' : '#EBF5EE';
+    ctx.fillRect(x, 186, colW - 2, 80);
+
+    ctx.fillStyle = '#5A7A68';
+    ctx.font = '11px "Noto Sans TC", sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(s.label, x + colW / 2, 210);
+
+    ctx.fillStyle = '#2D6A4F';
+    ctx.font = 'bold 20px "Noto Serif TC", serif';
+    ctx.fillText(s.val, x + colW / 2, 242);
+
+    ctx.fillStyle = '#5A7A68';
+    ctx.font = '10px "Noto Sans TC", sans-serif';
+    ctx.fillText(s.unit, x + colW / 2, 258);
+  });
+
+  // Formula row
+  ctx.fillStyle = '#D4E8D8';
+  ctx.fillRect(24, 278, W - 48, 1);
+
+  ctx.fillStyle = '#2D4A3A';
+  ctx.font = '12px "Noto Sans TC", sans-serif';
+  ctx.textAlign = 'left';
+  ctx.fillText(
+    `公式：總筆數(${fmtN(r.total,0)}) × 單價(${fmtN(r.unitPrice,2)}) × 成數(${fmtN(r.mult,1)}%) + 基本費用(${fmtN(r.baseFee,2)}) = ${fmtN(r.totalFee,2)} 萬元`,
+    28, 302
+  );
+
+  // Breakdown summary
+  const bItems = [
+    `更新前建物 ${fmtN(r.preBldg,0)} 筆`,
+    `更新前土地 ${fmtN(r.preLand,0)} 筆`,
+    `更新後主建物 ${fmtN(r.postBldg,0)} 筆`,
+  ];
+  ctx.fillStyle = '#5A7A68';
+  ctx.font = '11px "Noto Sans TC", sans-serif';
+  ctx.textAlign = 'left';
+  ctx.fillText(bItems.join('　｜　'), 28, 330);
+
+  // Footer line
+  ctx.fillStyle = '#D4E8D8';
+  ctx.fillRect(24, 340, W - 48, 1);
+  ctx.fillStyle = '#5A7A68';
+  ctx.font = '10px "Noto Sans TC", sans-serif';
+  ctx.textAlign = 'right';
+  ctx.fillText('本試算結果僅供參考 · 都更估價費用概算', W - 28, 354);
+}
+
+function roundRect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + w - r, y);
+  ctx.arcTo(x + w, y, x + w, y + r, r);
+  ctx.lineTo(x + w, y + h - r);
+  ctx.arcTo(x + w, y + h, x + w - r, y + h, r);
+  ctx.lineTo(x + r, y + h);
+  ctx.arcTo(x, y + h, x, y + h - r, r);
+  ctx.lineTo(x, y + r);
+  ctx.arcTo(x, y, x + r, y, r);
+  ctx.closePath();
+  ctx.fill();
+}
+
+function downloadImage() {
+  if (!lastResult) return;
+  drawCanvas(lastResult);
+  const canvas = document.getElementById('result-canvas');
+  const link = document.createElement('a');
+  link.download = '都更估價費用概算.png';
+  link.href = canvas.toDataURL('image/png');
+  link.click();
+}
+
+function resetForm() {
+  document.querySelectorAll('input[type="number"]').forEach(el => el.value = '');
+  ['cv-total','cv-unit','cv-subtotal','cv-total-fee'].forEach(id => {
+    document.getElementById(id).textContent = '—';
+  });
+  document.getElementById('result-area').classList.remove('show');
+  document.getElementById('error-banner').classList.remove('show');
+  lastResult = null;
+}
+</script>
+</body>
+</html>
