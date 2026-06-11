@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>宜慶地政｜遺產稅試算</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;500;700&family=Noto+Sans+TC:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --pine:        #1B4332;
+    --pine-mid:    #2D6A4F;
+    --pine-light:  #40916C;
+    --pine-pale:   #D8F3DC;
+    --pine-mist:   #F0FAF2;
+
+    --ink:         #0D1F18;
+    --ink-mid:     #2D4A3A;
+    --ink-light:   #5A7A68;
+    --paper:       #F6FBF7;
+    --paper-2:     #EBF5EE;
+    --paper-3:     #D4E8D8;
+    --red: #C0392B;
+    --green: #1A6B43;
+    --blue: #1A4A7A;
+    --line:        rgba(27,67,50,0.18);
+    --radius: 4px;
+  }
+
+  body {
+    font-family: 'Noto Sans TC', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    min-height: 100vh;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background:
+      repeating-linear-gradient(0deg, transparent, transparent 39px, var(--line) 39px, var(--line) 40px),
+      repeating-linear-gradient(90deg, transparent, transparent 39px, var(--line) 39px, var(--line) 40px);
+    pointer-events: none; z-index: 0;
+  }
+
+  .page {
+    position: relative; z-index: 1;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 48px 20px 80px;
+  }
+
+  /* ── HEADER ── */
+  .header { text-align: center; margin-bottom: 48px; }
+  .ornament-row { display: flex; align-items: center; gap: 16px; justify-content: center; margin-bottom: 16px; }
+  .orn-line { flex: 1; max-width: 110px; height: 1px; background: linear-gradient(90deg, transparent, var(--pine-mid)); }
+  .orn-line.r { background: linear-gradient(90deg, var(--pine-mid), transparent); }
+  .orn-dia { width: 9px; height: 9px; background: var(--pine-mid); transform: rotate(45deg); }
+  .header-badge { font-family: 'Noto Serif TC', serif; font-size: 11px; font-weight: 500; letter-spacing: 4px; color: var(--pine-mid); margin-bottom: 10px; display: block; }
+  h1 { font-family: 'Noto Serif TC', serif; font-size: clamp(26px, 5vw, 40px); font-weight: 700; color: var(--ink); letter-spacing: 2px; line-height: 1.2; }
+  .header-sub { margin-top: 12px; font-size: 13px; color: var(--ink-light); font-weight: 300; line-height: 1.8; }
+
+  /* ── CARD ── */
+  .card {
+    background: rgba(255,255,255,0.72);
+    border: 1px solid var(--line);
+    border-top: 2px solid var(--pine-mid);
+    padding: 28px 24px;
+    margin-bottom: 20px;
+  }
+  .card-title {
+    font-family: 'Noto Serif TC', serif;
+    font-size: 12px; font-weight: 700;
+    letter-spacing: 3px; color: var(--pine-mid);
+    text-transform: uppercase; margin-bottom: 22px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .card-title::after { content: ''; flex: 1; height: 1px; background: var(--line); }
+
+  /* ── FIELD ── */
+  .field { margin-bottom: 18px; }
+  .field:last-child { margin-bottom: 0; }
+  label {
+    display: block; font-size: 12px; font-weight: 500;
+    color: var(--ink-mid); letter-spacing: 1px; margin-bottom: 7px;
+  }
+  .label-hint { font-size: 11px; color: var(--ink-light); font-weight: 300; margin-left: 6px; letter-spacing: 0; }
+
+  .input-wrap { position: relative; }
+  .input-wrap input {
+    width: 100%; height: 44px;
+    border: 1px solid var(--paper-3);
+    border-bottom: 2px solid var(--paper-3);
+    background: white;
+    padding: 0 40px 0 12px;
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: 14px; color: var(--ink);
+    border-radius: var(--radius); outline: none;
+    transition: border-color .2s;
+    -webkit-appearance: none;
+  }
+  .input-wrap input:focus { border-color: var(--pine-mid); border-bottom-color: var(--pine-mid); }
+  .input-unit {
+    position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+    font-size: 11px; color: var(--ink-light); font-weight: 500;
+    pointer-events: none;
+  }
+  input::placeholder { color: var(--ink-light); opacity: 0.5; font-size: 12px; }
+  input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; }
+
+  /* ── GRID ── */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 580px) { .grid-2 { grid-template-columns: 1fr; } }
+
+  /* ── INFO BOX ── */
+  .info-box {
+    background: var(--paper-2); border-left: 3px solid var(--pine-mid);
+    padding: 12px 16px; font-size: 12px; color: var(--ink-mid);
+    line-height: 1.9; border-radius: 0 var(--radius) var(--radius) 0;
+    margin-top: 8px;
+  }
+  .info-box strong { color: var(--pine-mid); font-weight: 500; }
+
+  /* ── BUTTON ── */
+  .btn-row { display: flex; gap: 12px; justify-content: center; margin-top: 8px; flex-wrap: wrap; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    height: 50px; padding: 0 40px; border: none; cursor: pointer;
+    font-family: 'Noto Serif TC', serif; font-size: 15px; font-weight: 700;
+    letter-spacing: 2px; border-radius: var(--radius); transition: all .2s;
+  }
+  .btn-primary { background: var(--pine-mid); color: white; }
+  .btn-primary:hover { background: var(--pine-light); }
+  .btn-primary:active { transform: scale(0.98); }
+  .btn-secondary { background: transparent; color: var(--ink-mid); border: 1px solid var(--paper-3); }
+  .btn-secondary:hover { border-color: var(--pine-mid); color: var(--pine-mid); }
+
+  /* ── ERROR ── */
+  .error-banner {
+    display: none; background: #FFF0EE; border: 1px solid #F5C6C0;
+    border-left: 3px solid var(--red); color: var(--red);
+    padding: 10px 14px; font-size: 13px; border-radius: var(--radius); margin-top: 12px;
+  }
+  .error-banner.show { display: block; }
+
+  /* ── RESULT ── */
+  .result-area { display: none; margin-top: 20px; animation: fadeUp .4s ease; }
+  .result-area.show { display: block; }
+  @keyframes fadeUp { from { opacity:0; transform:translateY(14px); } to { opacity:1; transform:translateY(0); } }
+
+  /* net estate hero */
+  .net-hero {
+    background: white; border: 1px solid var(--line);
+    border-top: 2px solid var(--pine-mid);
+    padding: 24px 28px; margin-bottom: 20px;
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 12px;
+  }
+  .net-hero-label { font-size: 13px; color: var(--ink-light); letter-spacing: 2px; font-weight: 500; margin-bottom: 6px; }
+  .net-hero-val { font-family: 'Noto Serif TC', serif; font-size: clamp(24px, 5vw, 36px); font-weight: 700; color: var(--ink); }
+  .net-hero-unit { font-size: 13px; color: var(--ink-light); margin-left: 6px; }
+
+  /* result cards */
+  .result-cards { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; margin-bottom: 20px; }
+  @media (max-width: 600px) { .result-cards { grid-template-columns: 1fr; } }
+
+  .rcard {
+    background: white; border: 1px solid var(--line);
+    padding: 20px 16px; text-align: center; border-radius: var(--radius);
+    border-top: 2px solid var(--pine-mid);
+  }
+  .rcard.accent-red   { border-top-color: var(--red); }
+  .rcard.accent-blue  { border-top-color: var(--blue); }
+  .rcard.accent-green { border-top-color: var(--green); }
+  .rcard-label { font-size: 11px; letter-spacing: 1.5px; color: var(--ink-light); font-weight: 500; margin-bottom: 10px; line-height: 1.5; min-height: 30px; display: flex; align-items: center; justify-content: center; }
+  .rcard-val { font-family: 'Noto Serif TC', serif; font-size: clamp(16px,3vw,22px); font-weight: 700; color: var(--ink); word-break: break-all; }
+  .rcard.accent-red   .rcard-val { color: var(--red); }
+  .rcard.accent-blue  .rcard-val { color: var(--blue); }
+  .rcard.accent-green .rcard-val { color: var(--green); }
+  .rcard-unit { font-size: 11px; color: var(--ink-light); margin-top: 4px; }
+
+  /* tax bar */
+  .tax-bar-wrap { margin-bottom: 20px; }
+  .tax-bar-title {
+    font-family: 'Noto Serif TC', serif; font-size: 12px; font-weight: 700;
+    letter-spacing: 3px; color: var(--pine-mid); margin-bottom: 16px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .tax-bar-title::after { content: ''; flex: 1; height: 1px; background: var(--line); }
+
+  .tier-row {
+    background: white; border: 1px solid var(--line);
+    padding: 14px 20px; margin-bottom: 8px; border-radius: var(--radius);
+    display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+  }
+  .tier-badge {
+    font-size: 13px; font-weight: 700; font-family: 'Noto Serif TC', serif;
+    min-width: 36px; text-align: center;
+  }
+  .tier-badge.t10 { color: var(--green); }
+  .tier-badge.t15 { color: var(--pine-mid); }
+  .tier-badge.t20 { color: var(--red); }
+  .tier-desc { font-size: 12px; color: var(--ink-light); flex: 1; }
+  .tier-amt { font-family: 'Noto Serif TC', serif; font-size: 15px; font-weight: 700; color: var(--ink); white-space: nowrap; }
+  .tier-bar-track { width: 100%; height: 4px; background: var(--paper-3); border-radius: 2px; margin-top: 10px; }
+  .tier-bar-fill { height: 4px; border-radius: 2px; transition: width .5s ease; }
+  .tier-bar-fill.t10 { background: var(--green); }
+  .tier-bar-fill.t15 { background: var(--pine-mid); }
+  .tier-bar-fill.t20 { background: var(--red); }
+
+  /* breakdown */
+  .breakdown { background: white; border: 1px solid var(--line); padding: 20px 24px; border-radius: var(--radius); }
+  .breakdown-title {
+    font-family: 'Noto Serif TC', serif; font-size: 13px; font-weight: 700;
+    letter-spacing: 2px; color: var(--ink-mid); margin-bottom: 16px;
+    padding-bottom: 12px; border-bottom: 1px solid var(--line);
+  }
+  .brow { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; font-size: 13px; border-bottom: 1px dashed var(--line); }
+  .brow:last-child { border-bottom: none; }
+  .brow .bl { color: var(--ink-mid); }
+  .brow .bl.sub { padding-left: 16px; color: var(--ink-light); font-size: 12px; }
+  .brow .bv { font-weight: 500; color: var(--ink); font-family: 'Noto Serif TC', serif; }
+  .brow.deduct .bv { color: var(--blue); }
+  .brow.result .bl { font-weight: 700; color: var(--ink); font-size: 14px; }
+  .brow.result .bv { font-size: 17px; color: var(--red); }
+  .brow.final  .bl { font-weight: 700; color: var(--ink); font-size: 15px; }
+  .brow.final  .bv { font-size: 20px; color: var(--red); }
+  .section-lbl { font-size: 11px; letter-spacing: 2px; color: var(--pine-mid); font-weight: 700; text-transform: uppercase; padding: 10px 0 4px; border-top: 1px solid var(--line); margin-top: 4px; }
+
+  /* reference table */
+  .ref-table-wrap { overflow-x: auto; margin-top: 4px; }
+  table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  thead th { background: var(--paper-2); color: var(--ink-mid); font-weight: 500; padding: 9px 12px; text-align: left; border-bottom: 1px solid var(--paper-3); letter-spacing: 0.5px; white-space: nowrap; }
+  tbody td { padding: 8px 12px; border-bottom: 1px dashed var(--line); color: var(--ink-mid); vertical-align: top; }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody td:first-child { font-weight: 500; color: var(--ink); }
+  tbody td.amt { font-family: 'Noto Serif TC', serif; color: var(--pine-mid); font-weight: 500; white-space: nowrap; }
+
+  /* ── FOOTER ── */
+  .footer { text-align: center; margin-top: 60px; padding-top: 20px; border-top: 1px solid var(--line); }
+  .footer p { font-size: 11px; color: var(--ink-light); letter-spacing: 1px; margin-top: 4px; }
+
+  /* 宜慶地政 公司主標 */
+  .company-title {
+    font-family: 'Noto Serif TC', serif;
+    font-size: clamp(36px, 6vw, 56px);
+    font-weight: 700;
+    color: var(--ink);
+    line-height: 1.2;
+    letter-spacing: 8px;
+    margin-bottom: 18px;
+    text-indent: 8px;
+  }
+  .page-subtitle {
+    font-family: 'Noto Serif TC', serif;
+    font-size: clamp(18px, 2.6vw, 22px);
+    font-weight: 500;
+    color: var(--ink-light);
+    line-height: 1.4;
+    letter-spacing: 3px;
+    margin-top: 4px;
+  }
+
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="ornament-row">
+      <div class="orn-line"></div><div class="orn-dia"></div><div class="orn-line r"></div>
+    </div>
+    <span class="header-badge">不動產稅務工具</span>
+    <h1 class="company-title">宜慶地政</h1>
+    <h2 class="page-subtitle">遺產稅試算</h2>
+    <p class="header-sub">輸入遺產金額、扣除與免稅項目，即可試算課稅遺產淨額與應納稅額，掌握繼承規劃方向</p>
+  </div>
+
+  <!-- SECTION 1: 遺產資料 -->
+  <div class="card">
+    <div class="card-title">一、遺產資料輸入</div>
+
+    <div class="grid-2">
+      <div class="field">
+        <label>遺產總額<span class="label-hint">含全部動產、不動產與資產</span></label>
+        <div class="input-wrap">
+          <input type="number" id="totalEstate" placeholder="例：30000000" min="0">
+          <span class="input-unit">元</span>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>不計入遺產總額<span class="label-hint">日常用品、職業工具等</span></label>
+        <div class="input-wrap">
+          <input type="number" id="excluded" placeholder="0" min="0" value="0">
+          <span class="input-unit">元</span>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>扣除項目總額<span class="label-hint">配偶、子女、喪葬費等</span></label>
+        <div class="input-wrap">
+          <input type="number" id="deductions" placeholder="0" min="0" value="0">
+          <span class="input-unit">元</span>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>免稅額<span class="label-hint">預設 13,330,000 元</span></label>
+        <div class="input-wrap">
+          <input type="number" id="exemption" placeholder="13330000" min="0" value="13330000">
+          <span class="input-unit">元</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>抵扣稅額及利息<span class="label-hint">包含外國納稅抵免</span></label>
+      <div class="input-wrap" style="max-width:360px;">
+        <input type="number" id="taxCredit" placeholder="0" min="0" value="0">
+        <span class="input-unit">元</span>
+      </div>
+    </div>
+
+    <div class="info-box">
+      <strong>免稅額參考（繼承發生日 113年1月1日以後）：</strong>新台幣 1,333 萬元<br>
+      <strong>課稅級距：</strong>5,621萬以下 10%　／　超過5,621萬至1億1,242萬 15%　／　超過1億1,242萬 20%
+    </div>
+  </div>
+
+  <!-- BUTTONS -->
+  <div class="btn-row">
+    <button class="btn btn-primary" onclick="calculate()">開始計算</button>
+    <button class="btn btn-secondary" onclick="resetForm()">清除重填</button>
+  </div>
+  <div class="error-banner" id="error-banner"></div>
+
+  <!-- RESULT -->
+  <div class="result-area" id="result-area">
+
+    <!-- Net estate hero -->
+    <div class="net-hero">
+      <div>
+        <div class="net-hero-label">課稅遺產淨額</div>
+        <div>
+          <span class="net-hero-val" id="res-net">—</span>
+          <span class="net-hero-unit">元</span>
+        </div>
+      </div>
+      <div style="text-align:right;">
+        <div class="net-hero-label">應納遺產稅額</div>
+        <div>
+          <span class="net-hero-val" id="res-tax" style="color:var(--red);">—</span>
+          <span class="net-hero-unit">元</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tier cards -->
+    <div class="result-cards">
+      <div class="rcard accent-green">
+        <div class="rcard-label">5,621萬以下（10%）</div>
+        <div class="rcard-val" id="res-t10">—</div>
+        <div class="rcard-unit">元</div>
+      </div>
+      <div class="rcard accent-blue">
+        <div class="rcard-label">超過5,621萬至1億1,242萬（15%）</div>
+        <div class="rcard-val" id="res-t15">—</div>
+        <div class="rcard-unit">元</div>
+      </div>
+      <div class="rcard accent-red">
+        <div class="rcard-label">超過1億1,242萬（20%）</div>
+        <div class="rcard-val" id="res-t20">—</div>
+        <div class="rcard-unit">元</div>
+      </div>
+    </div>
+
+    <!-- Tier visual bars -->
+    <div class="tax-bar-wrap">
+      <div class="tax-bar-title">累進稅率分布</div>
+
+      <div class="tier-row" id="bar-t10">
+        <span class="tier-badge t10">10%</span>
+        <span class="tier-desc">5,621萬以下部分</span>
+        <span class="tier-amt" id="bar-amt-10">—</span>
+        <div style="width:100%;">
+          <div class="tier-bar-track"><div class="tier-bar-fill t10" id="bar-fill-10" style="width:0%"></div></div>
+        </div>
+      </div>
+      <div class="tier-row" id="bar-t15">
+        <span class="tier-badge t15">15%</span>
+        <span class="tier-desc">5,621萬～1億1,242萬部分</span>
+        <span class="tier-amt" id="bar-amt-15">—</span>
+        <div style="width:100%;">
+          <div class="tier-bar-track"><div class="tier-bar-fill t15" id="bar-fill-15" style="width:0%"></div></div>
+        </div>
+      </div>
+      <div class="tier-row" id="bar-t20">
+        <span class="tier-badge t20">20%</span>
+        <span class="tier-desc">超過1億1,242萬部分</span>
+        <span class="tier-amt" id="bar-amt-20">—</span>
+        <div style="width:100%;">
+          <div class="tier-bar-track"><div class="tier-bar-fill t20" id="bar-fill-20" style="width:0%"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Breakdown -->
+    <div class="breakdown">
+      <div class="breakdown-title">計算明細</div>
+      <div id="breakdown-rows"></div>
+    </div>
+
+    <div class="info-box" style="margin-top:16px;">
+      試算結果僅供參考，<strong>實際稅額以主管機關核定為準</strong>。
+    </div>
+  </div>
+
+  <!-- REFERENCE TABLE -->
+  <div class="card" style="margin-top:32px;">
+    <div class="card-title">遺產稅基本資料摘要</div>
+    <div class="ref-table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>項目</th>
+            <th>說明</th>
+            <th>113年1月1日以後</th>
+            <th>114年1月1日以後</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>免稅額</td>
+            <td>95年起按物價指數調整</td>
+            <td class="amt">1,333 萬</td>
+            <td class="amt">1,333 萬</td>
+          </tr>
+          <tr>
+            <td rowspan="2">不計入遺產<br>總額之金額</td>
+            <td>被繼承人日常生活必需之器具及用具</td>
+            <td class="amt">100 萬</td>
+            <td class="amt">100 萬</td>
+          </tr>
+          <tr>
+            <td>被繼承人職業上之工具</td>
+            <td class="amt">56 萬</td>
+            <td class="amt">56 萬</td>
+          </tr>
+          <tr>
+            <td rowspan="5">扣除額</td>
+            <td>配偶扣除額</td>
+            <td class="amt">553 萬</td>
+            <td class="amt">553 萬</td>
+          </tr>
+          <tr>
+            <td>直系血親卑親屬扣除額（每人）</td>
+            <td class="amt">56 萬</td>
+            <td class="amt">56 萬</td>
+          </tr>
+          <tr>
+            <td>父母扣除額（每人）</td>
+            <td class="amt">138 萬</td>
+            <td class="amt">138 萬</td>
+          </tr>
+          <tr>
+            <td>殘障特別扣除額（每人）</td>
+            <td class="amt">693 萬</td>
+            <td class="amt">693 萬</td>
+          </tr>
+          <tr>
+            <td>受扶養之兄弟姊妹、祖父母扣除額（每人）</td>
+            <td class="amt">56 萬</td>
+            <td class="amt">56 萬</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td>喪葬費扣除額</td>
+            <td class="amt">138 萬</td>
+            <td class="amt">138 萬</td>
+          </tr>
+          <tr>
+            <td rowspan="3">課稅級距</td>
+            <td>10%</td>
+            <td class="amt">5,621 萬以下</td>
+            <td class="amt">5,621 萬以下</td>
+          </tr>
+          <tr>
+            <td>15%</td>
+            <td class="amt">超過5,621萬～1億1,242萬</td>
+            <td class="amt">超過5,621萬～1億1,242萬</td>
+          </tr>
+          <tr>
+            <td>20%</td>
+            <td class="amt">超過1億1,242萬</td>
+            <td class="amt">超過1億1,242萬</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <div class="ornament-row" style="margin-bottom:12px;">
+      <div class="orn-line" style="max-width:60px;"></div>
+      <div class="orn-dia"></div>
+      <div class="orn-line r" style="max-width:60px;"></div>
+    </div>
+    <p>本試算結果僅供參考，實際稅額請依主管機關核定為準</p>
+    <p>遺產稅試算 · 依遺產及贈與稅法計算</p>
+  </div>
+
+</div>
+
+<script>
+// 課稅級距（114年1月1日以後同113年）
+const TIER1 = 56210000;   // 5,621 萬
+const TIER2 = 112420000;  // 1億1,242 萬
+
+function fmt(n) {
+  if (isNaN(n) || n === null) return '—';
+  return Math.floor(n).toLocaleString('zh-TW');
+}
+function getVal(id, def=0) {
+  const v = parseFloat(document.getElementById(id).value);
+  return isNaN(v) ? def : v;
+}
+
+function calculate() {
+  const banner = document.getElementById('error-banner');
+  banner.classList.remove('show');
+
+  const totalEstate = getVal('totalEstate');
+  const excluded    = getVal('excluded', 0);
+  const deductions  = getVal('deductions', 0);
+  const exemption   = getVal('exemption', 13330000);
+  const taxCredit   = getVal('taxCredit', 0);
+
+  if (!totalEstate || totalEstate <= 0) {
+    banner.textContent = '請輸入遺產總額';
+    banner.classList.add('show');
+    return;
+  }
+
+  // 課稅遺產淨額 = 遺產總額 - 不計入 - 扣除項 - 免稅額
+  const netEstate = Math.max(0, totalEstate - excluded - deductions - exemption);
+
+  // 累進計算
+  let t10 = 0, t15 = 0, t20 = 0;
+
+  if (netEstate <= TIER1) {
+    t10 = netEstate * 0.10;
+  } else if (netEstate <= TIER2) {
+    t10 = TIER1 * 0.10;
+    t15 = (netEstate - TIER1) * 0.15;
+  } else {
+    t10 = TIER1 * 0.10;
+    t15 = (TIER2 - TIER1) * 0.15;
+    t20 = (netEstate - TIER2) * 0.20;
+  }
+
+  const grossTax = t10 + t15 + t20;
+  const finalTax = Math.max(0, grossTax - taxCredit);
+  const maxTier  = Math.max(t10, t15, t20, 1);
+
+  // Display
+  document.getElementById('res-net').textContent = fmt(netEstate);
+  document.getElementById('res-tax').textContent = fmt(finalTax);
+  document.getElementById('res-t10').textContent = fmt(t10);
+  document.getElementById('res-t15').textContent = fmt(t15);
+  document.getElementById('res-t20').textContent = fmt(t20);
+
+  // Bars
+  document.getElementById('bar-amt-10').textContent = fmt(t10) + ' 元';
+  document.getElementById('bar-amt-15').textContent = fmt(t15) + ' 元';
+  document.getElementById('bar-amt-20').textContent = fmt(t20) + ' 元';
+
+  setTimeout(() => {
+    document.getElementById('bar-fill-10').style.width = (t10 / maxTier * 100).toFixed(1) + '%';
+    document.getElementById('bar-fill-15').style.width = (t15 / maxTier * 100).toFixed(1) + '%';
+    document.getElementById('bar-fill-20').style.width = (t20 / maxTier * 100).toFixed(1) + '%';
+  }, 100);
+
+  // Breakdown
+  const rows = document.getElementById('breakdown-rows');
+  const brow = (l, v, cls='') =>
+    `<div class="brow ${cls}"><span class="bl">${l}</span><span class="bv">${v}</span></div>`;
+  const section = t => `<div class="section-lbl">${t}</div>`;
+  const browSub = (l, v, cls='') =>
+    `<div class="brow ${cls}"><span class="bl sub">${l}</span><span class="bv">${v}</span></div>`;
+
+  let html = '';
+  html += section('遺產總額計算');
+  html += brow('遺產總額', fmt(totalEstate) + ' 元');
+  html += browSub('減：不計入遺產總額', '− ' + fmt(excluded) + ' 元', 'deduct');
+  html += browSub('減：扣除項目總額', '− ' + fmt(deductions) + ' 元', 'deduct');
+  html += browSub('減：免稅額', '− ' + fmt(exemption) + ' 元', 'deduct');
+  html += brow('課稅遺產淨額', fmt(netEstate) + ' 元', 'result');
+
+  html += section('累進稅率計算');
+  html += brow('5,621萬以下 × 10%', fmt(t10) + ' 元');
+  html += brow('超過5,621萬至1億1,242萬 × 15%', fmt(t15) + ' 元');
+  html += brow('超過1億1,242萬 × 20%', fmt(t20) + ' 元');
+  html += brow('累進稅額合計', fmt(grossTax) + ' 元', 'result');
+
+  html += section('應納稅額');
+  html += browSub('減：抵扣稅額及利息', '− ' + fmt(taxCredit) + ' 元', 'deduct');
+  html += brow('應納遺產稅額', fmt(finalTax) + ' 元', 'final');
+
+  rows.innerHTML = html;
+
+  document.getElementById('result-area').classList.add('show');
+  document.getElementById('result-area').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function resetForm() {
+  document.getElementById('totalEstate').value = '';
+  document.getElementById('excluded').value    = '0';
+  document.getElementById('deductions').value  = '0';
+  document.getElementById('exemption').value   = '13330000';
+  document.getElementById('taxCredit').value   = '0';
+  document.getElementById('result-area').classList.remove('show');
+  document.getElementById('error-banner').classList.remove('show');
+  ['bar-fill-10','bar-fill-15','bar-fill-20'].forEach(id => {
+    document.getElementById(id).style.width = '0%';
+  });
+}
+</script>
+</body>
+</html>
