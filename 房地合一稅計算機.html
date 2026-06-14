@@ -625,7 +625,11 @@
 
     <div id="inherit-fields" style="display:none;">
       <div class="grid">
-        <div class="field">
+                <div class="field">
+          <label>?????????</label>
+          <input type="number" id="inheritTotalCost" placeholder="??????????????" min="0">
+        </div>
+<div class="field">
           <label>取得時公告土地現值（元）</label>
           <input type="number" id="inheritLand" placeholder="0" min="0">
         </div>
@@ -674,12 +678,12 @@
       </div>
     </div>
 
-    <div id="sell-auto" class="field">
+    <div id="sell-auto" class="field" style="display:none;">
       <label>自動計算費用（元）</label>
       <div class="computed"><span>成交價 × 3%</span><span class="val" id="autoSellFee">—</span></div>
     </div>
 
-    <div id="sell-manual" style="display:none;" class="field">
+    <div id="sell-manual" class="field">
       <label>列舉費用合計（元）</label>
       <input type="number" id="manualSellFee" placeholder="請輸入列舉費用合計" min="0">
     </div>
@@ -827,14 +831,18 @@
 </div>
 
 <script>
-// ── HELPERS ──
+
+// ?? HELPERS ??
 function fmt(n) {
-  if (isNaN(n) || n === null) return '—';
-  return Math.round(n).toLocaleString('zh-TW');
+  if (isNaN(n) || n === null || !Number.isFinite(Number(n))) return '?';
+  return Math.round(Number(n)).toLocaleString('zh-TW');
 }
 
 function getVal(id) {
-  return parseFloat(document.getElementById(id).value) || 0;
+  const el = document.getElementById(id);
+  if (!el) return 0;
+  const cleaned = String(el.value || '').replace(/,/g, '').trim();
+  return parseFloat(cleaned) || 0;
 }
 
 function toggleHelp(id) {
@@ -842,7 +850,7 @@ function toggleHelp(id) {
   el.classList.toggle('open');
 }
 
-// ── DATE UTILS ──
+// ?? DATE UTILS ??
 function parseROCDate(y, m, d) {
   const gy = parseInt(y) + 1911;
   return new Date(gy, parseInt(m) - 1, parseInt(d));
@@ -853,11 +861,9 @@ function daysDiff(d1, d2) {
 }
 
 function yearsDiff(d1, d2) {
-  const diff = daysDiff(d1, d2);
-  return diff / 365.25;
+  return daysDiff(d1, d2) / 365.25;
 }
 
-// ── REGIME DETECTION ──
 function detectRegime() {
   const acqY = document.getElementById('acqY').value;
   const acqM = document.getElementById('acqM').value;
@@ -865,30 +871,16 @@ function detectRegime() {
   const txY  = document.getElementById('txY').value;
   const txM  = document.getElementById('txM').value;
   const txD  = document.getElementById('txD').value;
-
   if (!acqY || !acqM || !acqD || !txY || !txM || !txD) return null;
-
   const acqDate = parseROCDate(acqY, acqM, acqD);
   const txDate  = parseROCDate(txY, txM, txD);
-
   if (isNaN(acqDate) || isNaN(txDate)) return null;
-
-  const newLawStart = new Date(2016, 0, 1);   // 105/1/1 新制
-  const new20Start  = new Date(2021, 6, 1);   // 110/7/1 2.0
-
-  let regime, years;
-  years = yearsDiff(acqDate, txDate);
-
-  if (txDate < newLawStart) {
-    regime = 'old';
-  } else if (txDate >= new20Start) {
-    // 交易日期 >= 110/7/1 → 一律適用 2.0 稅率表
-    regime = 'new2';
-  } else {
-    // 交易日期在 105/1/1 ~ 110/6/30 之間 → 適用 1.0 稅率表
-    regime = 'new1';
-  }
-
+  const newLawStart = new Date(2016, 0, 1);
+  const new20Start  = new Date(2021, 6, 1);
+  const years = yearsDiff(acqDate, txDate);
+  let regime = 'new1';
+  if (txDate < newLawStart) regime = 'old';
+  else if (txDate >= new20Start) regime = 'new2';
   return { regime, years, acqDate, txDate };
 }
 
@@ -896,35 +888,31 @@ function updateRegimeInfo() {
   const info = document.getElementById('regime-info');
   const result = detectRegime();
   if (!result) {
-    info.innerHTML = '請輸入取得及交易日期以顯示適用新舊制與持有期間';
+    info.innerHTML = '???????????????????????';
     return;
   }
   const { regime, years } = result;
   const yrs = Math.floor(years);
   const mos = Math.round((years - yrs) * 12);
-
   let badge, regLabel;
   if (regime === 'old') {
-    badge = '<span class="regime-badge regime-old">舊制（土地增值稅＋財交所得稅）</span>';
-    regLabel = '交易日期在105年1月1日前，適用舊制';
+    badge = '<span class="regime-badge regime-old">???????????????</span>';
+    regLabel = '?????105?1?1???????';
   } else if (regime.startsWith('new2')) {
-    badge = '<span class="regime-badge regime-new">新制 2.0（民國110年7月起）</span>';
-    regLabel = '適用房地合一稅2.0';
+    badge = '<span class="regime-badge regime-new">?? 2.0???110?7???</span>';
+    regLabel = '???????2.0';
   } else {
-    badge = '<span class="regime-badge regime-new">新制 1.0（民國105年起）</span>';
-    regLabel = '適用房地合一稅1.0';
+    badge = '<span class="regime-badge regime-new">?? 1.0???105???</span>';
+    regLabel = '???????1.0';
   }
-
-  info.innerHTML = `${badge}　持有期間：<strong>${yrs}年${mos > 0 ? mos + '個月' : ''}</strong>　${regLabel}`;
+  info.innerHTML = `${badge}??????<strong>${yrs}?${mos > 0 ? mos + '??' : ''}</strong>?${regLabel}`;
   updateAutoFee();
 }
 
-// ── DATE INPUTS AUTO TRIGGER ──
 ['acqY','acqM','acqD','txY','txM','txD'].forEach(id => {
   document.getElementById(id).addEventListener('input', updateRegimeInfo);
 });
 
-// ── ACQ TYPE TOGGLE ──
 document.querySelectorAll('input[name="acqType"]').forEach(r => {
   r.addEventListener('change', () => {
     const v = r.value;
@@ -934,27 +922,35 @@ document.querySelectorAll('input[name="acqType"]').forEach(r => {
   });
 });
 
-// ── INHERIT TOTAL ──
-function updateInheritTotal() {
+function normalizePriceIndex(value) {
+  if (!value) return 1;
+  return value <= 10 ? value : value / 100;
+}
+
+function getInheritanceCost() {
+  const direct = getVal('inheritTotalCost');
+  if (direct > 0) return direct;
   const land = getVal('inheritLand');
   const bldg = getVal('inheritBuilding');
-  const idx  = getVal('priceIndex') / 100 || 1;
-  if (land + bldg === 0) { document.getElementById('inheritTotal').textContent = '—'; return; }
-  const total = (land + bldg) * idx;
+  const idx  = normalizePriceIndex(getVal('priceIndex'));
+  return (land + bldg) * idx;
+}
+
+function updateInheritTotal() {
+  const total = getInheritanceCost();
+  if (total === 0) { document.getElementById('inheritTotal').textContent = '?'; return; }
   document.getElementById('inheritTotal').textContent = fmt(total);
 }
-['inheritLand','inheritBuilding','priceIndex'].forEach(id => {
+['inheritTotalCost','inheritLand','inheritBuilding','priceIndex'].forEach(id => {
   document.getElementById(id).addEventListener('input', updateInheritTotal);
 });
 
-// ── OWNER TOGGLE ──
 document.querySelectorAll('input[name="owner"]').forEach(r => {
   r.addEventListener('change', () => {
     document.getElementById('local-type').style.display = r.value === 'local' ? '' : 'none';
   });
 });
 
-// ── SELL TYPE TOGGLE ──
 document.querySelectorAll('input[name="sellType"]').forEach(r => {
   r.addEventListener('change', () => {
     document.getElementById('sell-auto').style.display   = r.value === 'auto' ? '' : 'none';
@@ -962,31 +958,36 @@ document.querySelectorAll('input[name="sellType"]').forEach(r => {
   });
 });
 
+function getCappedSaleFee(revenue) {
+  return Math.min(revenue * 0.03, 300000);
+}
+
 function updateAutoFee() {
   const rev = getVal('revenue');
-  document.getElementById('autoSellFee').textContent = rev > 0 ? fmt(rev * 0.03) : '—';
+  document.getElementById('autoSellFee').textContent = rev > 0 ? fmt(getCappedSaleFee(rev)) : '?';
 }
 document.getElementById('revenue').addEventListener('input', updateAutoFee);
 
-// ── LAND APPRECIATION ──
+function normalizeLandIndex(value) {
+  if (!value) return 1;
+  return value <= 10 ? value : value / 100;
+}
+
 function updateLandCalc() {
   const area    = getVal('landArea');
   const rNum    = getVal('rightNum') || 1;
   const rDen    = getVal('rightDen') || 1;
   const curr    = getVal('currentVal');
   const prev    = getVal('prevVal');
-  const idx     = getVal('landIdx') / 100 || 1;
-
+  const idx     = normalizeLandIndex(getVal('landIdx'));
   if (!area || !curr) {
-    document.getElementById('landAppreciation').textContent = '—';
-    document.getElementById('netAppreciation').textContent = '—';
+    document.getElementById('landAppreciation').textContent = '?';
+    document.getElementById('netAppreciation').textContent = '?';
     return;
   }
-  const adjustedPrev = prev * idx;
-  const appreciation = (curr - adjustedPrev) * area * (rNum / rDen);
-  const appVal = Math.max(0, appreciation);
+  const appreciation = (curr - prev * idx) * area * (rNum / rDen);
+  const appVal = Math.max(0, Math.round(appreciation));
   document.getElementById('landAppreciation').textContent = fmt(appVal);
-
   const totalApp = getVal('totalAppreciation') || appVal;
   const deduct   = getVal('landDeduction');
   document.getElementById('netAppreciation').textContent = fmt(Math.max(0, totalApp - deduct));
@@ -996,153 +997,96 @@ function updateLandCalc() {
   document.getElementById(id).addEventListener('input', updateLandCalc);
 });
 
-// ── TAX RATE TABLE ──
 function getTaxRate(years, owner, localType, regime) {
-  if (owner === 'foreign') {
-    // 境外
-    return years <= 1 ? 45 : years <= 2 ? 35 : 20;
-  }
+  const days = Math.round(years * 365.25);
+  let bucket;
+  if (days < 730) bucket = 1;
+  else if (days >= 731 && days <= 1825) bucket = 2;
+  else if (days >= 1821 && days <= 3650) bucket = 3;
+  else if (days >= 3651) bucket = 4;
+  else bucket = 1;
+  if (owner === 'foreign') return bucket === 1 ? 45 : 35;
   if (owner === 'corp') {
-    // 本國公司 2.0
-    return years <= 2 ? 45 : years <= 5 ? 35 : 20;
+    if (bucket === 1) return 45;
+    if (bucket === 2) return 35;
+    return 20;
   }
-  // 本國個人
-  if (localType === 'selfuse') {
-    return 10; // 自住優惠
-  }
-  if (localType === 'involuntary') {
-    // 非自願 — 視持有超過2年適用20%，否則一般稅率
-    return years > 2 ? 20 : (years <= 1 ? 45 : 35);
-  }
-  if (localType === 'construct') {
-    // 合建/自地自建 — 2.0 特殊稅率
-    return years <= 2 ? 45 : years <= 5 ? 35 : 20;
-  }
-  // 一般房地
-  if (regime && regime.startsWith('new2')) {
-    if (years <= 2) return 45;
-    if (years <= 5) return 35;
-    if (years <= 10) return 20;
-    return 15;
-  } else {
-    if (years <= 1) return 45;
-    if (years <= 2) return 35;
-    if (years <= 10) return 20;
-    return 15;
-  }
+  if (localType === 'selfuse') return 10;
+  if (localType === 'involuntary' || localType === 'construct') return 20;
+  if (bucket === 1) return 45;
+  if (bucket === 2) return 35;
+  if (bucket === 3) return 20;
+  return 15;
 }
 
-// ── CALCULATE ──
 function calculate() {
   const banner = document.getElementById('error-banner');
   banner.classList.remove('show');
-
   const regimeData = detectRegime();
   if (!regimeData) {
-    banner.textContent = '請完整輸入取得日期及交易日期';
+    banner.textContent = '??????????????';
     banner.classList.add('show');
     return;
   }
-
   const { regime, years } = regimeData;
-
   if (regime === 'old') {
-    banner.textContent = '您的房地適用舊制（交易日期105年1月1日前），不適用房地合一稅，請依土地增值稅及財產交易所得稅申報。';
+    banner.textContent = '?????????????105?1?1???????????????????????????????';
     banner.classList.add('show');
     return;
   }
-
   const revenue = getVal('revenue');
   if (!revenue) {
-    banner.textContent = '請輸入交易收入';
+    banner.textContent = '???????';
     banner.classList.add('show');
     return;
   }
-
-  // 成本
   const acqType = document.querySelector('input[name="acqType"]:checked').value;
-  let acqCost;
-  if (acqType === 'purchase') {
-    acqCost = getVal('acqCost');
-  } else {
-    const land = getVal('inheritLand');
-    const bldg = getVal('inheritBuilding');
-    const idx  = getVal('priceIndex') / 100 || 1;
-    acqCost = (land + bldg) * idx;
-  }
+  const acqCost = acqType === 'purchase' ? getVal('acqCost') : getInheritanceCost();
   const necessaryCost = getVal('necessaryCost');
-
-  // 出售費用
-  const sellType = document.querySelector('input[name="sellType"]:checked').value;
-  let sellFee;
-  if (sellType === 'auto') {
-    sellFee = revenue * 0.03;
-  } else {
-    const manual = getVal('manualSellFee');
-    sellFee = Math.max(manual, revenue * 0.03);
-  }
-
+  const manualSellFee = getVal('manualSellFee');
+  const sellFee = Math.max(manualSellFee, getCappedSaleFee(revenue));
   const priorLoss = getVal('priorLoss');
-
-  // 土地漲價：若多筆合計欄空白，自動取本筆計算值
   const _area   = getVal('landArea');
   const _rNum   = getVal('rightNum') || 1;
   const _rDen   = getVal('rightDen') || 1;
   const _curr   = getVal('currentVal');
   const _prev   = getVal('prevVal');
-  const _idx    = getVal('landIdx') / 100 || 1;
-  const _adjPrev = _prev * _idx;
-  const singleApp = _area && _curr ? Math.max(0, (_curr - _adjPrev) * _area * (_rNum / _rDen)) : 0;
-
+  const _idx    = normalizeLandIndex(getVal('landIdx'));
+  const singleApp = _area && _curr ? Math.max(0, Math.round((_curr - _prev * _idx) * _area * (_rNum / _rDen))) : 0;
   const totalAppRaw = getVal('totalAppreciation');
   const totalApp    = totalAppRaw > 0 ? totalAppRaw : singleApp;
   const landDed     = getVal('landDeduction');
   const netLandApp  = Math.max(0, totalApp - landDed);
-
-  // 所得額
   const totalCost = acqCost + necessaryCost + sellFee;
   const grossIncome = revenue - totalCost;
-  const income = Math.max(0, grossIncome - netLandApp - priorLoss);
-
-  // 身分
+  const rawIncome = grossIncome - netLandApp - priorLoss;
+  const income = Math.max(0, Math.round(rawIncome));
   const owner     = document.querySelector('input[name="owner"]:checked').value;
-  const localType = owner === 'local'
-    ? document.querySelector('input[name="localType"]:checked').value
-    : 'general';
-
+  const localType = owner === 'local' ? document.querySelector('input[name="localType"]:checked').value : 'general';
   const rate = getTaxRate(years, owner, localType, regime);
-
-  // 自住免稅上限
-  let taxableIncome = income;
-  if (owner === 'local' && localType === 'selfuse') {
-    taxableIncome = Math.max(0, income - 4000000); // 自住400萬免稅
-  }
-
-  const tax = Math.round(taxableIncome * rate / 100);
-
-  // DISPLAY
+  let taxableIncome = rawIncome;
+  if (owner === 'local' && localType === 'selfuse') taxableIncome = rawIncome - 4000000;
+  const tax = Math.max(0, Math.round(taxableIncome * rate / 100));
+  const displayTaxableIncome = Math.max(0, Math.round(taxableIncome));
   document.getElementById('res-tax').textContent    = fmt(tax);
   document.getElementById('res-income').textContent = fmt(income);
   document.getElementById('res-rate').textContent   = rate;
-
-  // BREAKDOWN
   const rows = [
-    ['交易收入',                      revenue,         false],
-    ['取得成本',                      -acqCost,        true],
-    necessaryCost > 0 ? ['取得前必要費用',  -necessaryCost,  true] : null,
-    ['出售必要費用',                  -sellFee,        true],
-    ['交易毛所得',                    grossIncome,     false],
-    netLandApp > 0 ? ['減：土地漲價總數額（扣除後）', -netLandApp, true] : null,
-    priorLoss  > 0 ? ['減：3年內交易損失',            -priorLoss,  true] : null,
-    (owner === 'local' && localType === 'selfuse') ? ['減：自住免稅額（400萬）', -4000000, true] : null,
-    ['課稅所得額',                    taxableIncome,   false],
-    [`適用稅率（${rate}%）`,          null,            false],
-    ['應納稅額',                      tax,             false],
-  ].filter(r => r !== null && r[0] !== null && r[1] !== null);
-
+    ['????', revenue, false],
+    ['????', -acqCost, true],
+    necessaryCost > 0 ? ['???????', -necessaryCost, true] : null,
+    ['??????', -sellFee, true],
+    ['?????', grossIncome, false],
+    netLandApp > 0 ? ['??????????????', -netLandApp, true] : null,
+    priorLoss > 0 ? ['??3??????', -priorLoss, true] : null,
+    (owner === 'local' && localType === 'selfuse') ? ['????????400??', -4000000, true] : null,
+    ['?????', displayTaxableIncome, false],
+    [`?????${rate}%?`, null, false],
+    ['????', tax, false],
+  ].filter(r => r !== null && r[0] !== null);
   const container = document.getElementById('breakdown-rows');
-  container.innerHTML = rows.map((r, i) => {
-    const isTotal = r[0] === '應納稅額';
+  container.innerHTML = rows.map(r => {
+    const isTotal = r[0] === '????';
     const isSub = r[2];
     const v = r[1];
     const display = v === null ? `${rate}%` : (Math.abs(v) < 0.5 ? '0' : (v < 0 ? `- ${fmt(-v)}` : fmt(v)));
@@ -1150,28 +1094,27 @@ function calculate() {
     const lblStyle = isSub ? 'color:var(--ink-light);' : '';
     return `<div${style}><span class="lbl" style="${lblStyle}">${r[0]}</span><span class="amt">${display}</span></div>`;
   }).join('');
-
   document.getElementById('result-panel').classList.add('show');
   document.getElementById('result-panel').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
-// ── RESET ──
 function resetForm() {
   document.querySelectorAll('input[type="number"], input[type="text"]').forEach(el => el.value = '');
   document.querySelectorAll('input[type="radio"]').forEach(el => el.checked = el.defaultChecked);
-  document.getElementById('regime-info').textContent = '請輸入取得及交易日期以顯示適用新舊制與持有期間';
+  document.getElementById('regime-info').textContent = '???????????????????????';
   document.getElementById('result-panel').classList.remove('show');
   document.getElementById('error-banner').classList.remove('show');
-  document.getElementById('autoSellFee').textContent = '—';
-  document.getElementById('landAppreciation').textContent = '—';
-  document.getElementById('netAppreciation').textContent = '—';
-  document.getElementById('inheritTotal').textContent = '—';
+  document.getElementById('autoSellFee').textContent = '?';
+  document.getElementById('landAppreciation').textContent = '?';
+  document.getElementById('netAppreciation').textContent = '?';
+  document.getElementById('inheritTotal').textContent = '?';
   document.getElementById('purchase-fields').style.display = '';
   document.getElementById('inherit-fields').style.display = 'none';
-  document.getElementById('sell-auto').style.display = '';
-  document.getElementById('sell-manual').style.display = 'none';
+  document.getElementById('sell-auto').style.display = 'none';
+  document.getElementById('sell-manual').style.display = '';
   document.getElementById('local-type').style.display = '';
 }
+
 </script>
 </body>
 </html>
