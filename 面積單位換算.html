@@ -207,7 +207,7 @@ function buildUI() {
         <div class="unit-symbol">${u.symbol}</div>
       </div>
       <div class="unit-input-wrap">
-        <input type="number" id="inp-${u.id}" placeholder="0" step="any"
+        <input type="text" id="inp-${u.id}" placeholder="0" step="any"
           oninput="convert('${u.id}')" onfocus="lastEdited='${u.id}'">
       </div>
       <div class="copy-icon" id="copy-${u.id}" onclick="copyVal('${u.id}')" title="複製">⎘</div>
@@ -229,30 +229,132 @@ function fmtRef(n) {
 }
 
 // ── CONVERT ──
+function parseNumber(value) {
+  if (value == null) return NaN;
+  const cleaned = String(value).replace(/,/g, '').trim();
+  if (!cleaned) return NaN;
+  const numberValue = Number(cleaned);
+  return Number.isFinite(numberValue) ? numberValue : NaN;
+}
+
+function formatConverted(value) {
+  if (!Number.isFinite(value)) return '';
+  const rounded = Number(value.toFixed(6));
+  return rounded.toLocaleString('zh-TW', { maximumFractionDigits: 6 });
+}
+
+function setConverted(id, value) {
+  const el = document.getElementById('inp-' + id);
+  if (el) el.value = formatConverted(value);
+}
+
 function convert(sourceId) {
-  const sourceUnit = UNITS.find(u => u.id === sourceId);
-  const inputEl    = document.getElementById('inp-' + sourceId);
-  const val        = parseFloat(inputEl.value);
+  const inputEl = document.getElementById('inp-' + sourceId);
+  const val = parseNumber(inputEl.value);
 
   if (isNaN(val) || inputEl.value === '') {
-    // clear all others
     UNITS.forEach(u => {
       if (u.id !== sourceId) document.getElementById('inp-' + u.id).value = '';
     });
     return;
   }
 
-  // Convert input to ㎡ first
-  const sqm = val / sourceUnit.rate;
-
   UNITS.forEach(u => {
-    if (u.id === sourceId) return;
-    const converted = sqm * u.rate;
-    const el = document.getElementById('inp-' + u.id);
-    if (converted === 0) { el.value = '0'; return; }
-    // 以4位有效數字顯示，去除尾零
-    el.value = parseFloat(converted.toPrecision(4));
+    if (u.id !== sourceId) document.getElementById('inp-' + u.id).value = '';
   });
+
+  switch (sourceId) {
+    case 'sqm':
+      setConverted('ping', 0.3025 * val);
+      setConverted('are', 0.01 * val);
+      setConverted('hect', 0.0001 * val);
+      setConverted('sqkm', 0.000001 * val);
+      setConverted('mu', 0.0015 * val);
+      setConverted('jia', 0.0001031 * val);
+      setConverted('acre', 0.0002471 * val);
+      setConverted('usacre', 0.0002471 * val);
+      break;
+    case 'ping':
+      setConverted('sqm', 3.30579 * val);
+      setConverted('are', 0.03306 * val);
+      setConverted('hect', 0.00033 * val);
+      setConverted('sqkm', 0.00000330579 * val);
+      setConverted('mu', 0.00496 * val);
+      setConverted('jia', 0.00034 * val);
+      setConverted('acre', 0.00082 * val);
+      setConverted('usacre', 0.00082 * val);
+      break;
+    case 'are':
+      setConverted('sqm', 100 * val);
+      setConverted('ping', 30.25 * val);
+      setConverted('hect', 0.01 * val);
+      setConverted('sqkm', 0.0001 * val);
+      setConverted('mu', 0.15 * val);
+      setConverted('jia', 0.01031 * val);
+      setConverted('acre', 0.02471 * val);
+      setConverted('usacre', 0.02471 * val);
+      break;
+    case 'hect':
+      setConverted('sqm', 10000 * val);
+      setConverted('ping', 3025 * val);
+      setConverted('are', 100 * val);
+      setConverted('sqkm', 0.01 * val);
+      setConverted('mu', 15 * val);
+      setConverted('jia', 1.03102 * val);
+      setConverted('acre', 2.47106 * val);
+      setConverted('usacre', 2.47104 * val);
+      break;
+    case 'sqkm':
+      setConverted('sqm', 1000000 * val);
+      setConverted('ping', 302500 * val);
+      setConverted('are', 10000 * val);
+      setConverted('hect', 100 * val);
+      setConverted('mu', 1500 * val);
+      setConverted('jia', 103.102 * val);
+      setConverted('acre', 247.106 * val);
+      setConverted('usacre', 247.104 * val);
+      break;
+    case 'mu':
+      setConverted('sqm', 666.666 * val);
+      setConverted('ping', 201.667 * val);
+      setConverted('are', 6.66667 * val);
+      setConverted('hect', 0.06667 * val);
+      setConverted('sqkm', 0.000667 * val);
+      setConverted('jia', 0.06874 * val);
+      setConverted('acre', 0.16441 * val);
+      setConverted('usacre', 0.16474 * val);
+      break;
+    case 'jia':
+      setConverted('sqm', 9699.17 * val);
+      setConverted('ping', 2934 * val);
+      setConverted('are', 96.9917 * val);
+      setConverted('hect', 0.96992 * val);
+      setConverted('sqkm', 0.0097 * val);
+      setConverted('mu', 14.5488 * val);
+      setConverted('acre', 2.39672 * val);
+      setConverted('usacre', 2.39647 * val);
+      break;
+    case 'acre':
+      setConverted('sqm', 4046.85 * val);
+      setConverted('ping', 1224.17 * val);
+      setConverted('are', 40.4685 * val);
+      setConverted('hect', 0.40469 * val);
+      setConverted('sqkm', 0.00405 * val);
+      setConverted('mu', 6.00029 * val);
+      setConverted('jia', 0.41724 * val);
+      setConverted('usacre', 0.99999 * val);
+      break;
+    case 'usacre':
+      setConverted('sqm', 4046.87 * val);
+      setConverted('ping', 1224.18 * val);
+      setConverted('are', 40.4687 * val);
+      setConverted('hect', 0.40469 * val);
+      setConverted('sqkm', 0.00405 * val);
+      setConverted('mu', 6.07031 * val);
+      setConverted('jia', 0.41724 * val);
+      setConverted('acre', 1.000005 * val);
+      break;
+  }
 }
 
 // ── COPY ──
