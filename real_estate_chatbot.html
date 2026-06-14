@@ -1,0 +1,1193 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>農地特約事項產生器 Demo</title>
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg: #f4f1ea;
+      --surface: #ffffff;
+      --surface-soft: #fbfaf6;
+      --ink: #1d2520;
+      --muted: #66746d;
+      --line: #d8ded6;
+      --strong: #24483d;
+      --strong-2: #386f5d;
+      --field: #f8faf7;
+      --warn: #9f4b28;
+      --warn-bg: #fff3ea;
+      --danger: #9e2f2f;
+      --danger-bg: #fff0f0;
+      --ok: #2e6b45;
+      --ok-bg: #eef8f1;
+      --note: #3f5f96;
+      --note-bg: #eef4ff;
+      --shadow: 0 12px 32px rgba(29, 37, 32, 0.10);
+      --radius: 8px;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Microsoft JhengHei", "Noto Sans TC", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+    }
+
+    button,
+    input,
+    select,
+    textarea {
+      font: inherit;
+    }
+
+    header {
+      min-height: 64px;
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      background: var(--strong);
+      color: #fff;
+      border-bottom: 4px solid #d2b35b;
+    }
+
+    .brand {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: 20px;
+      line-height: 1.2;
+      letter-spacing: 0;
+    }
+
+    .brand span {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.78);
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .layout {
+      min-height: calc(100vh - 68px);
+      display: grid;
+      grid-template-columns: 320px minmax(420px, 1fr) 420px;
+      gap: 0;
+    }
+
+    aside,
+    main,
+    .result-panel {
+      min-width: 0;
+      overflow: auto;
+      max-height: calc(100vh - 68px);
+    }
+
+    aside {
+      background: var(--surface-soft);
+      border-right: 1px solid var(--line);
+      padding: 20px;
+    }
+
+    main {
+      padding: 22px;
+    }
+
+    .result-panel {
+      background: var(--surface);
+      border-left: 1px solid var(--line);
+      padding: 20px;
+    }
+
+    .section {
+      margin-bottom: 22px;
+    }
+
+    .section-title {
+      margin: 0 0 12px;
+      font-size: 15px;
+      color: var(--strong);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .section-subtitle {
+      margin: -4px 0 14px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .fields {
+      display: grid;
+      gap: 12px;
+    }
+
+    label.field {
+      display: grid;
+      gap: 6px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .field input,
+    .field textarea,
+    .field select {
+      width: 100%;
+      border: 1px solid var(--line);
+      background: var(--field);
+      color: var(--ink);
+      border-radius: var(--radius);
+      padding: 10px 11px;
+      outline: none;
+      min-height: 40px;
+    }
+
+    .field textarea {
+      resize: vertical;
+      min-height: 76px;
+      line-height: 1.6;
+    }
+
+    .field input:focus,
+    .field textarea:focus,
+    .field select:focus {
+      border-color: var(--strong-2);
+      box-shadow: 0 0 0 3px rgba(56, 111, 93, 0.14);
+      background: #fff;
+    }
+
+    .question-list {
+      display: grid;
+      gap: 14px;
+    }
+
+    .question {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 16px;
+      box-shadow: 0 4px 14px rgba(29, 37, 32, 0.05);
+    }
+
+    .question-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 12px;
+    }
+
+    .question-title {
+      margin: 0;
+      font-size: 16px;
+      line-height: 1.45;
+    }
+
+    .tag {
+      flex-shrink: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 24px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-size: 12px;
+      color: var(--strong);
+      background: #e8f1ed;
+      border: 1px solid #cae1d7;
+    }
+
+    .tag.warn {
+      color: var(--warn);
+      background: var(--warn-bg);
+      border-color: #f0c9b3;
+    }
+
+    .tag.danger {
+      color: var(--danger);
+      background: var(--danger-bg);
+      border-color: #efc3c3;
+    }
+
+    .options {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 8px;
+    }
+
+    .option {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 44px;
+      border: 1px solid var(--line);
+      background: var(--surface-soft);
+      border-radius: var(--radius);
+      padding: 9px 10px;
+      cursor: pointer;
+      color: var(--ink);
+      line-height: 1.35;
+      font-size: 14px;
+    }
+
+    .option input {
+      width: 16px;
+      height: 16px;
+      accent-color: var(--strong-2);
+      flex-shrink: 0;
+    }
+
+    .option:has(input:checked) {
+      border-color: var(--strong-2);
+      background: #edf7f2;
+      box-shadow: inset 0 0 0 1px rgba(56, 111, 93, 0.25);
+    }
+
+    .followups {
+      margin-top: 12px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 10px;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .output-block {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--surface-soft);
+      margin-bottom: 14px;
+      overflow: hidden;
+    }
+
+    .output-title {
+      min-height: 42px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--line);
+      background: #eef4ef;
+      color: var(--strong);
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    .output-body {
+      padding: 12px;
+      font-size: 14px;
+      line-height: 1.75;
+    }
+
+    .output-body ol,
+    .output-body ul {
+      margin: 0;
+      padding-left: 22px;
+    }
+
+    .output-body li + li {
+      margin-top: 6px;
+    }
+
+    .clause-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .clause {
+      padding: 11px 12px;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      white-space: pre-wrap;
+    }
+
+    .empty-state {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.7;
+    }
+
+    .risk-list li.danger {
+      color: var(--danger);
+    }
+
+    .risk-list li.warn {
+      color: var(--warn);
+    }
+
+    .btn {
+      border: 1px solid transparent;
+      background: var(--strong-2);
+      color: #fff;
+      border-radius: var(--radius);
+      padding: 9px 12px;
+      cursor: pointer;
+      min-height: 38px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: transform 0.12s, box-shadow 0.12s, background 0.12s;
+    }
+
+    .btn:hover {
+      background: var(--strong);
+      box-shadow: var(--shadow);
+    }
+
+    .btn:active {
+      transform: translateY(1px);
+    }
+
+    .btn.secondary {
+      color: var(--strong);
+      background: #fff;
+      border-color: var(--line);
+    }
+
+    .btn.secondary:hover {
+      background: var(--surface-soft);
+      box-shadow: none;
+    }
+
+    .btn.danger {
+      background: var(--danger);
+    }
+
+    .btn.small {
+      min-height: 30px;
+      padding: 5px 9px;
+      font-size: 12px;
+    }
+
+    .toast {
+      position: fixed;
+      right: 18px;
+      bottom: 18px;
+      background: var(--ink);
+      color: #fff;
+      border-radius: var(--radius);
+      padding: 10px 12px;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(8px);
+      transition: opacity 0.18s, transform 0.18s;
+      z-index: 10;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .review-box {
+      background: var(--note-bg);
+      border: 1px solid #c6d7f5;
+      color: var(--note);
+      border-radius: var(--radius);
+      padding: 12px;
+      font-size: 13px;
+      line-height: 1.7;
+      margin-top: 12px;
+    }
+
+    @media (max-width: 1180px) {
+      .layout {
+        grid-template-columns: 300px 1fr;
+      }
+
+      .result-panel {
+        grid-column: 1 / -1;
+        max-height: none;
+        border-left: 0;
+        border-top: 1px solid var(--line);
+      }
+    }
+
+    @media (max-width: 760px) {
+      header {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .layout {
+        display: block;
+      }
+
+      aside,
+      main,
+      .result-panel {
+        max-height: none;
+        overflow: visible;
+      }
+
+      aside {
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .options,
+      .followups {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <h1>農地特約事項產生器 Demo</h1>
+      <span>外勤案件資料輸入、特約勾選、草稿產生</span>
+    </div>
+    <div class="header-actions">
+      <button class="btn secondary" type="button" id="loadSampleBtn">載入範例</button>
+      <button class="btn secondary" type="button" id="resetBtn">清空</button>
+      <button class="btn" type="button" id="copyBtn">複製特約</button>
+      <button class="btn" type="button" id="downloadBtn">下載文字檔</button>
+    </div>
+  </header>
+
+  <div class="layout">
+    <aside>
+      <section class="section">
+        <h2 class="section-title">案件基本資料</h2>
+        <p class="section-subtitle">可先填已知資料，空白欄位會自動列入待補清單。</p>
+        <div class="fields">
+          <label class="field">
+            案件名稱
+            <input data-case="caseName" placeholder="例如：善化區某段農地買賣" />
+          </label>
+          <label class="field">
+            簽約日期
+            <input data-case="contractDate" placeholder="例如：115年6月10日" />
+          </label>
+          <label class="field">
+            買方
+            <input data-case="buyer" placeholder="可輸入多人" />
+          </label>
+          <label class="field">
+            賣方
+            <input data-case="seller" placeholder="可輸入多人" />
+          </label>
+          <label class="field">
+            土地標示
+            <textarea data-case="land" placeholder="段、小段、地號、持分"></textarea>
+          </label>
+          <label class="field">
+            買賣總價
+            <input data-case="price" placeholder="例如：新台幣1,200萬元整" />
+          </label>
+          <label class="field">
+            履保 / 建經
+            <select data-case="escrow">
+              <option value="">尚未確認</option>
+              <option value="有履保">有履保</option>
+              <option value="無履保">無履保</option>
+              <option value="部分價金不入履保">部分價金不入履保</option>
+            </select>
+          </label>
+          <label class="field">
+            契約編號 / 履保號
+            <input data-case="contractNo" placeholder="可先空白" />
+          </label>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2 class="section-title">Demo 範圍</h2>
+        <p class="section-subtitle">第一版先做 7 個核心問題，覆蓋農地常見風險。後續再加建地、透天、集合住宅。</p>
+        <div class="review-box">
+          這個頁面不連資料庫，也不提供法律意見。它只是把代書常用特約整理成可勾選的草稿工具。
+        </div>
+      </section>
+    </aside>
+
+    <main>
+      <section class="section">
+        <h2 class="section-title">農地風險問答 <span class="tag">第一版 7 題</span></h2>
+        <p class="section-subtitle">外勤人員只要回答現場狀況；右側會即時產生特約草稿、風險提醒和待補資料。</p>
+        <div class="question-list" id="questionList"></div>
+      </section>
+    </main>
+
+    <section class="result-panel">
+      <div class="output-block">
+        <div class="output-title">
+          特約事項草稿
+          <span class="tag" id="clauseCount">0 條</span>
+        </div>
+        <div class="output-body" id="clauseOutput">
+          <p class="empty-state">請先填寫左側資料，並回答中間的農地問題。</p>
+        </div>
+      </div>
+
+      <div class="output-block">
+        <div class="output-title">
+          高風險提醒
+          <span class="tag warn" id="riskCount">0 項</span>
+        </div>
+        <div class="output-body" id="riskOutput">
+          <p class="empty-state">目前尚無高風險提醒。</p>
+        </div>
+      </div>
+
+      <div class="output-block">
+        <div class="output-title">
+          待補資料清單
+          <span class="tag" id="missingCount">0 項</span>
+        </div>
+        <div class="output-body" id="missingOutput">
+          <p class="empty-state">空白或不確定的欄位會列在這裡。</p>
+        </div>
+      </div>
+
+      <div class="output-block">
+        <div class="output-title">Excel 欄位摘要</div>
+        <div class="output-body" id="excelOutput">
+          <p class="empty-state">回答問題後，這裡會整理成案件表欄位。</p>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="toast" id="toast">已複製</div>
+
+  <script>
+    const questions = [
+      {
+        id: "agri",
+        title: "這塊農地要不要申請農用證明？",
+        risk: "高",
+        options: [
+          { value: "apply", label: "要，並主張土增稅不課徵" },
+          { value: "general", label: "不要，改用一般稅率" },
+          { value: "obtained", label: "已經取得農用證明" },
+          { value: "unknown", label: "還不確定" }
+        ],
+        followups: [
+          { key: "feeParty", label: "農用證明費用由誰負擔？", show: ["apply", "obtained"], placeholder: "例如：賣方" },
+          { key: "prepParty", label: "若需整地，費用由誰負擔？", show: ["apply"], placeholder: "例如：賣方" },
+          { key: "failureAction", label: "拿不到農用證明怎麼辦？", show: ["apply"], type: "select", options: ["解約退款", "改一般稅率", "另行協議"] },
+          { key: "deadline", label: "是否有取得期限？", show: ["apply"], placeholder: "例如：115年7月31日前" },
+          { key: "taxParty", label: "一般稅率稅費由誰負擔？", show: ["general"], placeholder: "例如：賣方" }
+        ]
+      },
+      {
+        id: "survey",
+        title: "這塊土地需要鑑界嗎？",
+        risk: "中高",
+        options: [
+          { value: "seller", label: "需要，費用賣方負擔" },
+          { value: "buyer", label: "需要，費用買方負擔" },
+          { value: "done", label: "已經鑑界完成" },
+          { value: "none", label: "不鑑界，依現況點交" },
+          { value: "unknown", label: "還不確定" }
+        ],
+        followups: [
+          { key: "doneDate", label: "鑑界完成日期", show: ["done"], placeholder: "例如：115年2月5日" },
+          { key: "beforeTransfer", label: "是否要過戶前完成？", show: ["seller", "buyer"], type: "select", options: ["是", "否", "不確定"] },
+          { key: "clearForSurvey", label: "是否需整地除草以利測量？", show: ["seller", "buyer"], type: "select", options: ["需要", "不需要", "不確定"] }
+        ]
+      },
+      {
+        id: "crops",
+        title: "土地上現在有沒有作物或養殖物？",
+        risk: "中高",
+        options: [
+          { value: "none", label: "沒有" },
+          { value: "sellerHarvest", label: "有，賣方要收成" },
+          { value: "tenantHarvest", label: "有，承租人 / 耕作人要收成" },
+          { value: "remove", label: "有，點交前要剷除" },
+          { value: "aquaculture", label: "魚塭 / 養殖使用" },
+          { value: "unknown", label: "還不確定" }
+        ],
+        followups: [
+          { key: "cropType", label: "作物或養殖種類", show: ["sellerHarvest", "tenantHarvest", "remove", "aquaculture"], placeholder: "例如：玉米、蕃薯、魚塭" },
+          { key: "delivery", label: "點交狀態", show: ["sellerHarvest", "tenantHarvest", "remove", "aquaculture"], type: "select", options: ["收成後現況點交", "整地後點交", "素地點交", "點交前剷除"] },
+          { key: "deliveryDate", label: "最後點交日期", show: ["sellerHarvest", "tenantHarvest", "remove", "aquaculture"], placeholder: "可先空白" }
+        ]
+      },
+      {
+        id: "lease",
+        title: "現在有沒有出租、耕作人或承租人？",
+        risk: "高",
+        options: [
+          { value: "none", label: "沒有" },
+          { value: "remove", label: "有，點交前賣方要排除" },
+          { value: "assume", label: "有，買方同意承受租約" },
+          { value: "oral", label: "有，但只是口頭租約" },
+          { value: "375", label: "有三七五租約" },
+          { value: "unknown", label: "還不確定" }
+        ],
+        followups: [
+          { key: "leaseEnd", label: "租期到什麼時候？", show: ["assume", "oral"], placeholder: "例如：115年6月30日" },
+          { key: "rent", label: "租金 / 押金如何切算？", show: ["assume", "oral"], placeholder: "例如：依點交日比例切算" },
+          { key: "tenantComp", label: "三七五補償或價金分配", show: ["375"], placeholder: "例如：剩餘價金三分之一" }
+        ]
+      },
+      {
+        id: "preemptive",
+        title: "有沒有優先購買權問題？",
+        risk: "高",
+        options: [
+          { value: "none", label: "沒有" },
+          { value: "coowner", label: "有，共有人優先購買權" },
+          { value: "neighbor", label: "有，鄰地優先購買權" },
+          { value: "tenant", label: "有，承租人優先購買權" },
+          { value: "waived", label: "優購權人已放棄" },
+          { value: "unknown", label: "還不確定" }
+        ],
+        followups: [
+          { key: "rightHolder", label: "優購權人是誰？", show: ["coowner", "neighbor", "tenant"], placeholder: "可先空白" },
+          { key: "notice", label: "是否已通知或有放棄證明？", show: ["coowner", "neighbor", "tenant", "waived"], type: "select", options: ["已有放棄證明", "已通知等待回覆", "尚未通知", "不確定"] },
+          { key: "terminateFee", label: "若解約，費用由誰負擔？", show: ["coowner", "neighbor", "tenant"], placeholder: "例如：賣方" }
+        ]
+      },
+      {
+        id: "warranty",
+        title: "是否需要無套繪、無污染或無掩埋保證？",
+        risk: "高",
+        options: [
+          { value: "none", label: "不需要" },
+          { value: "taohui", label: "需要無農舍套繪 / 列管" },
+          { value: "pollution", label: "需要無污染 / 無掩埋" },
+          { value: "both", label: "兩者都需要" },
+          { value: "docs", label: "需要提出公文或證明" },
+          { value: "unknown", label: "還不確定" }
+        ],
+        followups: [
+          { key: "warrantyAction", label: "若查有問題，如何處理？", show: ["taohui", "pollution", "both", "docs"], type: "select", options: ["賣方排除後交付", "解除契約退款", "另行協議"] },
+          { key: "docList", label: "需要哪些文件？", show: ["docs"], placeholder: "例如：無套繪公文、無掩埋證明" }
+        ]
+      },
+      {
+        id: "escrow",
+        title: "價金有沒有不進履保專戶？",
+        risk: "最高",
+        options: [
+          { value: "allIn", label: "全部進履保" },
+          { value: "partialOut", label: "部分不進履保" },
+          { value: "allOut", label: "全部不進履保" },
+          { value: "unknown", label: "不確定" }
+        ],
+        followups: [
+          { key: "amount", label: "不入履保金額", show: ["partialOut", "allOut"], placeholder: "例如：簽約金120萬元" },
+          { key: "receiver", label: "由誰收受？", show: ["partialOut", "allOut"], placeholder: "例如：賣方本人" },
+          { key: "proof", label: "是否有收據或匯款證明？", show: ["partialOut", "allOut"], type: "select", options: ["有", "沒有", "不確定"] }
+        ]
+      }
+    ];
+
+    const state = {
+      answers: {},
+      followups: {}
+    };
+
+    const caseFields = [
+      ["caseName", "案件名稱"],
+      ["contractDate", "簽約日期"],
+      ["buyer", "買方"],
+      ["seller", "賣方"],
+      ["land", "土地標示"],
+      ["price", "買賣總價"],
+      ["escrow", "履保 / 建經"],
+      ["contractNo", "契約編號 / 履保號"]
+    ];
+
+    function byId(id) {
+      return document.getElementById(id);
+    }
+
+    function getCaseData() {
+      const data = {};
+      document.querySelectorAll("[data-case]").forEach((el) => {
+        data[el.dataset.case] = el.value.trim();
+      });
+      return data;
+    }
+
+    function getFollowup(questionId, key) {
+      return state.followups[`${questionId}.${key}`] || "";
+    }
+
+    function setFollowup(questionId, key, value) {
+      state.followups[`${questionId}.${key}`] = value;
+      updateOutput();
+    }
+
+    function renderQuestions() {
+      const container = byId("questionList");
+      container.innerHTML = questions.map((q, index) => {
+        const riskClass = q.risk === "最高" ? "danger" : q.risk === "高" ? "warn" : "";
+        const optionsHtml = q.options.map((opt) => `
+          <label class="option">
+            <input type="radio" name="${q.id}" value="${opt.value}">
+            <span>${opt.label}</span>
+          </label>
+        `).join("");
+
+        const followupsHtml = q.followups.map((f) => {
+          const fieldId = `${q.id}.${f.key}`;
+          if (f.type === "select") {
+            return `
+              <label class="field hidden" data-followup="${fieldId}" data-show="${f.show.join(",")}">
+                ${f.label}
+                <select data-followup-input="${fieldId}">
+                  <option value="">尚未填寫</option>
+                  ${f.options.map((o) => `<option value="${o}">${o}</option>`).join("")}
+                </select>
+              </label>
+            `;
+          }
+          return `
+            <label class="field hidden" data-followup="${fieldId}" data-show="${f.show.join(",")}">
+              ${f.label}
+              <input data-followup-input="${fieldId}" placeholder="${f.placeholder || ""}">
+            </label>
+          `;
+        }).join("");
+
+        return `
+          <article class="question" data-question="${q.id}">
+            <div class="question-head">
+              <h3 class="question-title">Q${index + 1}. ${q.title}</h3>
+              <span class="tag ${riskClass}">${q.risk}風險</span>
+            </div>
+            <div class="options">${optionsHtml}</div>
+            <div class="followups">${followupsHtml}</div>
+          </article>
+        `;
+      }).join("");
+
+      container.querySelectorAll("input[type='radio']").forEach((input) => {
+        input.addEventListener("change", (event) => {
+          state.answers[event.target.name] = event.target.value;
+          updateFollowups(event.target.name);
+          updateOutput();
+        });
+      });
+
+      container.querySelectorAll("[data-followup-input]").forEach((input) => {
+        input.addEventListener("input", (event) => {
+          const [questionId, key] = event.target.dataset.followupInput.split(".");
+          setFollowup(questionId, key, event.target.value.trim());
+        });
+      });
+    }
+
+    function updateFollowups(questionId) {
+      const value = state.answers[questionId];
+      document.querySelectorAll(`[data-followup^="${questionId}."]`).forEach((el) => {
+        const showValues = el.dataset.show.split(",");
+        el.classList.toggle("hidden", !showValues.includes(value));
+      });
+    }
+
+    function makeClause(text) {
+      return text.replace(/\s+/g, " ").trim();
+    }
+
+    function buildClauses() {
+      const data = getCaseData();
+      const clauses = [];
+      const missing = [];
+      const risks = [];
+
+      const buyer = data.buyer || "買方";
+      const seller = data.seller || "賣方";
+      const land = data.land || "本買賣標的";
+
+      caseFields.forEach(([key, label]) => {
+        if (!data[key]) missing.push(`${label}尚未填寫`);
+      });
+
+      const agri = state.answers.agri;
+      if (agri === "apply") {
+        const feeParty = getFollowup("agri", "feeParty") || "＿＿方";
+        const prepParty = getFollowup("agri", "prepParty") || "＿＿方";
+        const failureAction = getFollowup("agri", "failureAction");
+        const deadline = getFollowup("agri", "deadline") || "民國＿＿年＿＿月＿＿日前";
+        clauses.push(makeClause(`${land}係屬農地，${seller}應申請農用證明書，並主張土地增值稅不課徵。申請農用證明所需費用由${feeParty}負擔；如主管機關要求整地或施作相關事項，相關費用由${prepParty}負擔。`));
+        if (failureAction === "解約退款" || !failureAction) {
+          clauses.push(makeClause(`若於${deadline}仍無法取得農用證明書，雙方合意無條件解除本約，${seller}應無息返還${buyer}已支付價金，雙方互不請求損害賠償，解約相關費用由＿＿方負擔。`));
+        }
+        if (failureAction === "改一般稅率") {
+          clauses.push(makeClause(`若無法取得農用證明書，雙方同意改依一般稅率申報土地增值稅，衍生之土地增值稅及相關稅費由＿＿方負擔。`));
+          risks.push({ level: "warn", text: "農用證明失敗後改一般稅率，稅負可能明顯增加，需代書確認負擔方。" });
+        }
+        if (!feeParty || feeParty.includes("＿")) missing.push("農用證明費用負擔方待補");
+        if (!deadline || deadline.includes("＿")) missing.push("農用證明取得期限待補");
+      } else if (agri === "general") {
+        const taxParty = getFollowup("agri", "taxParty") || "＿＿方";
+        clauses.push(makeClause(`雙方確認${land}不申請農用證明，土地增值稅及相關稅費依一般稅率申報，衍生之土地增值稅、房地合一稅及其他相關稅費由${taxParty}自行負擔。`));
+        risks.push({ level: "warn", text: "本案不申請農用證明，需確認土地增值稅與房地合一稅由誰負擔。" });
+      } else if (agri === "obtained") {
+        const feeParty = getFollowup("agri", "feeParty") || "＿＿方";
+        clauses.push(makeClause(`${land}已取得農用證明書，雙方同意土地增值稅依不課徵稅率申報，相關申請費用由${feeParty}負擔。`));
+      } else if (agri === "unknown") {
+        missing.push("是否申請農用證明待確認");
+        risks.push({ level: "warn", text: "農用證明狀態不明，會影響土增稅與解約條件。" });
+      }
+
+      const survey = state.answers.survey;
+      if (survey === "seller" || survey === "buyer") {
+        const party = survey === "seller" ? seller : buyer;
+        const clear = getFollowup("survey", "clearForSurvey");
+        clauses.push(makeClause(`${land}須申請土地鑑界，鑑界相關費用由${party}負擔。雙方同意依地政機關核定之界址點交付土地予${buyer}。${clear === "需要" ? `如需整地、除草或排除測量障礙，相關施作及費用由${party}負擔。` : ""}`));
+      } else if (survey === "done") {
+        const doneDate = getFollowup("survey", "doneDate") || "民國＿＿年＿＿月＿＿日";
+        clauses.push(makeClause(`${land}已於${doneDate}完成鑑界，雙方合意簽約後無須再另行申請鑑界，並依既有鑑界成果及現況交付予${buyer}。`));
+        if (doneDate.includes("＿")) missing.push("鑑界完成日期待補");
+      } else if (survey === "none") {
+        clauses.push(makeClause(`雙方合意本案不另行申請土地鑑界，${buyer}已知悉並同意依簽約時土地現況受領交付，日後不得以界址不明或面積差異向${seller}、仲介或地政士為任何請求。`));
+        risks.push({ level: "warn", text: "本案不鑑界，可能產生界址、面積、占用或道路邊界爭議。" });
+      } else if (survey === "unknown") {
+        missing.push("是否鑑界待確認");
+      }
+
+      const crops = state.answers.crops;
+      if (["sellerHarvest", "tenantHarvest", "remove", "aquaculture"].includes(crops)) {
+        const cropType = getFollowup("crops", "cropType") || "＿＿＿＿";
+        const delivery = getFollowup("crops", "delivery");
+        const deliveryDate = getFollowup("crops", "deliveryDate");
+        if (crops === "remove") {
+          clauses.push(makeClause(`${land}現有${cropType}或地上物，${seller}應於點交日前負責剷除、清運並完成點交予${buyer}，相關費用由${seller}負擔。`));
+        } else {
+          const harvestParty = crops === "tenantHarvest" ? "承租人／耕作人" : seller;
+          clauses.push(makeClause(`${buyer}知悉${land}現況有${cropType}尚未收成，${buyer}同意由${harvestParty}於本期收成完成後交付土地予${buyer}。${delivery ? `點交狀態為${delivery}。` : ""}${deliveryDate ? `最遲應於${deliveryDate}前完成點交。` : ""}`));
+        }
+        if (crops === "tenantHarvest") {
+          risks.push({ level: "warn", text: "作物由第三人或耕作人收成，需確認是否另有租約或優先購買權。" });
+        }
+      } else if (crops === "unknown") {
+        missing.push("土地上是否有作物或養殖物待確認");
+      }
+
+      const lease = state.answers.lease;
+      if (lease === "remove") {
+        clauses.push(makeClause(`${buyer}知悉${land}現況出租予第三人使用，${seller}應於點交日前負責排除租約及第三人占有使用狀態，並將土地騰空交付${buyer}。`));
+        risks.push({ level: "warn", text: "有第三人使用土地，需確認租約終止與點交時點。" });
+      } else if (lease === "assume" || lease === "oral") {
+        const leaseEnd = getFollowup("lease", "leaseEnd") || "民國＿＿年＿＿月＿＿日";
+        const rent = getFollowup("lease", "rent") || "依點交日比例切算";
+        clauses.push(makeClause(`${buyer}知悉${land}現況出租予第三人使用，租期至${leaseEnd}止。${buyer}同意於點交後承受該租約，租金及押金${rent}，${seller}應協助${buyer}與承租人辦理換約事宜。`));
+        if (lease === "oral") risks.push({ level: "danger", text: "本案為口頭租約，租期、租金、終止條件需書面確認。" });
+        if (leaseEnd.includes("＿")) missing.push("租期屆滿日期待補");
+      } else if (lease === "375") {
+        const comp = getFollowup("lease", "tenantComp") || "＿＿";
+        clauses.push(makeClause(`${land}有耕地三七五租約，承租人同意放棄優先購買權並配合辦理終止租約。出售價金扣除應扣費用後，承租人取得${comp}作為終止租約補償，雙方同意該款項於結案後由履保專戶匯出。`));
+        risks.push({ level: "danger", text: "三七五租約屬重大風險，需代書確認租約終止、優購放棄與補償金流。" });
+      } else if (lease === "unknown") {
+        missing.push("是否出租、是否有承租人或耕作人待確認");
+      }
+
+      const pre = state.answers.preemptive;
+      if (["coowner", "tenant"].includes(pre)) {
+        const fee = getFollowup("preemptive", "terminateFee") || "＿＿方";
+        clauses.push(makeClause(`${land}如有優先購買權人依法主張優先購買權，經地政士通知後，買賣雙方同意無條件解除本約，${seller}應無息返還${buyer}已支付價金，雙方互不請求損害賠償，解約相關費用由${fee}負擔。`));
+        risks.push({ level: "warn", text: "本案涉及優先購買權，交易可能被優購權人攔截。" });
+      } else if (pre === "neighbor") {
+        clauses.push(makeClause(`${land}鄰地依法如有優先購買權，${seller}應負責通知優先購買權人。若優先購買權人依同一條件主張優先購買，${buyer}同意無條件放棄購買，${seller}應返還${buyer}已支付價金，雙方互不請求損害賠償，解約相關費用由${seller}負擔。`));
+        risks.push({ level: "warn", text: "鄰地優先購買權需確認通知方式、回覆期限與是否有放棄證明。" });
+      } else if (pre === "waived") {
+        clauses.push(makeClause(`${seller}聲明並保證${land}之優先購買權人均已放棄優先購買權。如有不實或優先購買權人嗣後主張權利，致本約無法履行或${buyer}受有損害，${seller}應負相關違約及損害賠償責任。`));
+        const notice = getFollowup("preemptive", "notice");
+        if (!notice || notice !== "已有放棄證明") {
+          missing.push("優先購買權放棄證明待核對");
+        }
+      } else if (pre === "unknown") {
+        missing.push("是否涉及優先購買權待確認");
+        risks.push({ level: "warn", text: "優先購買權狀態不明，可能影響契約是否能繼續履行。" });
+      }
+
+      const warranty = state.answers.warranty;
+      if (["taohui", "both", "docs"].includes(warranty)) {
+        const action = getFollowup("warranty", "warrantyAction") || "解除契約退款";
+        clauses.push(makeClause(`${seller}保證${land}無配合其他農地合併申請興建農舍，亦無農舍建蔽率套繪或列管之事實。若經查明有前述情事且無法排除，雙方同意${action}。`));
+      }
+      if (["pollution", "both", "docs"].includes(warranty)) {
+        const action = getFollowup("warranty", "warrantyAction") || "賣方排除後交付";
+        clauses.push(makeClause(`${seller}保證${land}無掩埋廢棄物、無污染土質或其他有害物質，且非主管機關公告之污染控制場址或污染整治場址。若經查明有前述情事，雙方同意${action}，相關費用由${seller}負擔。`));
+      }
+      if (warranty === "docs") {
+        const docs = getFollowup("warranty", "docList");
+        missing.push(docs ? `待收文件：${docs}` : "無套繪 / 無污染相關公文或證明待補");
+      } else if (warranty === "unknown") {
+        missing.push("是否需要無套繪、無污染或無掩埋保證待確認");
+      }
+
+      const escrow = state.answers.escrow;
+      if (escrow === "partialOut") {
+        const amount = getFollowup("escrow", "amount") || "新台幣＿＿元整";
+        const receiver = getFollowup("escrow", "receiver") || "＿＿方";
+        clauses.push(makeClause(`雙方合意${amount}由${receiver}直接收受，該筆款項不匯入履約保證專戶，並排除於履約保證範圍外。${buyer}已知悉前述款項不受履約保證機制保障。`));
+        risks.push({ level: "danger", text: "部分價金不入履保，需代書確認金流、收據與風險告知。" });
+      } else if (escrow === "allOut") {
+        clauses.push(makeClause(`雙方合意本案買賣價金不匯入履約保證專戶，並排除履約保證責任範圍。買賣雙方應自行確認價金交付方式、金流憑證及相關風險。`));
+        risks.push({ level: "danger", text: "全部價金不入履保，屬最高風險，應強制代書或主管確認。" });
+      } else if (escrow === "unknown") {
+        missing.push("價金是否進履保專戶待確認");
+        risks.push({ level: "warn", text: "履保狀態不明，需確認買賣價金是否受履約保證保障。" });
+      }
+
+      const defaultClause = "買方於完稅款時，應依地政士通知將相關稅費、規費及代辦費匯入指定銀行帳戶。";
+      if (clauses.length > 0) clauses.unshift(defaultClause);
+
+      return {
+        clauses: unique(clauses),
+        missing: unique(missing),
+        risks: uniqueRisks(risks),
+        data
+      };
+    }
+
+    function unique(items) {
+      return [...new Set(items.filter(Boolean))];
+    }
+
+    function uniqueRisks(items) {
+      const seen = new Set();
+      return items.filter((item) => {
+        if (!item || seen.has(item.text)) return false;
+        seen.add(item.text);
+        return true;
+      });
+    }
+
+    function renderList(items, ordered = false, className = "") {
+      if (items.length === 0) return `<p class="empty-state">目前尚無資料。</p>`;
+      const tag = ordered ? "ol" : "ul";
+      return `<${tag} class="${className}">${items.map((item) => {
+        if (typeof item === "string") return `<li>${escapeHtml(item)}</li>`;
+        return `<li class="${item.level || ""}">${escapeHtml(item.text)}</li>`;
+      }).join("")}</${tag}>`;
+    }
+
+    function renderClauses(clauses) {
+      if (clauses.length === 0) {
+        return `<p class="empty-state">請先回答農地問題，系統會在這裡產生特約草稿。</p>`;
+      }
+      return `<div class="clause-list">${clauses.map((text, index) => `
+        <div class="clause">${numberToChinese(index + 1)}、${escapeHtml(text)}</div>
+      `).join("")}</div>`;
+    }
+
+    function renderExcelSummary(result) {
+      const rows = [
+        ["案件類型", "農地"],
+        ["案件名稱", result.data.caseName || "待補"],
+        ["買方", result.data.buyer || "待補"],
+        ["賣方", result.data.seller || "待補"],
+        ["是否申請農用", labelOf("agri")],
+        ["是否鑑界", labelOf("survey")],
+        ["是否有作物", labelOf("crops")],
+        ["是否出租", labelOf("lease")],
+        ["是否有優購", labelOf("preemptive")],
+        ["無套繪 / 無污染", labelOf("warranty")],
+        ["履保金流", labelOf("escrow")],
+        ["風險項數", `${result.risks.length} 項`],
+        ["待補項數", `${result.missing.length} 項`]
+      ];
+      return `
+        <table style="width:100%; border-collapse:collapse;">
+          ${rows.map(([key, value]) => `
+            <tr>
+              <th style="width:42%; text-align:left; border-bottom:1px solid var(--line); padding:7px 4px; color:var(--muted); font-weight:500;">${escapeHtml(key)}</th>
+              <td style="border-bottom:1px solid var(--line); padding:7px 4px;">${escapeHtml(value)}</td>
+            </tr>
+          `).join("")}
+        </table>
+      `;
+    }
+
+    function labelOf(questionId) {
+      const q = questions.find((item) => item.id === questionId);
+      const value = state.answers[questionId];
+      return q?.options.find((opt) => opt.value === value)?.label || "未回答";
+    }
+
+    function numberToChinese(number) {
+      const nums = ["零", "一", "二", "三", "四", "五", "六", "七", "八", "九", "十", "十一", "十二", "十三", "十四", "十五", "十六", "十七", "十八", "十九", "二十"];
+      return nums[number] || String(number);
+    }
+
+    function escapeHtml(text) {
+      return String(text)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;");
+    }
+
+    function updateOutput() {
+      const result = buildClauses();
+      byId("clauseOutput").innerHTML = renderClauses(result.clauses);
+      byId("riskOutput").innerHTML = renderList(result.risks, false, "risk-list");
+      byId("missingOutput").innerHTML = renderList(result.missing);
+      byId("excelOutput").innerHTML = renderExcelSummary(result);
+      byId("clauseCount").textContent = `${result.clauses.length} 條`;
+      byId("riskCount").textContent = `${result.risks.length} 項`;
+      byId("missingCount").textContent = `${result.missing.length} 項`;
+    }
+
+    function getPlainText() {
+      const result = buildClauses();
+      const title = getCaseData().caseName || "農地案件";
+      const clauses = result.clauses.length
+        ? result.clauses.map((text, index) => `${numberToChinese(index + 1)}、${text}`).join("\n")
+        : "尚未產生特約事項。";
+      const risks = result.risks.length
+        ? result.risks.map((item) => `- ${item.text}`).join("\n")
+        : "無";
+      const missing = result.missing.length
+        ? result.missing.map((item) => `- ${item}`).join("\n")
+        : "無";
+
+      return `${title}\n\n【特約事項草稿】\n${clauses}\n\n【高風險提醒】\n${risks}\n\n【待補資料】\n${missing}\n`;
+    }
+
+    async function copyClauses() {
+      const text = getPlainText();
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch {
+        const area = document.createElement("textarea");
+        area.value = text;
+        document.body.appendChild(area);
+        area.select();
+        document.execCommand("copy");
+        area.remove();
+      }
+      showToast("已複製特約草稿");
+    }
+
+    function downloadText() {
+      const text = getPlainText();
+      const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
+      const link = document.createElement("a");
+      const date = new Date().toISOString().slice(0, 10).replaceAll("-", "");
+      link.href = URL.createObjectURL(blob);
+      link.download = `農地特約草稿_${date}.txt`;
+      link.click();
+      URL.revokeObjectURL(link.href);
+      showToast("已下載文字檔");
+    }
+
+    function showToast(text) {
+      const toast = byId("toast");
+      toast.textContent = text;
+      toast.classList.add("show");
+      clearTimeout(showToast.timer);
+      showToast.timer = setTimeout(() => toast.classList.remove("show"), 1800);
+    }
+
+    function resetForm() {
+      document.querySelectorAll("input, textarea, select").forEach((el) => {
+        if (el.type === "radio") el.checked = false;
+        else el.value = "";
+      });
+      state.answers = {};
+      state.followups = {};
+      document.querySelectorAll("[data-followup]").forEach((el) => el.classList.add("hidden"));
+      updateOutput();
+      showToast("已清空");
+    }
+
+    function setRadio(name, value) {
+      const input = document.querySelector(`input[name="${name}"][value="${value}"]`);
+      if (input) {
+        input.checked = true;
+        state.answers[name] = value;
+        updateFollowups(name);
+      }
+    }
+
+    function setField(selector, value) {
+      const el = document.querySelector(selector);
+      if (el) {
+        el.value = value;
+        const inputKey = el.dataset.followupInput;
+        if (inputKey) {
+          const [questionId, key] = inputKey.split(".");
+          state.followups[`${questionId}.${key}`] = value;
+        }
+      }
+    }
+
+    function loadSample() {
+      resetForm();
+      setField("[data-case='caseName']", "麻豆區小埤段農地買賣");
+      setField("[data-case='contractDate']", "115年6月10日");
+      setField("[data-case='buyer']", "甲方買方");
+      setField("[data-case='seller']", "乙方賣方");
+      setField("[data-case='land']", "麻豆區小埤段1329地號");
+      setField("[data-case='price']", "新台幣1,200萬元整");
+      setField("[data-case='escrow']", "有履保");
+      setField("[data-case='contractNo']", "待補");
+
+      setRadio("agri", "apply");
+      setField("[data-followup-input='agri.feeParty']", "賣方");
+      setField("[data-followup-input='agri.prepParty']", "賣方");
+      setField("[data-followup-input='agri.failureAction']", "解約退款");
+      setField("[data-followup-input='agri.deadline']", "115年7月31日前");
+
+      setRadio("survey", "seller");
+      setField("[data-followup-input='survey.beforeTransfer']", "是");
+      setField("[data-followup-input='survey.clearForSurvey']", "需要");
+
+      setRadio("crops", "tenantHarvest");
+      setField("[data-followup-input='crops.cropType']", "玉米");
+      setField("[data-followup-input='crops.delivery']", "整地後點交");
+
+      setRadio("lease", "remove");
+      setRadio("preemptive", "coowner");
+      setField("[data-followup-input='preemptive.notice']", "已通知等待回覆");
+      setField("[data-followup-input='preemptive.terminateFee']", "賣方");
+
+      setRadio("warranty", "both");
+      setField("[data-followup-input='warranty.warrantyAction']", "解除契約退款");
+
+      setRadio("escrow", "allIn");
+      updateOutput();
+      showToast("已載入範例");
+    }
+
+    document.querySelectorAll("[data-case]").forEach((el) => {
+      el.addEventListener("input", updateOutput);
+      el.addEventListener("change", updateOutput);
+    });
+
+    byId("copyBtn").addEventListener("click", copyClauses);
+    byId("downloadBtn").addEventListener("click", downloadText);
+    byId("resetBtn").addEventListener("click", resetForm);
+    byId("loadSampleBtn").addEventListener("click", loadSample);
+
+    renderQuestions();
+    updateOutput();
+  </script>
+</body>
+</html>
