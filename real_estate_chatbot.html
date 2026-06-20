@@ -188,6 +188,13 @@
       box-shadow: 0 4px 14px rgba(29, 37, 32, 0.05);
     }
 
+    .question.excluded {
+      background: #f2f4f0;
+      border-style: dashed;
+      box-shadow: none;
+      color: var(--muted);
+    }
+
     .question-head {
       display: flex;
       align-items: flex-start;
@@ -196,10 +203,52 @@
       margin-bottom: 12px;
     }
 
+    .question-heading {
+      min-width: 0;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
     .question-title {
       margin: 0;
       font-size: 16px;
       line-height: 1.45;
+    }
+
+    .icon-btn {
+      width: 26px;
+      height: 26px;
+      flex: 0 0 26px;
+      border: 1px solid var(--line);
+      border-radius: 50%;
+      background: #fff;
+      color: var(--muted);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+      font-weight: 700;
+    }
+
+    .icon-btn:hover {
+      border-color: var(--danger);
+      color: var(--danger);
+      background: #fff8f8;
+    }
+
+    .icon-btn.restore:hover {
+      border-color: var(--strong-2);
+      color: var(--strong-2);
+      background: #f2fbf6;
+    }
+
+    .question-note {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.7;
     }
 
     .tag {
@@ -404,6 +453,10 @@
       transform: translateY(0);
     }
 
+    .print-area {
+      display: none;
+    }
+
     .review-box {
       background: var(--note-bg);
       border: 1px solid #c6d7f5;
@@ -413,6 +466,28 @@
       font-size: 13px;
       line-height: 1.7;
       margin-top: 12px;
+    }
+
+    .manage-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .manage-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 9px 10px;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .manage-row span {
+      min-width: 0;
     }
 
     @media (max-width: 1180px) {
@@ -455,6 +530,88 @@
         grid-template-columns: 1fr;
       }
     }
+
+    @media print {
+      @page {
+        size: A4;
+        margin: 14mm;
+      }
+
+      body {
+        background: #fff;
+        color: #000;
+      }
+
+      header,
+      .layout,
+      .toast {
+        display: none !important;
+      }
+
+      .print-area {
+        display: block;
+        font-family: "Microsoft JhengHei", "Noto Sans TC", serif;
+        font-size: 12pt;
+        line-height: 1.7;
+      }
+
+      .print-area h1 {
+        margin: 0 0 6mm;
+        text-align: center;
+        font-size: 18pt;
+        letter-spacing: 0;
+      }
+
+      .print-area h2 {
+        margin: 8mm 0 3mm;
+        padding-bottom: 1.5mm;
+        border-bottom: 1px solid #333;
+        font-size: 13pt;
+      }
+
+      .print-area ol,
+      .print-area ul {
+        margin: 0;
+        padding-left: 8mm;
+      }
+
+      .print-area li {
+        break-inside: avoid;
+        margin-bottom: 2.5mm;
+      }
+
+      .print-meta {
+        margin-bottom: 6mm;
+        text-align: right;
+        color: #555;
+        font-size: 10pt;
+      }
+
+      .print-note {
+        margin-top: 8mm;
+        color: #555;
+        font-size: 10pt;
+      }
+
+      .print-summary {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 2mm;
+      }
+
+      .print-summary th,
+      .print-summary td {
+        border: 1px solid #999;
+        padding: 2mm;
+        text-align: left;
+        vertical-align: top;
+      }
+
+      .print-summary th {
+        width: 34%;
+        background: #f3f3f3;
+      }
+    }
   </style>
 </head>
 <body>
@@ -467,61 +624,22 @@
       <button class="btn secondary" type="button" id="loadSampleBtn">載入範例</button>
       <button class="btn secondary" type="button" id="resetBtn">清空</button>
       <button class="btn" type="button" id="copyBtn">複製特約</button>
-      <button class="btn" type="button" id="downloadBtn">下載文字檔</button>
+      <button class="btn" type="button" id="downloadBtn">匯出 PDF</button>
     </div>
   </header>
 
   <div class="layout">
     <aside>
       <section class="section">
-        <h2 class="section-title">案件基本資料</h2>
-        <p class="section-subtitle">可先填已知資料，空白欄位會自動列入待補清單。</p>
-        <div class="fields">
-          <label class="field">
-            案件名稱
-            <input data-case="caseName" placeholder="例如：善化區某段農地買賣" />
-          </label>
-          <label class="field">
-            簽約日期
-            <input data-case="contractDate" placeholder="例如：115年6月10日" />
-          </label>
-          <label class="field">
-            買方
-            <input data-case="buyer" placeholder="可輸入多人" />
-          </label>
-          <label class="field">
-            賣方
-            <input data-case="seller" placeholder="可輸入多人" />
-          </label>
-          <label class="field">
-            土地標示
-            <textarea data-case="land" placeholder="段、小段、地號、持分"></textarea>
-          </label>
-          <label class="field">
-            買賣總價
-            <input data-case="price" placeholder="例如：新台幣1,200萬元整" />
-          </label>
-          <label class="field">
-            履保 / 建經
-            <select data-case="escrow">
-              <option value="">尚未確認</option>
-              <option value="有履保">有履保</option>
-              <option value="無履保">無履保</option>
-              <option value="部分價金不入履保">部分價金不入履保</option>
-            </select>
-          </label>
-          <label class="field">
-            契約編號 / 履保號
-            <input data-case="contractNo" placeholder="可先空白" />
-          </label>
-        </div>
+        <h2 class="section-title">問題管理 <span class="tag" id="activeQuestionCount">啟用 7 題</span></h2>
+        <p class="section-subtitle">打叉代表這個案件確定不用回答該題；空著則代表尚未確認。被排除的題目不會產生特約，但仍可能依其他答案形成風險提醒。</p>
+        <button class="btn secondary" type="button" id="restoreAllBtn">恢復全部問題</button>
       </section>
 
       <section class="section">
-        <h2 class="section-title">Demo 範圍</h2>
-        <p class="section-subtitle">第一版先做 7 個核心問題，覆蓋農地常見風險。後續再加建地、透天、集合住宅。</p>
-        <div class="review-box">
-          這個頁面不連資料庫，也不提供法律意見。它只是把代書常用特約整理成可勾選的草稿工具。
+        <h2 class="section-title">已排除問題</h2>
+        <div class="manage-list" id="excludedQuestions">
+          <p class="empty-state">目前沒有排除任何問題。</p>
         </div>
       </section>
     </aside>
@@ -541,7 +659,7 @@
           <span class="tag" id="clauseCount">0 條</span>
         </div>
         <div class="output-body" id="clauseOutput">
-          <p class="empty-state">請先填寫左側資料，並回答中間的農地問題。</p>
+          <p class="empty-state">請先回答中間的農地問題。</p>
         </div>
       </div>
 
@@ -574,6 +692,7 @@
     </section>
   </div>
 
+  <div class="print-area" id="printArea"></div>
   <div class="toast" id="toast">已複製</div>
 
   <script>
@@ -704,7 +823,8 @@
 
     const state = {
       answers: {},
-      followups: {}
+      followups: {},
+      excluded: {}
     };
 
     const caseFields = [
@@ -739,34 +859,66 @@
       updateOutput();
     }
 
+    function isExcluded(questionId) {
+      return Boolean(state.excluded[questionId]);
+    }
+
+    function activeAnswer(questionId) {
+      return isExcluded(questionId) ? undefined : state.answers[questionId];
+    }
+
+    function clearQuestionData(questionId) {
+      delete state.answers[questionId];
+      Object.keys(state.followups).forEach((key) => {
+        if (key.startsWith(`${questionId}.`)) delete state.followups[key];
+      });
+    }
+
     function renderQuestions() {
       const container = byId("questionList");
       container.innerHTML = questions.map((q, index) => {
         const riskClass = q.risk === "最高" ? "danger" : q.risk === "高" ? "warn" : "";
+        if (isExcluded(q.id)) {
+          return `
+            <article class="question excluded" data-question="${q.id}">
+              <div class="question-head">
+                <div class="question-heading">
+                  <button class="icon-btn restore" type="button" data-restore-question="${q.id}" title="恢復此問題" aria-label="恢復此問題">+</button>
+                  <h3 class="question-title">Q${index + 1}. ${q.title}</h3>
+                </div>
+                <span class="tag">已排除</span>
+              </div>
+              <p class="question-note">此題不會產生特約或待補資料；若和其他答案有關聯，仍會在右側出現風險提醒。</p>
+            </article>
+          `;
+        }
+
         const optionsHtml = q.options.map((opt) => `
           <label class="option">
-            <input type="radio" name="${q.id}" value="${opt.value}">
+            <input type="radio" name="${q.id}" value="${opt.value}" ${state.answers[q.id] === opt.value ? "checked" : ""}>
             <span>${opt.label}</span>
           </label>
         `).join("");
 
         const followupsHtml = q.followups.map((f) => {
           const fieldId = `${q.id}.${f.key}`;
+          const isVisible = f.show.includes(state.answers[q.id]);
+          const value = getFollowup(q.id, f.key);
           if (f.type === "select") {
             return `
-              <label class="field hidden" data-followup="${fieldId}" data-show="${f.show.join(",")}">
+              <label class="field ${isVisible ? "" : "hidden"}" data-followup="${fieldId}" data-show="${f.show.join(",")}">
                 ${f.label}
                 <select data-followup-input="${fieldId}">
                   <option value="">尚未填寫</option>
-                  ${f.options.map((o) => `<option value="${o}">${o}</option>`).join("")}
+                  ${f.options.map((o) => `<option value="${escapeHtml(o)}" ${value === o ? "selected" : ""}>${escapeHtml(o)}</option>`).join("")}
                 </select>
               </label>
             `;
           }
           return `
-            <label class="field hidden" data-followup="${fieldId}" data-show="${f.show.join(",")}">
+            <label class="field ${isVisible ? "" : "hidden"}" data-followup="${fieldId}" data-show="${f.show.join(",")}">
               ${f.label}
-              <input data-followup-input="${fieldId}" placeholder="${f.placeholder || ""}">
+              <input data-followup-input="${fieldId}" value="${escapeHtml(value)}" placeholder="${escapeHtml(f.placeholder || "")}">
             </label>
           `;
         }).join("");
@@ -774,7 +926,10 @@
         return `
           <article class="question" data-question="${q.id}">
             <div class="question-head">
-              <h3 class="question-title">Q${index + 1}. ${q.title}</h3>
+              <div class="question-heading">
+                <button class="icon-btn" type="button" data-exclude-question="${q.id}" title="排除此問題" aria-label="排除此問題">×</button>
+                <h3 class="question-title">Q${index + 1}. ${q.title}</h3>
+              </div>
               <span class="tag ${riskClass}">${q.risk}風險</span>
             </div>
             <div class="options">${optionsHtml}</div>
@@ -792,9 +947,32 @@
       });
 
       container.querySelectorAll("[data-followup-input]").forEach((input) => {
-        input.addEventListener("input", (event) => {
+        const updateFollowupValue = (event) => {
           const [questionId, key] = event.target.dataset.followupInput.split(".");
           setFollowup(questionId, key, event.target.value.trim());
+        };
+        input.addEventListener("input", updateFollowupValue);
+        input.addEventListener("change", updateFollowupValue);
+      });
+
+      container.querySelectorAll("[data-exclude-question]").forEach((button) => {
+        button.addEventListener("click", () => {
+          const questionId = button.dataset.excludeQuestion;
+          state.excluded[questionId] = true;
+          clearQuestionData(questionId);
+          renderQuestions();
+          updateOutput();
+          showToast("已排除此問題");
+        });
+      });
+
+      container.querySelectorAll("[data-restore-question]").forEach((button) => {
+        button.addEventListener("click", () => {
+          const questionId = button.dataset.restoreQuestion;
+          delete state.excluded[questionId];
+          renderQuestions();
+          updateOutput();
+          showToast("已恢復此問題");
         });
       });
     }
@@ -822,10 +1000,11 @@
       const land = data.land || "本買賣標的";
 
       caseFields.forEach(([key, label]) => {
-        if (!data[key]) missing.push(`${label}尚未填寫`);
+        const field = document.querySelector(`[data-case="${key}"]`);
+        if (field && !data[key]) missing.push(`${label}尚未填寫`);
       });
 
-      const agri = state.answers.agri;
+      const agri = activeAnswer("agri");
       if (agri === "apply") {
         const feeParty = getFollowup("agri", "feeParty") || "＿＿方";
         const prepParty = getFollowup("agri", "prepParty") || "＿＿方";
@@ -853,7 +1032,7 @@
         risks.push({ level: "warn", text: "農用證明狀態不明，會影響土增稅與解約條件。" });
       }
 
-      const survey = state.answers.survey;
+      const survey = activeAnswer("survey");
       if (survey === "seller" || survey === "buyer") {
         const party = survey === "seller" ? seller : buyer;
         const clear = getFollowup("survey", "clearForSurvey");
@@ -869,7 +1048,7 @@
         missing.push("是否鑑界待確認");
       }
 
-      const crops = state.answers.crops;
+      const crops = activeAnswer("crops");
       if (["sellerHarvest", "tenantHarvest", "remove", "aquaculture"].includes(crops)) {
         const cropType = getFollowup("crops", "cropType") || "＿＿＿＿";
         const delivery = getFollowup("crops", "delivery");
@@ -887,7 +1066,7 @@
         missing.push("土地上是否有作物或養殖物待確認");
       }
 
-      const lease = state.answers.lease;
+      const lease = activeAnswer("lease");
       if (lease === "remove") {
         clauses.push(makeClause(`${buyer}知悉${land}現況出租予第三人使用，${seller}應於點交日前負責排除租約及第三人占有使用狀態，並將土地騰空交付${buyer}。`));
         risks.push({ level: "warn", text: "有第三人使用土地，需確認租約終止與點交時點。" });
@@ -905,7 +1084,7 @@
         missing.push("是否出租、是否有承租人或耕作人待確認");
       }
 
-      const pre = state.answers.preemptive;
+      const pre = activeAnswer("preemptive");
       if (["coowner", "tenant"].includes(pre)) {
         const fee = getFollowup("preemptive", "terminateFee") || "＿＿方";
         clauses.push(makeClause(`${land}如有優先購買權人依法主張優先購買權，經地政士通知後，買賣雙方同意無條件解除本約，${seller}應無息返還${buyer}已支付價金，雙方互不請求損害賠償，解約相關費用由${fee}負擔。`));
@@ -924,7 +1103,7 @@
         risks.push({ level: "warn", text: "優先購買權狀態不明，可能影響契約是否能繼續履行。" });
       }
 
-      const warranty = state.answers.warranty;
+      const warranty = activeAnswer("warranty");
       if (["taohui", "both", "docs"].includes(warranty)) {
         const action = getFollowup("warranty", "warrantyAction") || "解除契約退款";
         clauses.push(makeClause(`${seller}保證${land}無配合其他農地合併申請興建農舍，亦無農舍建蔽率套繪或列管之事實。若經查明有前述情事且無法排除，雙方同意${action}。`));
@@ -940,7 +1119,7 @@
         missing.push("是否需要無套繪、無污染或無掩埋保證待確認");
       }
 
-      const escrow = state.answers.escrow;
+      const escrow = activeAnswer("escrow");
       if (escrow === "partialOut") {
         const amount = getFollowup("escrow", "amount") || "新台幣＿＿元整";
         const receiver = getFollowup("escrow", "receiver") || "＿＿方";
@@ -954,6 +1133,8 @@
         risks.push({ level: "warn", text: "履保狀態不明，需確認買賣價金是否受履約保證保障。" });
       }
 
+      addExcludedQuestionRisks(risks);
+
       const defaultClause = "買方於完稅款時，應依地政士通知將相關稅費、規費及代辦費匯入指定銀行帳戶。";
       if (clauses.length > 0) clauses.unshift(defaultClause);
 
@@ -963,6 +1144,49 @@
         risks: uniqueRisks(risks),
         data
       };
+    }
+
+    function addExcludedQuestionRisks(risks) {
+      const agri = activeAnswer("agri");
+      const crops = activeAnswer("crops");
+      const lease = activeAnswer("lease");
+      const pre = activeAnswer("preemptive");
+
+      if (isExcluded("escrow")) {
+        const hasThirdPartyOrRefundRisk =
+          ["tenantHarvest"].includes(crops) ||
+          ["remove", "assume", "oral", "375"].includes(lease) ||
+          ["coowner", "neighbor", "tenant"].includes(pre) ||
+          (agri === "apply" && getFollowup("agri", "failureAction") !== "另行協議");
+
+        if (hasThirdPartyOrRefundRisk) {
+          risks.push({
+            level: "warn",
+            text: "Q7 履保金流已被排除，但本案其他答案涉及第三人、優先購買權或可能解約退款，仍建議代書確認價金保管、返還與收據安排。"
+          });
+        }
+      }
+
+      if (isExcluded("preemptive") && (["tenantHarvest"].includes(crops) || ["assume", "oral", "375"].includes(lease))) {
+        risks.push({
+          level: "warn",
+          text: "優先購買權題目已被排除，但本案出現承租人、耕作人或三七五租約，仍建議確認是否有承租人優先購買權。"
+        });
+      }
+
+      if (isExcluded("lease") && crops === "tenantHarvest") {
+        risks.push({
+          level: "warn",
+          text: "出租/承租人題目已被排除，但作物由承租人或耕作人收成，仍建議確認是否存在租約、耕作權或點交障礙。"
+        });
+      }
+
+      if (isExcluded("survey") && activeAnswer("warranty") === "docs") {
+        risks.push({
+          level: "warn",
+          text: "鑑界題目已被排除，但本案要求提出文件或證明，仍建議確認標的範圍、地號與現況是否一致。"
+        });
+      }
     }
 
     function unique(items) {
@@ -997,11 +1221,9 @@
     }
 
     function renderExcelSummary(result) {
+      const excludedCount = questions.filter((q) => isExcluded(q.id)).length;
       const rows = [
         ["案件類型", "農地"],
-        ["案件名稱", result.data.caseName || "待補"],
-        ["買方", result.data.buyer || "待補"],
-        ["賣方", result.data.seller || "待補"],
         ["是否申請農用", labelOf("agri")],
         ["是否鑑界", labelOf("survey")],
         ["是否有作物", labelOf("crops")],
@@ -1009,6 +1231,7 @@
         ["是否有優購", labelOf("preemptive")],
         ["無套繪 / 無污染", labelOf("warranty")],
         ["履保金流", labelOf("escrow")],
+        ["已排除題數", `${excludedCount} 題`],
         ["風險項數", `${result.risks.length} 項`],
         ["待補項數", `${result.missing.length} 項`]
       ];
@@ -1026,8 +1249,40 @@
 
     function labelOf(questionId) {
       const q = questions.find((item) => item.id === questionId);
+      if (isExcluded(questionId)) return "已排除";
       const value = state.answers[questionId];
       return q?.options.find((opt) => opt.value === value)?.label || "未回答";
+    }
+
+    function renderQuestionManager() {
+      const excludedQuestions = questions.filter((q) => isExcluded(q.id));
+      const activeCount = questions.length - excludedQuestions.length;
+      byId("activeQuestionCount").textContent = `啟用 ${activeCount} 題`;
+
+      const container = byId("excludedQuestions");
+      if (excludedQuestions.length === 0) {
+        container.innerHTML = `<p class="empty-state">目前沒有排除任何問題。</p>`;
+        return;
+      }
+
+      container.innerHTML = excludedQuestions.map((q) => {
+        const index = questions.findIndex((item) => item.id === q.id) + 1;
+        return `
+          <div class="manage-row">
+            <span>Q${index}. ${escapeHtml(q.title)}</span>
+            <button class="btn secondary small" type="button" data-restore-question="${q.id}">恢復</button>
+          </div>
+        `;
+      }).join("");
+
+      container.querySelectorAll("[data-restore-question]").forEach((button) => {
+        button.addEventListener("click", () => {
+          delete state.excluded[button.dataset.restoreQuestion];
+          renderQuestions();
+          updateOutput();
+          showToast("已恢復此問題");
+        });
+      });
     }
 
     function numberToChinese(number) {
@@ -1052,6 +1307,7 @@
       byId("clauseCount").textContent = `${result.clauses.length} 條`;
       byId("riskCount").textContent = `${result.risks.length} 項`;
       byId("missingCount").textContent = `${result.missing.length} 項`;
+      renderQuestionManager();
     }
 
     function getPlainText() {
@@ -1085,16 +1341,50 @@
       showToast("已複製特約草稿");
     }
 
-    function downloadText() {
-      const text = getPlainText();
-      const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
-      const link = document.createElement("a");
-      const date = new Date().toISOString().slice(0, 10).replaceAll("-", "");
-      link.href = URL.createObjectURL(blob);
-      link.download = `農地特約草稿_${date}.txt`;
-      link.click();
-      URL.revokeObjectURL(link.href);
-      showToast("已下載文字檔");
+    function exportPdf() {
+      byId("printArea").innerHTML = renderPrintDocument();
+      showToast("請在列印視窗選擇另存為 PDF");
+      window.print();
+    }
+
+    function renderPrintDocument() {
+      const result = buildClauses();
+      const today = new Date().toLocaleDateString("zh-TW", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit"
+      });
+      const clauses = result.clauses.length
+        ? `<ol>${result.clauses.map((text) => `<li>${escapeHtml(text)}</li>`).join("")}</ol>`
+        : `<p>尚未產生特約事項。</p>`;
+      const risks = result.risks.length
+        ? `<ul>${result.risks.map((item) => `<li>${escapeHtml(item.text)}</li>`).join("")}</ul>`
+        : `<p>無。</p>`;
+      const missing = result.missing.length
+        ? `<ul>${result.missing.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>`
+        : `<p>無。</p>`;
+      const summaryRows = questions.map((q, index) => `
+        <tr>
+          <th>Q${index + 1}. ${escapeHtml(q.title)}</th>
+          <td>${escapeHtml(labelOf(q.id))}</td>
+        </tr>
+      `).join("");
+
+      return `
+        <h1>農地特約事項草稿</h1>
+        <div class="print-meta">匯出日期：${escapeHtml(today)}</div>
+        <h2>特約事項草稿</h2>
+        ${clauses}
+        <h2>高風險提醒</h2>
+        ${risks}
+        <h2>待補資料</h2>
+        ${missing}
+        <h2>案件問答摘要</h2>
+        <table class="print-summary">
+          ${summaryRows}
+        </table>
+        <p class="print-note">本文件為系統依問答結果產生之草稿，仍須由地政士依實際案件內容審核後使用。</p>
+      `;
     }
 
     function showToast(text) {
@@ -1112,9 +1402,18 @@
       });
       state.answers = {};
       state.followups = {};
+      state.excluded = {};
       document.querySelectorAll("[data-followup]").forEach((el) => el.classList.add("hidden"));
+      renderQuestions();
       updateOutput();
       showToast("已清空");
+    }
+
+    function restoreAllQuestions() {
+      state.excluded = {};
+      renderQuestions();
+      updateOutput();
+      showToast("已恢復全部問題");
     }
 
     function setRadio(name, value) {
@@ -1182,9 +1481,10 @@
     });
 
     byId("copyBtn").addEventListener("click", copyClauses);
-    byId("downloadBtn").addEventListener("click", downloadText);
+    byId("downloadBtn").addEventListener("click", exportPdf);
     byId("resetBtn").addEventListener("click", resetForm);
     byId("loadSampleBtn").addEventListener("click", loadSample);
+    byId("restoreAllBtn").addEventListener("click", restoreAllQuestions);
 
     renderQuestions();
     updateOutput();
