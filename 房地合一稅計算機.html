@@ -626,8 +626,8 @@
     <div id="inherit-fields" style="display:none;">
       <div class="grid">
                 <div class="field">
-          <label>?????????</label>
-          <input type="number" id="inheritTotalCost" placeholder="??????????????" min="0">
+          <label>繼承取得成本</label>
+          <input type="number" id="inheritTotalCost" placeholder="可直接輸入試算表取得成本" min="0">
         </div>
 <div class="field">
           <label>取得時公告土地現值（元）</label>
@@ -888,7 +888,7 @@ function updateRegimeInfo() {
   const info = document.getElementById('regime-info');
   const result = detectRegime();
   if (!result) {
-    info.innerHTML = '???????????????????????';
+    info.innerHTML = '請輸入完整取得及交易日期';
     return;
   }
   const { regime, years } = result;
@@ -896,16 +896,16 @@ function updateRegimeInfo() {
   const mos = Math.round((years - yrs) * 12);
   let badge, regLabel;
   if (regime === 'old') {
-    badge = '<span class="regime-badge regime-old">???????????????</span>';
-    regLabel = '?????105?1?1???????';
+    badge = '<span class="regime-badge regime-old">舊制（房地合一稅不適用）</span>';
+    regLabel = '交易日在105年1月1日前';
   } else if (regime.startsWith('new2')) {
-    badge = '<span class="regime-badge regime-new">?? 2.0???110?7???</span>';
-    regLabel = '???????2.0';
+    badge = '<span class="regime-badge regime-new">新制 2.0（110年7月後）</span>';
+    regLabel = '房地合一稅2.0';
   } else {
-    badge = '<span class="regime-badge regime-new">?? 1.0???105???</span>';
-    regLabel = '???????1.0';
+    badge = '<span class="regime-badge regime-new">新制 1.0（105年後）</span>';
+    regLabel = '房地合一稅1.0';
   }
-  info.innerHTML = `${badge}??????<strong>${yrs}?${mos > 0 ? mos + '??' : ''}</strong>?${regLabel}`;
+  info.innerHTML = `${badge} 持有期間約 <strong>${yrs}年${mos > 0 ? mos + '個月' : ''}</strong>，適用${regLabel}`;
   updateAutoFee();
 }
 
@@ -1024,19 +1024,19 @@ function calculate() {
   banner.classList.remove('show');
   const regimeData = detectRegime();
   if (!regimeData) {
-    banner.textContent = '??????????????';
+    banner.textContent = '請先輸入完整取得與交易日期';
     banner.classList.add('show');
     return;
   }
   const { regime, years } = regimeData;
   if (regime === 'old') {
-    banner.textContent = '?????????????105?1?1???????????????????????????????';
+    banner.textContent = '交易日期在105年1月1日前，屬舊制案件，本試算表不適用房地合一稅。';
     banner.classList.add('show');
     return;
   }
   const revenue = getVal('revenue');
   if (!revenue) {
-    banner.textContent = '???????';
+    banner.textContent = '請輸入交易收入';
     banner.classList.add('show');
     return;
   }
@@ -1072,21 +1072,21 @@ function calculate() {
   document.getElementById('res-income').textContent = fmt(income);
   document.getElementById('res-rate').textContent   = rate;
   const rows = [
-    ['????', revenue, false],
-    ['????', -acqCost, true],
-    necessaryCost > 0 ? ['???????', -necessaryCost, true] : null,
-    ['??????', -sellFee, true],
-    ['?????', grossIncome, false],
-    netLandApp > 0 ? ['??????????????', -netLandApp, true] : null,
-    priorLoss > 0 ? ['??3??????', -priorLoss, true] : null,
-    (owner === 'local' && localType === 'selfuse') ? ['????????400??', -4000000, true] : null,
-    ['?????', displayTaxableIncome, false],
-    [`?????${rate}%?`, null, false],
-    ['????', tax, false],
+    ['交易收入', revenue, false],
+    ['取得成本', -acqCost, true],
+    necessaryCost > 0 ? ['取得前必要費用', -necessaryCost, true] : null,
+    ['出售必要費用', -sellFee, true],
+    ['交易毛所得', grossIncome, false],
+    netLandApp > 0 ? ['減：土地漲價總數額（扣除後）', -netLandApp, true] : null,
+    priorLoss > 0 ? ['減：3年內房地交易損失', -priorLoss, true] : null,
+    (owner === 'local' && localType === 'selfuse') ? ['減：自住房地免稅額400萬元', -4000000, true] : null,
+    ['課稅所得額', displayTaxableIncome, false],
+    ['適用稅率', null, false],
+    ['應納稅額', tax, false],
   ].filter(r => r !== null && r[0] !== null);
   const container = document.getElementById('breakdown-rows');
   container.innerHTML = rows.map(r => {
-    const isTotal = r[0] === '????';
+    const isTotal = r[0] === '交易收入' || r[0] === '取得成本' || r[0] === '應納稅額';
     const isSub = r[2];
     const v = r[1];
     const display = v === null ? `${rate}%` : (Math.abs(v) < 0.5 ? '0' : (v < 0 ? `- ${fmt(-v)}` : fmt(v)));
@@ -1101,7 +1101,7 @@ function calculate() {
 function resetForm() {
   document.querySelectorAll('input[type="number"], input[type="text"]').forEach(el => el.value = '');
   document.querySelectorAll('input[type="radio"]').forEach(el => el.checked = el.defaultChecked);
-  document.getElementById('regime-info').textContent = '???????????????????????';
+  document.getElementById('regime-info').textContent = '請輸入完整取得及交易日期';
   document.getElementById('result-panel').classList.remove('show');
   document.getElementById('error-banner').classList.remove('show');
   document.getElementById('autoSellFee').textContent = '?';
